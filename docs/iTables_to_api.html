@@ -1,0 +1,2900 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>How to translate iTable tables to API queries &#8212; beaapi  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="How to translate MNE tables to API queries" href="iTables_MNE.html" />
+    <link rel="prev" title="API documentation" href="api.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="How-to-translate-iTable-tables-to-API-queries">
+<h1>How to translate iTable tables to API queries<a class="headerlink" href="#How-to-translate-iTable-tables-to-API-queries" title="Permalink to this heading">¶</a></h1>
+<p>This guide shows how to translate the process of getting data from various iTables searches to using the API. We do this for each of the datasets.</p>
+<section id="General-info">
+<h2>General info<a class="headerlink" href="#General-info" title="Permalink to this heading">¶</a></h2>
+<p>Note that for some scenarios it may take several API queries to generate the data for a single iTables table. Also, in the examples below we often search for a target parameter by a string value in a table. You can always export the table of possibilities to spreadsheet to view the whole thing (e.g., <code class="docutils literal notranslate"><span class="pre">tbl.to_csv(&quot;fname.csv&quot;,</span> <span class="pre">index=False)</span></code>)</p>
+<p>We first need to figure out what dataset to pull from. Here’s roughly how the “tabs” on the iTables web page map to the different API datasets:</p>
+<ul class="simple">
+<li><p>“(National Data) GDP &amp; Personal Income” -&gt; [NIPA, NIUnderlyingDetail]</p></li>
+<li><p>“Fixed Assets” -&gt; FixedAssets</p></li>
+<li><p>“GDP by Industry” -&gt; [GDPbyIndustry, UnderlyingGDPbyIndustry]</p></li>
+<li><p>“Input-Output” -&gt; InputOutput</p></li>
+<li><p>“Int’l Transactions, Services, &amp; IIP” -&gt; [IntlServTrade, ITA, IIP]</p></li>
+<li><p>“Direct Investments &amp; MNEs” -&gt; MNE</p></li>
+<li><p>“(Regional Data) GDP &amp; Personal Income” -&gt; Regional</p></li>
+</ul>
+</section>
+<section id="Other-resources">
+<h2>Other resources<a class="headerlink" href="#Other-resources" title="Permalink to this heading">¶</a></h2>
+<p>While we show one method here, there are some other resources that may be helpful:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">search_metadata()</span></code> can be be used for ‘FixedAssets’, ‘NIPA’, ‘NIUnderlyingDetail’.</p></li>
+<li><p>NIPA web resources: <a class="reference external" href="https://apps.bea.gov/national/Release/TXT/TablesRegister.txt">Table Title to TableID</a>, <a class="reference external" href="https://apps.bea.gov/national/Release/TXT/SeriesRegister.txt">Series Details to Series Code</a>, <a class="reference external" href="https://apps.bea.gov/iTable/iTable.cfm?ReqID=13&amp;step=1">NIPA keywords</a></p></li>
+<li><p>Fixed Assets web resources: <a class="reference external" href="https://apps.bea.gov/national/FixedAssets/Release/TXT/TablesRegister.txt">Table Register</a>, <a class="reference external" href="https://apps.bea.gov/national/FixedAssets/Release/TXT/SeriesRegister.txt">Series Register</a>,</p></li>
+<li><p><a class="reference external" href="https://apps.bea.gov/regional/pdf/RegionalApi.pdf">Regional API PDF</a> has table mapping</p></li>
+</ul>
+</section>
+<section id="Setup">
+<h2>Setup<a class="headerlink" href="#Setup" title="Permalink to this heading">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">beaapi</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s1">&#39;display.max_colwidth&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># show all text in cells</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get key from unversioned file</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">dotenv</span> <span class="kn">import</span> <span class="n">load_dotenv</span>
+<span class="n">load_dotenv</span><span class="p">()</span>
+<span class="n">beakey</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;beakey&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="Code-utilities">
+<h3>Code utilities<a class="headerlink" href="#Code-utilities" title="Permalink to this heading">¶</a></h3>
+<p>We define here a few tools to be use below</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get some basic Meta-data. What are the table names?</span>
+<span class="n">datasets_info</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data_set_list</span><span class="p">(</span><span class="n">beakey</span><span class="p">)</span>
+<span class="n">dataset_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">datasets_info</span><span class="p">[</span><span class="s1">&#39;DatasetName&#39;</span><span class="p">])</span>
+<span class="n">param_infos</span> <span class="o">=</span> <span class="p">{</span><span class="n">dataset_name</span><span class="p">:</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_parameter_list</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">)</span> <span class="k">for</span> <span class="n">dataset_name</span> <span class="ow">in</span> <span class="n">dataset_names</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>Make a function <code class="docutils literal notranslate"><span class="pre">get_table_param_from_desc()</span></code> to ease getting table IDs from descriptions</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Tools to help lookup table IDs from table descriptions</span>
+<span class="n">table_var</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;NIPA&#39;</span><span class="p">:</span><span class="s1">&#39;TableName&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;NIUnderlyingDetail&#39;</span><span class="p">:</span><span class="s1">&#39;TableName&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;MNE&#39;</span><span class="p">:</span><span class="kc">None</span><span class="p">,</span>
+    <span class="s1">&#39;FixedAssets&#39;</span><span class="p">:</span> <span class="s1">&#39;TableName&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ITA&#39;</span><span class="p">:</span><span class="kc">None</span><span class="p">,</span>
+    <span class="s1">&#39;IIP&#39;</span><span class="p">:</span><span class="kc">None</span><span class="p">,</span>
+    <span class="s1">&#39;InputOutput&#39;</span><span class="p">:</span><span class="s2">&quot;TableID&quot;</span><span class="p">,</span>
+    <span class="s1">&#39;IntlServTrade&#39;</span><span class="p">:</span><span class="kc">None</span><span class="p">,</span>
+    <span class="s1">&#39;GDPbyIndustry&#39;</span><span class="p">:</span><span class="s2">&quot;TableID&quot;</span><span class="p">,</span>
+    <span class="s1">&#39;Regional&#39;</span><span class="p">:</span> <span class="s2">&quot;TableName&quot;</span><span class="p">,</span>
+    <span class="s1">&#39;UnderlyingGDPbyIndustry&#39;</span><span class="p">:</span><span class="s2">&quot;TableID&quot;</span><span class="p">}</span>
+<span class="n">table_param_desc</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;NIPA&#39;</span><span class="p">:</span><span class="s1">&#39;Description&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;NIUnderlyingDetail&#39;</span><span class="p">:</span><span class="s1">&#39;Description&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;MNE&#39;</span><span class="p">:</span><span class="kc">None</span><span class="p">,</span>
+    <span class="s1">&#39;FixedAssets&#39;</span><span class="p">:</span> <span class="s1">&#39;Description&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ITA&#39;</span><span class="p">:</span><span class="kc">None</span><span class="p">,</span>
+    <span class="s1">&#39;IIP&#39;</span><span class="p">:</span><span class="kc">None</span><span class="p">,</span>
+    <span class="s1">&#39;InputOutput&#39;</span><span class="p">:</span><span class="s2">&quot;Desc&quot;</span><span class="p">,</span>
+    <span class="s1">&#39;IntlServTrade&#39;</span><span class="p">:</span><span class="kc">None</span><span class="p">,</span>
+    <span class="s1">&#39;GDPbyIndustry&#39;</span><span class="p">:</span><span class="s2">&quot;Desc&quot;</span><span class="p">,</span>
+    <span class="s1">&#39;Regional&#39;</span><span class="p">:</span> <span class="s2">&quot;Desc&quot;</span><span class="p">,</span>
+    <span class="s1">&#39;UnderlyingGDPbyIndustry&#39;</span><span class="p">:</span><span class="s2">&quot;Desc&quot;</span><span class="p">}</span>
+<span class="n">table_names</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">table_var_name</span> <span class="ow">in</span> <span class="n">table_var</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">table_var_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">table_names</span><span class="p">[</span><span class="n">dataset_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_parameter_values</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">table_var_name</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">get_table_param_from_desc</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">desc</span><span class="p">):</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">table_names</span><span class="p">[</span><span class="n">dataset_name</span><span class="p">][</span><span class="n">table_param_desc</span><span class="p">[</span><span class="n">dataset_name</span><span class="p">]]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">desc</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">table_names</span><span class="p">[</span><span class="n">dataset_name</span><span class="p">][</span><span class="n">mask</span><span class="p">]</span>
+    <span class="n">table_var_name</span> <span class="o">=</span> <span class="n">table_var</span><span class="p">[</span><span class="n">dataset_name</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">table_var_name</span><span class="p">,</span> <span class="n">results</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="How-to-build-query-from-iTables">
+<h2>How to build query from iTables<a class="headerlink" href="#How-to-build-query-from-iTables" title="Permalink to this heading">¶</a></h2>
+<section id="National-Data---GDP-&amp;-Personal-Income">
+<h3>National Data - GDP &amp; Personal Income<a class="headerlink" href="#National-Data---GDP-&-Personal-Income" title="Permalink to this heading">¶</a></h3>
+<section id="NIPA-(publication-category-%22GDP-and-Personal-Income%22,-default)">
+<h4>NIPA (publication category “GDP and Personal Income”, default)<a class="headerlink" href="#NIPA-(publication-category-%22GDP-and-Personal-Income%22,-default)" title="Permalink to this heading">¶</a></h4>
+<p>First, let’s take as example table the first one on the web page and describe what we do have</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example</span>
+<span class="n">desc</span> <span class="o">=</span> <span class="s2">&quot;Table 1.1.1. Percent Change From Preceding Period in Real Gross Domestic Product&quot;</span>
+<span class="n">freq</span> <span class="o">=</span> <span class="s2">&quot;Q&quot;</span>
+<span class="n">year</span> <span class="o">=</span> <span class="s2">&quot;2019&quot;</span> <span class="c1"># input as string</span>
+</pre></div>
+</div>
+</div>
+<p>Then let’s see what we need to build the query</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">display</span><span class="p">(</span><span class="n">param_infos</span><span class="p">[</span><span class="s2">&quot;NIPA&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ParameterName</th>
+      <th>ParameterDataType</th>
+      <th>ParameterDescription</th>
+      <th>ParameterIsRequiredFlag</th>
+      <th>ParameterDefaultValue</th>
+      <th>MultipleAcceptedFlag</th>
+      <th>AllValue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Frequency</td>
+      <td>string</td>
+      <td>A - Annual, Q-Quarterly, M-Monthly</td>
+      <td>1</td>
+      <td></td>
+      <td>1</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>ShowMillions</td>
+      <td>string</td>
+      <td>A flag indicating that million-dollar data sho...</td>
+      <td>0</td>
+      <td>N</td>
+      <td>0</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>TableID</td>
+      <td>integer</td>
+      <td>The standard NIPA table identifier</td>
+      <td>0</td>
+      <td>&lt;NA&gt;</td>
+      <td>0</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>TableName</td>
+      <td>string</td>
+      <td>The new NIPA table identifier</td>
+      <td>0</td>
+      <td>&lt;NA&gt;</td>
+      <td>0</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Year</td>
+      <td>integer</td>
+      <td>List of year(s) of data to retrieve (X for All)</td>
+      <td>1</td>
+      <td></td>
+      <td>1</td>
+      <td>X</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Note, we actually need exactly 1 of TableID or TableName. (They transitioned to TableName, but keep TableID around for compatibility.)</p>
+<p>Next let’s find the TableName from the description.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">table_param_name</span><span class="p">,</span> <span class="n">table_param_vals</span> <span class="o">=</span> <span class="n">get_table_param_from_desc</span><span class="p">(</span><span class="s2">&quot;NIPA&quot;</span><span class="p">,</span> <span class="n">desc</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">table_param_vals</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;We&#39;ll use that one&quot;</span><span class="p">)</span>
+<span class="n">table_param_val</span> <span class="o">=</span> <span class="n">table_param_vals</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>TableName</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>T10101</td>
+      <td>Table 1.1.1. Percent Change From Preceding Per...</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+We&#39;ll use that one
+</pre></div></div>
+</div>
+<p>Finally, let’s get the data.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s2">&quot;NIPA&quot;</span><span class="p">,</span> <span class="n">TableName</span><span class="o">=</span><span class="n">table_param_val</span><span class="p">,</span> <span class="n">Frequency</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="n">year</span><span class="p">)</span>
+<span class="n">tbl</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>TableName</th>
+      <th>SeriesCode</th>
+      <th>LineNumber</th>
+      <th>LineDescription</th>
+      <th>TimePeriod</th>
+      <th>METRIC_NAME</th>
+      <th>CL_UNIT</th>
+      <th>UNIT_MULT</th>
+      <th>DataValue</th>
+      <th>NoteRef</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>T10101</td>
+      <td>A191RL</td>
+      <td>1</td>
+      <td>Gross domestic product</td>
+      <td>2019Q1</td>
+      <td>Fisher Quantity Index</td>
+      <td>Percent change, annual rate</td>
+      <td>0</td>
+      <td>2.4</td>
+      <td>T10101</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>T10101</td>
+      <td>A191RL</td>
+      <td>1</td>
+      <td>Gross domestic product</td>
+      <td>2019Q2</td>
+      <td>Fisher Quantity Index</td>
+      <td>Percent change, annual rate</td>
+      <td>0</td>
+      <td>3.2</td>
+      <td>T10101</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>T10101</td>
+      <td>A191RL</td>
+      <td>1</td>
+      <td>Gross domestic product</td>
+      <td>2019Q3</td>
+      <td>Fisher Quantity Index</td>
+      <td>Percent change, annual rate</td>
+      <td>0</td>
+      <td>2.8</td>
+      <td>T10101</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>T10101</td>
+      <td>A191RL</td>
+      <td>1</td>
+      <td>Gross domestic product</td>
+      <td>2019Q4</td>
+      <td>Fisher Quantity Index</td>
+      <td>Percent change, annual rate</td>
+      <td>0</td>
+      <td>1.9</td>
+      <td>T10101</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>T10101</td>
+      <td>DPCERL</td>
+      <td>2</td>
+      <td>Personal consumption expenditures</td>
+      <td>2019Q1</td>
+      <td>Fisher Quantity Index</td>
+      <td>Percent change, annual rate</td>
+      <td>0</td>
+      <td>0.6</td>
+      <td>T10101</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+<section id="NIUnderlyingDetail-(Publication-Category-%22Underlying-Details%22,-non-default)">
+<h4>NIUnderlyingDetail (Publication Category “Underlying Details”, non-default)<a class="headerlink" href="#NIUnderlyingDetail-(Publication-Category-%22Underlying-Details%22,-non-default)" title="Permalink to this heading">¶</a></h4>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Info from iTables</span>
+<span class="n">desc</span> <span class="o">=</span> <span class="s2">&quot;Table 1AU. Real Manufacturing and Trade Inventories, Seasonally Adjusted, End of Period&quot;</span> <span class="c1"># Note: have to cut off final &quot;[Chained 1996 dollars, 1967-96, SIC]&quot; to get it to match</span>
+<span class="n">freq</span><span class="o">=</span><span class="s2">&quot;Q&quot;</span>
+<span class="n">year</span><span class="o">=</span><span class="s2">&quot;1995&quot;</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;What parameters are needed&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">param_infos</span><span class="p">[</span><span class="s2">&quot;NIUnderlyingDetail&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+What parameters are needed
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ParameterName</th>
+      <th>ParameterDataType</th>
+      <th>ParameterDescription</th>
+      <th>ParameterIsRequiredFlag</th>
+      <th>ParameterDefaultValue</th>
+      <th>MultipleAcceptedFlag</th>
+      <th>AllValue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Frequency</td>
+      <td>string</td>
+      <td>A - Annual, Q-Quarterly, M-Monthly</td>
+      <td>1</td>
+      <td></td>
+      <td>1</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>TableID</td>
+      <td>integer</td>
+      <td>The standard NI underlying detail table identi...</td>
+      <td>0</td>
+      <td>&lt;NA&gt;</td>
+      <td>0</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>TableName</td>
+      <td>string</td>
+      <td>The new NIPA table identifier</td>
+      <td>0</td>
+      <td>&lt;NA&gt;</td>
+      <td>0</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Year</td>
+      <td>integer</td>
+      <td>List of year(s) of data to retrieve (X for All)</td>
+      <td>1</td>
+      <td></td>
+      <td>1</td>
+      <td>X</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Get tablename from iTable’s table description from web</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">table_param_name</span><span class="p">,</span> <span class="n">table_param_vals</span> <span class="o">=</span> <span class="n">get_table_param_from_desc</span><span class="p">(</span><span class="s2">&quot;NIUnderlyingDetail&quot;</span><span class="p">,</span> <span class="n">desc</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">table_param_vals</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;That one looks good.&quot;</span><span class="p">)</span>
+<span class="n">table_param_val</span> <span class="o">=</span> <span class="n">table_param_vals</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+What TableName matches?
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>TableName</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>U001A</td>
+      <td>Table 1AU. Real Manufacturing and Trade Invent...</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Next, get data.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s2">&quot;NIUnderlyingDetail&quot;</span><span class="p">,</span> <span class="n">TableName</span><span class="o">=</span><span class="n">table_param_val</span><span class="p">,</span> <span class="n">Frequency</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="n">year</span><span class="p">)</span>
+<span class="n">tbl</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>TableName</th>
+      <th>SeriesCode</th>
+      <th>LineNumber</th>
+      <th>LineDescription</th>
+      <th>TimePeriod</th>
+      <th>METRIC_NAME</th>
+      <th>CL_UNIT</th>
+      <th>UNIT_MULT</th>
+      <th>DataValue</th>
+      <th>NoteRef</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>U001A</td>
+      <td>KSTMT</td>
+      <td>1</td>
+      <td>Manufacturing and trade</td>
+      <td>1995Q1</td>
+      <td>Chained Dollars</td>
+      <td>Level</td>
+      <td>6</td>
+      <td>973434</td>
+      <td>U001A</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>U001A</td>
+      <td>KSTMT</td>
+      <td>1</td>
+      <td>Manufacturing and trade</td>
+      <td>1995Q2</td>
+      <td>Chained Dollars</td>
+      <td>Level</td>
+      <td>6</td>
+      <td>984218</td>
+      <td>U001A</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>U001A</td>
+      <td>KSTMT</td>
+      <td>1</td>
+      <td>Manufacturing and trade</td>
+      <td>1995Q3</td>
+      <td>Chained Dollars</td>
+      <td>Level</td>
+      <td>6</td>
+      <td>991162</td>
+      <td>U001A</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>U001A</td>
+      <td>KSTMT</td>
+      <td>1</td>
+      <td>Manufacturing and trade</td>
+      <td>1995Q4</td>
+      <td>Chained Dollars</td>
+      <td>Level</td>
+      <td>6</td>
+      <td>994259</td>
+      <td>U001A</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>U001A</td>
+      <td>KSTM</td>
+      <td>2</td>
+      <td>Manufacturing</td>
+      <td>1995Q1</td>
+      <td>Chained Dollars</td>
+      <td>Level</td>
+      <td>6</td>
+      <td>410079</td>
+      <td>U001A</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Unsure how to access Publication category &quot;Additional Tables&quot;</span>
+<span class="c1"># desc=&quot;FWPI-1. Fixed-Weighted Price Indexes&quot;</span>
+<span class="c1"># Both methods fail:</span>
+<span class="c1">#search_result = beaapi.search_metadata(desc, beakey)</span>
+<span class="c1">#display(search_result)</span>
+<span class="c1">#table_param_name, table_param_vals = get_table_param_from_desc(&quot;NIPA&quot;, desc) #Tried with NIUnderlyingDetail</span>
+<span class="c1">#display(table_param_vals)</span>
+<br/></pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="National-Data---Fixed-Assets">
+<h3>National Data - Fixed Assets<a class="headerlink" href="#National-Data---Fixed-Assets" title="Permalink to this heading">¶</a></h3>
+<section id="FixedAssets">
+<h4>FixedAssets<a class="headerlink" href="#FixedAssets" title="Permalink to this heading">¶</a></h4>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Info from iTable</span>
+<span class="n">desc</span> <span class="o">=</span> <span class="s2">&quot;Table 1.1. Current-Cost Net Stock of Fixed Assets and Consumer Durable Goods&quot;</span>
+<span class="n">year</span><span class="o">=</span><span class="s2">&quot;2013&quot;</span>
+</pre></div>
+</div>
+</div>
+<p>First, what parameters are needed?</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">display</span><span class="p">(</span><span class="n">param_infos</span><span class="p">[</span><span class="s2">&quot;FixedAssets&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ParameterName</th>
+      <th>ParameterDataType</th>
+      <th>ParameterDescription</th>
+      <th>ParameterIsRequiredFlag</th>
+      <th>ParameterDefaultValue</th>
+      <th>MultipleAcceptedFlag</th>
+      <th>AllValue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>TableName</td>
+      <td>string</td>
+      <td>The new Fixed Assets identifier</td>
+      <td>1</td>
+      <td></td>
+      <td>0</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Year</td>
+      <td>integer</td>
+      <td>List of year(s) of data to retrieve (X for All)</td>
+      <td>1</td>
+      <td></td>
+      <td>1</td>
+      <td>X</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Get tablename from iTable’s table description from web</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">table_param_name</span><span class="p">,</span> <span class="n">table_param_vals</span> <span class="o">=</span> <span class="n">get_table_param_from_desc</span><span class="p">(</span><span class="s2">&quot;FixedAssets&quot;</span><span class="p">,</span> <span class="n">desc</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">table_param_vals</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;That one looks good&quot;</span><span class="p">)</span>
+<span class="n">table_param_val</span> <span class="o">=</span> <span class="n">table_param_vals</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>TableName</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>FAAt101</td>
+      <td>Table 1.1. Current-Cost Net Stock of Fixed Ass...</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Get data</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s2">&quot;FixedAssets&quot;</span><span class="p">,</span> <span class="n">TableName</span><span class="o">=</span><span class="n">table_param_val</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="n">year</span><span class="p">)</span>
+<span class="n">tbl</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>TableName</th>
+      <th>SeriesCode</th>
+      <th>LineNumber</th>
+      <th>LineDescription</th>
+      <th>TimePeriod</th>
+      <th>METRIC_NAME</th>
+      <th>CL_UNIT</th>
+      <th>UNIT_MULT</th>
+      <th>DataValue</th>
+      <th>NoteRef</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>FAAt101</td>
+      <td>k1wtotl1es00</td>
+      <td>1</td>
+      <td>Fixed assets and consumer durable goods</td>
+      <td>2013</td>
+      <td>Current Dollars</td>
+      <td>Level</td>
+      <td>9</td>
+      <td>56290.3</td>
+      <td>FAAt101</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>FAAt101</td>
+      <td>k1ttotl1es00</td>
+      <td>2</td>
+      <td>Fixed assets</td>
+      <td>2013</td>
+      <td>Current Dollars</td>
+      <td>Level</td>
+      <td>9</td>
+      <td>51510.7</td>
+      <td>FAAt101</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>FAAt101</td>
+      <td>k1ptotl1es00</td>
+      <td>3</td>
+      <td>Private</td>
+      <td>2013</td>
+      <td>Current Dollars</td>
+      <td>Level</td>
+      <td>9</td>
+      <td>38567.6</td>
+      <td>FAAt101</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>FAAt101</td>
+      <td>k1ntotl1es00</td>
+      <td>4</td>
+      <td>Nonresidential</td>
+      <td>2013</td>
+      <td>Current Dollars</td>
+      <td>Level</td>
+      <td>9</td>
+      <td>21073.3</td>
+      <td>FAAt101</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>FAAt101</td>
+      <td>k1ntotl1eq00</td>
+      <td>5</td>
+      <td>Equipment</td>
+      <td>2013</td>
+      <td>Current Dollars</td>
+      <td>Level</td>
+      <td>9</td>
+      <td>5897.2</td>
+      <td>FAAt101</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+</section>
+<section id="Industry-Data">
+<h3>Industry Data<a class="headerlink" href="#Industry-Data" title="Permalink to this heading">¶</a></h3>
+<section id="GDPbyIndustry-(Publication-category-%22GDP-by-Industry%22,-a-default)">
+<h4>GDPbyIndustry (Publication category “GDP-by-Industry”, a default)<a class="headerlink" href="#GDPbyIndustry-(Publication-category-%22GDP-by-Industry%22,-a-default)" title="Permalink to this heading">¶</a></h4>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Info from iTable</span>
+<span class="n">desc</span> <span class="o">=</span> <span class="s2">&quot;Value Added by Industry&quot;</span>
+<span class="n">year</span><span class="o">=</span><span class="s2">&quot;2019&quot;</span>
+<span class="n">freq</span><span class="o">=</span><span class="s2">&quot;Q&quot;</span>
+<span class="n">industries</span> <span class="o">=</span> <span class="s2">&quot;ALL&quot;</span> <span class="c1"># from iTable</span>
+</pre></div>
+</div>
+</div>
+<p>First, what parameters are needed?</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">display</span><span class="p">(</span><span class="n">param_infos</span><span class="p">[</span><span class="s2">&quot;GDPbyIndustry&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ParameterName</th>
+      <th>ParameterDataType</th>
+      <th>ParameterDescription</th>
+      <th>ParameterIsRequiredFlag</th>
+      <th>ParameterDefaultValue</th>
+      <th>MultipleAcceptedFlag</th>
+      <th>AllValue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Frequency</td>
+      <td>string</td>
+      <td>A - Annual, Q-Quarterly</td>
+      <td>1</td>
+      <td></td>
+      <td>1</td>
+      <td>ALL</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Industry</td>
+      <td>string</td>
+      <td>List of industries to retrieve (ALL for All)</td>
+      <td>1</td>
+      <td></td>
+      <td>1</td>
+      <td>ALL</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>TableID</td>
+      <td>integer</td>
+      <td>The unique GDP by Industry table identifier (A...</td>
+      <td>1</td>
+      <td></td>
+      <td>1</td>
+      <td>ALL</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Year</td>
+      <td>integer</td>
+      <td>List of year(s) of data to retrieve (ALL for All)</td>
+      <td>1</td>
+      <td></td>
+      <td>1</td>
+      <td>ALL</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Get tablename</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">table_param_name</span><span class="p">,</span> <span class="n">table_param_vals</span> <span class="o">=</span> <span class="n">get_table_param_from_desc</span><span class="p">(</span><span class="s2">&quot;GDPbyIndustry&quot;</span><span class="p">,</span> <span class="n">desc</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">table_param_vals</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;That first one looks right.&quot;</span><span class="p">)</span>
+<span class="n">table_param_val</span> <span class="o">=</span> <span class="n">table_param_vals</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+What TableName matches?
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Key</th>
+      <th>Desc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Value Added by Industry (A) (Q)</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>6</td>
+      <td>Components of Value Added by Industry (A)</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>7</td>
+      <td>Components of Value Added by Industry as a Per...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>8</td>
+      <td>Chain-Type Quantity Indexes for Value Added by...</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>9</td>
+      <td>Percent Changes in Chain-Type Quantity Indexes...</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>10</td>
+      <td>Real Value Added by Industry (A) (Q)</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>11</td>
+      <td>Chain-Type Price Indexes for Value Added by In...</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>12</td>
+      <td>Percent Changes in Chain-Type Price Indexes fo...</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Get data</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s2">&quot;GDPbyIndustry&quot;</span><span class="p">,</span> <span class="n">TableID</span><span class="o">=</span><span class="n">table_param_val</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span> <span class="n">Frequency</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span> <span class="n">Industry</span><span class="o">=</span><span class="n">industries</span><span class="p">)</span>
+<span class="n">tbl</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>TableID</th>
+      <th>Frequency</th>
+      <th>Year</th>
+      <th>Quarter</th>
+      <th>Industry</th>
+      <th>IndustrYDescription</th>
+      <th>DataValue</th>
+      <th>NoteRef</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Q</td>
+      <td>2019</td>
+      <td>I</td>
+      <td>11</td>
+      <td>Agriculture, forestry, fishing, and hunting</td>
+      <td>159.7</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>Q</td>
+      <td>2019</td>
+      <td>I</td>
+      <td>111CA</td>
+      <td>Farms</td>
+      <td>120.9</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1</td>
+      <td>Q</td>
+      <td>2019</td>
+      <td>I</td>
+      <td>113FF</td>
+      <td>Forestry, fishing, and related activities</td>
+      <td>38.8</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1</td>
+      <td>Q</td>
+      <td>2019</td>
+      <td>I</td>
+      <td>21</td>
+      <td>Mining</td>
+      <td>302.1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1</td>
+      <td>Q</td>
+      <td>2019</td>
+      <td>I</td>
+      <td>211</td>
+      <td>Oil and gas extraction</td>
+      <td>185.6</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+<section id="UnderlyingGDPbyIndustry-(Publication-category-%22Underlying%22,-non-default)">
+<h4>UnderlyingGDPbyIndustry (Publication category “Underlying”, non-default)<a class="headerlink" href="#UnderlyingGDPbyIndustry-(Publication-category-%22Underlying%22,-non-default)" title="Permalink to this heading">¶</a></h4>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Info from iTable</span>
+<span class="n">desc</span> <span class="o">=</span> <span class="s2">&quot;U.Value Added by Industry&quot;</span>
+<span class="n">year</span><span class="o">=</span><span class="s2">&quot;2013&quot;</span>
+<span class="n">freq</span><span class="o">=</span><span class="s2">&quot;A&quot;</span>
+</pre></div>
+</div>
+</div>
+<p>What parameters are needed?</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">display</span><span class="p">(</span><span class="n">param_infos</span><span class="p">[</span><span class="s2">&quot;UnderlyingGDPbyIndustry&quot;</span><span class="p">])</span>
+<span class="n">industries</span> <span class="o">=</span> <span class="s2">&quot;ALL&quot;</span> <span class="c1"># from iTable</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ParameterName</th>
+      <th>ParameterDataType</th>
+      <th>ParameterDescription</th>
+      <th>ParameterIsRequiredFlag</th>
+      <th>ParameterDefaultValue</th>
+      <th>MultipleAcceptedFlag</th>
+      <th>AllValue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Frequency</td>
+      <td>string</td>
+      <td>Q-Quarterly</td>
+      <td>1</td>
+      <td></td>
+      <td>1</td>
+      <td>ALL</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Industry</td>
+      <td>string</td>
+      <td>List of industries to retrieve (ALL for All)</td>
+      <td>1</td>
+      <td></td>
+      <td>1</td>
+      <td>ALL</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>TableID</td>
+      <td>integer</td>
+      <td>The unique Underlying GDP by Industry table id...</td>
+      <td>1</td>
+      <td></td>
+      <td>1</td>
+      <td>ALL</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Year</td>
+      <td>integer</td>
+      <td>List of year(s) of data to retrieve (ALL for All)</td>
+      <td>1</td>
+      <td></td>
+      <td>1</td>
+      <td>ALL</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Get tablename</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">table_param_name</span><span class="p">,</span> <span class="n">table_param_vals</span> <span class="o">=</span> <span class="n">get_table_param_from_desc</span><span class="p">(</span><span class="s2">&quot;UnderlyingGDPbyIndustry&quot;</span><span class="p">,</span> <span class="n">desc</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;What TableName matches?&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">table_param_vals</span><span class="p">)</span>
+<span class="n">table_param_val</span> <span class="o">=</span> <span class="n">table_param_vals</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;First one&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+What TableName matches?
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Key</th>
+      <th>Desc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>210</td>
+      <td>U.Value Added by Industry (A)</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+First one
+</pre></div></div>
+</div>
+<p>Get data</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s2">&quot;UnderlyingGDPbyIndustry&quot;</span><span class="p">,</span> <span class="n">TableID</span><span class="o">=</span><span class="n">table_param_val</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span> <span class="n">Frequency</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span> <span class="n">Industry</span><span class="o">=</span><span class="n">industries</span><span class="p">)</span>
+<span class="n">tbl</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>TableID</th>
+      <th>Frequency</th>
+      <th>Year</th>
+      <th>Industry</th>
+      <th>IndustrYDescription</th>
+      <th>DataValue</th>
+      <th>NoteRef</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>210</td>
+      <td>A</td>
+      <td>2013</td>
+      <td>11</td>
+      <td>Agriculture, forestry, fishing, and hunting</td>
+      <td>214.3</td>
+      <td>210</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>210</td>
+      <td>A</td>
+      <td>2013</td>
+      <td>111</td>
+      <td>Crop production</td>
+      <td>111.7</td>
+      <td>210</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>210</td>
+      <td>A</td>
+      <td>2013</td>
+      <td>111CA</td>
+      <td>Farms</td>
+      <td>183.3</td>
+      <td>210</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>210</td>
+      <td>A</td>
+      <td>2013</td>
+      <td>112</td>
+      <td>Animal production and aquaculture</td>
+      <td>71.5</td>
+      <td>210</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>210</td>
+      <td>A</td>
+      <td>2013</td>
+      <td>113FF</td>
+      <td>Forestry, fishing, and related activities</td>
+      <td>31.0</td>
+      <td>210</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+<section id="InputOutput-(Publication-category-%22Input-Output%22,-a-default)">
+<h4>InputOutput (Publication category “Input-Output”, a default)<a class="headerlink" href="#InputOutput-(Publication-category-%22Input-Output%22,-a-default)" title="Permalink to this heading">¶</a></h4>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[43]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Info from iTable</span>
+<span class="n">desc</span> <span class="o">=</span> <span class="s2">&quot;The Use of Commodities by Industries - Sector&quot;</span>
+<span class="n">year</span><span class="o">=</span><span class="s2">&quot;2020&quot;</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;What parameters are needed&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">param_infos</span><span class="p">[</span><span class="s2">&quot;InputOutput&quot;</span><span class="p">])</span>
+<span class="c1">#industries = &quot;ALL&quot; # from iTable</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+What parameters are needed
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ParameterName</th>
+      <th>ParameterDataType</th>
+      <th>ParameterDescription</th>
+      <th>ParameterIsRequiredFlag</th>
+      <th>ParameterDefaultValue</th>
+      <th>MultipleAcceptedFlag</th>
+      <th>AllValue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>TableID</td>
+      <td>integer</td>
+      <td>The unique Input-Output table identifier</td>
+      <td>1</td>
+      <td></td>
+      <td>1</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Year</td>
+      <td>integer</td>
+      <td>List of year(s) of data to retrieve (ALL for All)</td>
+      <td>1</td>
+      <td></td>
+      <td>1</td>
+      <td>ALL</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Get tablename</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">table_param_name</span><span class="p">,</span> <span class="n">table_param_vals</span> <span class="o">=</span> <span class="n">get_table_param_from_desc</span><span class="p">(</span><span class="s2">&quot;InputOutput&quot;</span><span class="p">,</span> <span class="n">desc</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;What TableName matches?&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">table_param_vals</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;That first one looks good&quot;</span><span class="p">)</span>
+<span class="n">table_param_val</span> <span class="o">=</span> <span class="n">table_param_vals</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+What TableName matches?
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Key</th>
+      <th>Desc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>9</th>
+      <td>258</td>
+      <td>The Use of Commodities by Industries - Sector</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+That first one looks good
+</pre></div></div>
+</div>
+<p>Get data</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s2">&quot;InputOutput&quot;</span><span class="p">,</span> <span class="n">TableID</span><span class="o">=</span><span class="n">table_param_val</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="n">year</span><span class="p">)</span>
+<span class="n">tbl</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>TableID</th>
+      <th>Year</th>
+      <th>RowCode</th>
+      <th>RowDescr</th>
+      <th>RowType</th>
+      <th>ColCode</th>
+      <th>ColDescr</th>
+      <th>ColType</th>
+      <th>DataValue</th>
+      <th>NoteRef</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>258</td>
+      <td>2020</td>
+      <td>11</td>
+      <td>Agriculture, forestry, fishing, and hunting</td>
+      <td>Commodity</td>
+      <td>11</td>
+      <td>Agriculture, forestry, fishing, and hunting</td>
+      <td>Industry</td>
+      <td>106419</td>
+      <td>258</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>258</td>
+      <td>2020</td>
+      <td>11</td>
+      <td>Agriculture, forestry, fishing, and hunting</td>
+      <td>Commodity</td>
+      <td>T001</td>
+      <td>Total Intermediate</td>
+      <td>Industry</td>
+      <td>446013</td>
+      <td>258</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>258</td>
+      <td>2020</td>
+      <td>11</td>
+      <td>Agriculture, forestry, fishing, and hunting</td>
+      <td>Commodity</td>
+      <td>31G</td>
+      <td>Manufacturing</td>
+      <td>Industry</td>
+      <td>309395</td>
+      <td>258</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>258</td>
+      <td>2020</td>
+      <td>11</td>
+      <td>Agriculture, forestry, fishing, and hunting</td>
+      <td>Commodity</td>
+      <td>7</td>
+      <td>Arts, entertainment, recreation, accommodation...</td>
+      <td>Industry</td>
+      <td>8556</td>
+      <td>258</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>258</td>
+      <td>2020</td>
+      <td>11</td>
+      <td>Agriculture, forestry, fishing, and hunting</td>
+      <td>Commodity</td>
+      <td>21</td>
+      <td>Mining</td>
+      <td>Industry</td>
+      <td>168</td>
+      <td>258</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><br/><span></span><span class="c1"># Unsure how to access Publication category &quot;Make Use Framework&quot;</span>
+<span class="c1"># desc=&quot;The Use of Commodities by Industries, After Redefinitions&quot;</span>
+<span class="c1"># Both methods fail:</span>
+<span class="c1">#search_result = beaapi.search_metadata(desc, beakey)</span>
+<span class="c1">#display(search_result)</span>
+<span class="c1">#table_param_name, table_param_vals = get_table_param_from_desc(&quot;UnderlyingGDPbyIndustry&quot;, desc) # Tried also with InputOutput, GDPbyIndustry</span>
+<span class="c1">#display(table_param_vals)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Int'l-Transactions,-Services,-IIP">
+<h3>Int’l Transactions, Services, IIP<a class="headerlink" href="#Int'l-Transactions,-Services,-IIP" title="Permalink to this heading">¶</a></h3>
+<section id="ITA">
+<h4>ITA<a class="headerlink" href="#ITA" title="Permalink to this heading">¶</a></h4>
+<p>The different tables are associated with different sets of lines (indicators). So some tables aren’t easy to reconstruct exactly.</p>
+<p>Note: (in PDF but API error msg confusing) you can’t get all indicators using “AllCountries” (agg’d over countries), even though that would seem easy (and is something like like table 1.1).</p>
+<p>Basically you have to look through <code class="docutils literal notranslate"><span class="pre">beaapi.get_parameter_values(beakey,</span> <span class="pre">&quot;ITA&quot;,</span> <span class="pre">&quot;Indicator&quot;)</span></code></p>
+<p>Note also that the following indicators don’t report global sum, so ask for all countries individually: ‘ExpGdsAutoEngAndEngParts’, ‘ExpGdsOthAutoPartsAndAcc’, ‘ExpGdsPassCars’, ‘ExpGdsTrucksBusesSpecPurpVeh’, ‘ImpGdsAutoEngAndEngParts’, ‘ImpGdsOthAutoPartsAndAcc’, ‘ImpGdsPassCars’, ‘ImpGdsTrucksBusesSpecPurpVeh’</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[49]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Roughly one line from &quot;Table 1.2. U.S. International Transactions, Expanded Detail&quot;</span>
+<span class="n">year</span><span class="o">=</span><span class="s2">&quot;2020&quot;</span>
+<span class="n">freq</span><span class="o">=</span><span class="s2">&quot;QSA&quot;</span>
+<span class="n">cntry</span><span class="o">=</span><span class="s2">&quot;AllCountries&quot;</span>
+<span class="n">desc</span> <span class="o">=</span> <span class="s2">&quot;Balance on goods&quot;</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;What parameters are needed&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">param_infos</span><span class="p">[</span><span class="s2">&quot;ITA&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+What parameters are needed
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ParameterName</th>
+      <th>ParameterDataType</th>
+      <th>ParameterDescription</th>
+      <th>ParameterIsRequiredFlag</th>
+      <th>ParameterDefaultValue</th>
+      <th>MultipleAcceptedFlag</th>
+      <th>AllValue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Indicator</td>
+      <td>string</td>
+      <td>The indicator code for the type of transaction...</td>
+      <td>0</td>
+      <td>ALL</td>
+      <td>1</td>
+      <td>ALL</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>AreaOrCountry</td>
+      <td>string</td>
+      <td>The area or country requested</td>
+      <td>0</td>
+      <td>AllCountries</td>
+      <td>1</td>
+      <td>ALL</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Frequency</td>
+      <td>string</td>
+      <td>A - Annual, QSA - Quarterly seasonally adjuste...</td>
+      <td>0</td>
+      <td>ALL</td>
+      <td>1</td>
+      <td>ALL</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Year</td>
+      <td>string</td>
+      <td>Year requested</td>
+      <td>0</td>
+      <td>ALL</td>
+      <td>1</td>
+      <td>ALL</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Get indicator (or get a single country)</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[51]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># areas_ITA = beaapi.get_parameter_values(beakey, &#39;ITA&#39;, &#39;AreaOrCountry&#39;)</span>
+<span class="n">ita_indicatorsID</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_parameter_values</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s1">&#39;ITA&#39;</span><span class="p">,</span> <span class="s1">&#39;Indicator&#39;</span><span class="p">)</span>
+
+<span class="n">ind_result</span> <span class="o">=</span> <span class="n">ita_indicatorsID</span><span class="p">[</span><span class="n">ita_indicatorsID</span><span class="p">[</span><span class="s2">&quot;Desc&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">desc</span><span class="p">)]</span>
+<span class="n">display</span><span class="p">(</span><span class="n">ind_result</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Take the first one&quot;</span><span class="p">)</span>
+<span class="n">indicator</span> <span class="o">=</span> <span class="s2">&quot;BalGds&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Key</th>
+      <th>Desc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2</th>
+      <td>BalGds</td>
+      <td>Balance on goods</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>BalGdsServ</td>
+      <td>Balance on goods and services</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Take the first one
+</pre></div></div>
+</div>
+<p>Get data</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[52]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s2">&quot;ITA&quot;</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span> <span class="n">AreaOrCountry</span><span class="o">=</span><span class="n">cntry</span><span class="p">,</span> <span class="n">Frequency</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span> <span class="n">Indicator</span><span class="o">=</span><span class="n">indicator</span><span class="p">)</span>
+<span class="n">tbl</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[52]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Indicator</th>
+      <th>AreaOrCountry</th>
+      <th>Frequency</th>
+      <th>Year</th>
+      <th>TimeSeriesId</th>
+      <th>TimeSeriesDescription</th>
+      <th>TimePeriod</th>
+      <th>CL_UNIT</th>
+      <th>UNIT_MULT</th>
+      <th>DataValue</th>
+      <th>NoteRef</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>BalGds</td>
+      <td>AllCountries</td>
+      <td>QSA</td>
+      <td>2020</td>
+      <td>TSI_ItaBalGds_QSA</td>
+      <td>Balance on goods; quarterly seasonally adjusted</td>
+      <td>2020Q3</td>
+      <td>USD</td>
+      <td>6</td>
+      <td>-245370</td>
+      <td>Q</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>BalGds</td>
+      <td>AllCountries</td>
+      <td>QSA</td>
+      <td>2020</td>
+      <td>TSI_ItaBalGds_QSA</td>
+      <td>Balance on goods; quarterly seasonally adjusted</td>
+      <td>2020Q4</td>
+      <td>USD</td>
+      <td>6</td>
+      <td>-253125</td>
+      <td>Q</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+<section id="IntlServTrade">
+<h4>IntlServTrade<a class="headerlink" href="#IntlServTrade" title="Permalink to this heading">¶</a></h4>
+<p>Similar issue about different iTables tables being different sets or broken out by country in different ways. Basically have to look at TypeOfService values to line up with tables. Though in this case we can get all types of service of “AllCountries” (agg’d over countries)</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[56]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">type_desc</span> <span class="o">=</span> <span class="s2">&quot;Sea transport&quot;</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;What parameters are needed&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">param_infos</span><span class="p">[</span><span class="s2">&quot;IntlServTrade&quot;</span><span class="p">])</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+What parameters are needed
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ParameterName</th>
+      <th>ParameterDataType</th>
+      <th>ParameterDescription</th>
+      <th>ParameterIsRequiredFlag</th>
+      <th>ParameterDefaultValue</th>
+      <th>MultipleAcceptedFlag</th>
+      <th>AllValue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>TypeOfService</td>
+      <td>string</td>
+      <td>The type of service requested</td>
+      <td>0</td>
+      <td>ALL</td>
+      <td>1</td>
+      <td>ALL</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>TradeDirection</td>
+      <td>string</td>
+      <td>The trade direction requested</td>
+      <td>0</td>
+      <td>ALL</td>
+      <td>1</td>
+      <td>ALL</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Affiliation</td>
+      <td>string</td>
+      <td>The affiliation requested</td>
+      <td>0</td>
+      <td>ALL</td>
+      <td>1</td>
+      <td>ALL</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>AreaOrCountry</td>
+      <td>string</td>
+      <td>The area or country requested</td>
+      <td>0</td>
+      <td>AllCountries</td>
+      <td>1</td>
+      <td>ALL</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Year</td>
+      <td>string</td>
+      <td>The year requested</td>
+      <td>0</td>
+      <td>ALL</td>
+      <td>1</td>
+      <td>ALL</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Get type</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[58]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># cntr_IST = beaapi.get_parameter_values(beakey, &#39;IntlServTrade&#39;, &#39;AreaOrCountry&#39;)</span>
+<span class="n">ist_Type</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_parameter_values</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s1">&#39;IntlServTrade&#39;</span><span class="p">,</span> <span class="s1">&#39;TypeOfService&#39;</span><span class="p">)</span>
+<span class="n">type_result</span> <span class="o">=</span> <span class="n">ist_Type</span><span class="p">[</span><span class="n">ist_Type</span><span class="p">[</span><span class="s2">&quot;Desc&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">type_desc</span><span class="p">)]</span>
+<span class="n">display</span><span class="p">(</span><span class="n">type_result</span><span class="p">)</span>
+<span class="n">type_of_service</span> <span class="o">=</span> <span class="n">type_result</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Key</th>
+      <th>Desc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>104</th>
+      <td>TransportSea</td>
+      <td>Sea transport services</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Get data</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[59]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s2">&quot;IntlServTrade&quot;</span><span class="p">,</span> <span class="n">AreaOrCountry</span><span class="o">=</span><span class="s2">&quot;AllCountries&quot;</span><span class="p">,</span><span class="n">TypeOfService</span><span class="o">=</span><span class="n">type_of_service</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="s2">&quot;1999&quot;</span><span class="p">)</span>
+<span class="n">tbl</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[59]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>TypeOfService</th>
+      <th>TradeDirection</th>
+      <th>Affiliation</th>
+      <th>AreaOrCountry</th>
+      <th>Year</th>
+      <th>TimeSeriesId</th>
+      <th>TimeSeriesDescription</th>
+      <th>TimePeriod</th>
+      <th>CL_UNIT</th>
+      <th>UNIT_MULT</th>
+      <th>DataValue</th>
+      <th>NoteRef</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>TransportSea</td>
+      <td>Exports</td>
+      <td>Affiliated</td>
+      <td>AllCountries</td>
+      <td>1999</td>
+      <td>TSI_IstTransportSeaExpAllCountriesAff_A</td>
+      <td>Exports of sea transport services; all countri...</td>
+      <td>1999</td>
+      <td>USD</td>
+      <td>6</td>
+      <td>NaN</td>
+      <td>.....</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>TransportSea</td>
+      <td>Exports</td>
+      <td>AllAffiliations</td>
+      <td>AllCountries</td>
+      <td>1999</td>
+      <td>TSI_IstTransportSeaExpAllCountriesAllAff_A</td>
+      <td>Exports of sea transport services; all countries</td>
+      <td>1999</td>
+      <td>USD</td>
+      <td>6</td>
+      <td>10489.0</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>TransportSea</td>
+      <td>Exports</td>
+      <td>Unaffiliated</td>
+      <td>AllCountries</td>
+      <td>1999</td>
+      <td>TSI_IstTransportSeaExpAllCountriesUnaff_A</td>
+      <td>Exports of sea transport services; all countri...</td>
+      <td>1999</td>
+      <td>USD</td>
+      <td>6</td>
+      <td>10489.0</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>TransportSea</td>
+      <td>Exports</td>
+      <td>UsAffiliates</td>
+      <td>AllCountries</td>
+      <td>1999</td>
+      <td>TSI_IstTransportSeaExpAllCountriesUsAff_A</td>
+      <td>Exports of sea transport services; all countri...</td>
+      <td>1999</td>
+      <td>USD</td>
+      <td>6</td>
+      <td>NaN</td>
+      <td>.....</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>TransportSea</td>
+      <td>Exports</td>
+      <td>UsParents</td>
+      <td>AllCountries</td>
+      <td>1999</td>
+      <td>TSI_IstTransportSeaExpAllCountriesUsPar_A</td>
+      <td>Exports of sea transport services; all countri...</td>
+      <td>1999</td>
+      <td>USD</td>
+      <td>6</td>
+      <td>NaN</td>
+      <td>.....</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+<section id="IIP">
+<h4>IIP<a class="headerlink" href="#IIP" title="Permalink to this heading">¶</a></h4>
+<p>Similar issues as above, but now <code class="docutils literal notranslate"><span class="pre">TypeOfInvestment</span></code> are the lines in tables. Does allow all <code class="docutils literal notranslate"><span class="pre">TypeOfInvestment</span></code> for “AllCountries” (agg’d over countries)</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[61]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">type_desc</span> <span class="o">=</span> <span class="s2">&quot;Net international investment position excluding financial derivatives&quot;</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;What parameters are needed&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">param_infos</span><span class="p">[</span><span class="s2">&quot;IIP&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+What parameters are needed
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ParameterName</th>
+      <th>ParameterDataType</th>
+      <th>ParameterDescription</th>
+      <th>ParameterIsRequiredFlag</th>
+      <th>ParameterDefaultValue</th>
+      <th>MultipleAcceptedFlag</th>
+      <th>AllValue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>TypeOfInvestment</td>
+      <td>string</td>
+      <td>Type of investment</td>
+      <td>0</td>
+      <td>ALL</td>
+      <td>1</td>
+      <td>ALL</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Component</td>
+      <td>string</td>
+      <td>Component of changes in position</td>
+      <td>0</td>
+      <td>ALL</td>
+      <td>1</td>
+      <td>ALL</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Frequency</td>
+      <td>string</td>
+      <td>A - Annual, QNSA - Quarterly not seasonally ad...</td>
+      <td>0</td>
+      <td>ALL</td>
+      <td>1</td>
+      <td>ALL</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Year</td>
+      <td>string</td>
+      <td>Year requested</td>
+      <td>0</td>
+      <td>ALL</td>
+      <td>1</td>
+      <td>ALL</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Get Type of Investment</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[62]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># year_IIP = beaapi.get_parameter_values(beakey, &#39;IIP&#39;, &#39;Year&#39;) #if we wanted to get list of years</span>
+<span class="n">iip_Type</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_parameter_values</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s1">&#39;IIP&#39;</span><span class="p">,</span> <span class="s1">&#39;TypeOfInvestment&#39;</span><span class="p">)</span>
+<span class="n">type_result</span> <span class="o">=</span> <span class="n">iip_Type</span><span class="p">[</span><span class="n">iip_Type</span><span class="p">[</span><span class="s2">&quot;Desc&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">type_desc</span><span class="o">.</span><span class="n">lower</span><span class="p">())]</span> <span class="c1">#Note descriptions don&#39;t exaclty match lines so make lower case</span>
+<span class="n">display</span><span class="p">(</span><span class="n">type_result</span><span class="p">)</span>
+<span class="n">type_of_inv</span> <span class="o">=</span> <span class="n">type_result</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Key</th>
+      <th>Desc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>343</th>
+      <td>NetExclFinDeriv</td>
+      <td>U.S. net international investment position exc...</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Get data</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[63]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s2">&quot;IIP&quot;</span><span class="p">,</span> <span class="n">AreaOrCountry</span><span class="o">=</span><span class="s2">&quot;AllCountries&quot;</span><span class="p">,</span><span class="n">TypeOfInvestment</span><span class="o">=</span><span class="n">type_of_inv</span><span class="p">,</span><span class="n">Year</span><span class="o">=</span><span class="s2">&quot;2020&quot;</span><span class="p">,</span><span class="n">Frequency</span><span class="o">=</span><span class="s2">&quot;QNSA&quot;</span><span class="p">)</span>
+<span class="n">tbl</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[63]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>TypeOfInvestment</th>
+      <th>Component</th>
+      <th>Frequency</th>
+      <th>Year</th>
+      <th>TimeSeriesId</th>
+      <th>TimeSeriesDescription</th>
+      <th>TimePeriod</th>
+      <th>CL_UNIT</th>
+      <th>UNIT_MULT</th>
+      <th>DataValue</th>
+      <th>NoteRef</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>NetExclFinDeriv</td>
+      <td>Pos</td>
+      <td>QNSA</td>
+      <td>2020</td>
+      <td>TSI_IipNetExclFinDerivPos_QNSA</td>
+      <td>U.S. net international investment position exc...</td>
+      <td>2020Q1</td>
+      <td>USD</td>
+      <td>6</td>
+      <td>-12150967</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>NetExclFinDeriv</td>
+      <td>Pos</td>
+      <td>QNSA</td>
+      <td>2020</td>
+      <td>TSI_IipNetExclFinDerivPos_QNSA</td>
+      <td>U.S. net international investment position exc...</td>
+      <td>2020Q2</td>
+      <td>USD</td>
+      <td>6</td>
+      <td>-13018024</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>NetExclFinDeriv</td>
+      <td>Pos</td>
+      <td>QNSA</td>
+      <td>2020</td>
+      <td>TSI_IipNetExclFinDerivPos_QNSA</td>
+      <td>U.S. net international investment position exc...</td>
+      <td>2020Q3</td>
+      <td>USD</td>
+      <td>6</td>
+      <td>-13794338</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>NetExclFinDeriv</td>
+      <td>Pos</td>
+      <td>QNSA</td>
+      <td>2020</td>
+      <td>TSI_IipNetExclFinDerivPos_QNSA</td>
+      <td>U.S. net international investment position exc...</td>
+      <td>2020Q4</td>
+      <td>USD</td>
+      <td>6</td>
+      <td>-14004615</td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+</section>
+<section id="Direct-Investment-&amp;-MNEs">
+<h3>Direct Investment &amp; MNEs<a class="headerlink" href="#Direct-Investment-&-MNEs" title="Permalink to this heading">¶</a></h3>
+<p>See the separate guide iTables_MNE</p>
+</section>
+<section id="Regional">
+<h3>Regional<a class="headerlink" href="#Regional" title="Permalink to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[64]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Regional actually has the table name at the end of the description, so no need for get_table_param_from_desc()!</span>
+<span class="n">table_param_val</span><span class="o">=</span> <span class="s2">&quot;SQGDP1&quot;</span>
+<span class="n">year</span><span class="o">=</span><span class="s2">&quot;2021&quot;</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;What parameters are needed&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">param_infos</span><span class="p">[</span><span class="s2">&quot;Regional&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+What parameters are needed
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ParameterName</th>
+      <th>ParameterDataType</th>
+      <th>ParameterDescription</th>
+      <th>ParameterIsRequiredFlag</th>
+      <th>MultipleAcceptedFlag</th>
+      <th>ParameterDefaultValue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>GeoFips</td>
+      <td>string</td>
+      <td>Comma-delimited list of 5-character geographic...</td>
+      <td>1</td>
+      <td>1</td>
+      <td>&lt;NA&gt;</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>LineCode</td>
+      <td>integer</td>
+      <td>Line code for a statistic or industry</td>
+      <td>1</td>
+      <td>0</td>
+      <td>&lt;NA&gt;</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>TableName</td>
+      <td>string</td>
+      <td>Regional income or product table to retrieve</td>
+      <td>1</td>
+      <td>0</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Year</td>
+      <td>string</td>
+      <td>Comma-delimted list of years; LAST5 for latest...</td>
+      <td>0</td>
+      <td>1</td>
+      <td>LAST5</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">linecode</span><span class="o">=</span><span class="s2">&quot;ALL&quot;</span> <span class="c1"># Mentioned in PDF</span>
+<span class="c1"># Otherwise, could do</span>
+<span class="c1"># pos_line_codes = beaapi.get_parameter_values_filtered(beakey, &quot;Regional&quot;, &quot;LineCode&quot;, TableName=table_param_val)</span>
+<span class="c1"># display(pos_line_codes)</span>
+
+<span class="n">geo_fips</span> <span class="o">=</span> <span class="s2">&quot;00000&quot;</span> <span class="c1"># Note: Not mentioned in docs, but common. See pdf for other common values</span>
+<span class="c1"># Otherwise, could do</span>
+<span class="c1"># pos_geo_codes = beaapi.get_parameter_values_filtered(beakey, &quot;Regional&quot;, &quot;GeoFips&quot;, TableName=table_param_val, LineCode=linecode)</span>
+<span class="c1"># display(pos_geo_codes)</span>
+</pre></div>
+</div>
+</div>
+<p>Get data</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[66]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s2">&quot;Regional&quot;</span><span class="p">,</span> <span class="n">TableName</span><span class="o">=</span><span class="n">table_param_val</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span> <span class="n">GeoFips</span><span class="o">=</span><span class="n">geo_fips</span><span class="p">,</span> <span class="n">LineCode</span><span class="o">=</span><span class="n">linecode</span><span class="p">)</span>
+<span class="n">tbl</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[66]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Code</th>
+      <th>GeoFips</th>
+      <th>GeoName</th>
+      <th>TimePeriod</th>
+      <th>Description</th>
+      <th>CL_UNIT</th>
+      <th>UNIT_MULT</th>
+      <th>DataValue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>SQGDP1-3</td>
+      <td>00000</td>
+      <td>United States</td>
+      <td>2021Q1</td>
+      <td>Current-dollar GDP (millions of current dollars)</td>
+      <td>Millions of current dollars</td>
+      <td>6</td>
+      <td>22038226.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>SQGDP1-3</td>
+      <td>00000</td>
+      <td>United States</td>
+      <td>2021Q2</td>
+      <td>Current-dollar GDP (millions of current dollars)</td>
+      <td>Millions of current dollars</td>
+      <td>6</td>
+      <td>22740959.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>SQGDP1-3</td>
+      <td>00000</td>
+      <td>United States</td>
+      <td>2021Q3</td>
+      <td>Current-dollar GDP (millions of current dollars)</td>
+      <td>Millions of current dollars</td>
+      <td>6</td>
+      <td>23202344.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>SQGDP1-3</td>
+      <td>00000</td>
+      <td>United States</td>
+      <td>2021Q4</td>
+      <td>Current-dollar GDP (millions of current dollars)</td>
+      <td>Millions of current dollars</td>
+      <td>6</td>
+      <td>24002815.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>SQGDP1-1</td>
+      <td>00000</td>
+      <td>United States</td>
+      <td>2021Q1</td>
+      <td>Real GDP (millions of chained 2012 dollars)</td>
+      <td>Millions of chained 2012 dollars</td>
+      <td>6</td>
+      <td>19055655.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">beaapi</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Quick-start tutorial:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="README.html">beaapi</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API documentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to-guides:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">How to translate iTable tables to API queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="iTables_MNE.html">How to translate MNE tables to API queries</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="api.html" title="previous chapter">API documentation</a></li>
+      <li>Next: <a href="iTables_MNE.html" title="next chapter">How to translate MNE tables to API queries</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, BEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/iTables_to_api.ipynb.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

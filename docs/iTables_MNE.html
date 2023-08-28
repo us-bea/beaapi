@@ -1,0 +1,2432 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>How to translate MNE tables to API queries &#8212; beaapi  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="How to translate iTable tables to API queries" href="iTables_to_api.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="How-to-translate-MNE-tables-to-API-queries">
+<h1>How to translate MNE tables to API queries<a class="headerlink" href="#How-to-translate-MNE-tables-to-API-queries" title="Permalink to this heading">¶</a></h1>
+<p>This guide shows how to translate the process of getting data from MNE iTables searches to using the API using the Python Package.</p>
+<section id="Setup">
+<h2>Setup<a class="headerlink" href="#Setup" title="Permalink to this heading">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">beaapi</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s1">&#39;display.max_rows&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># show all rows</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s1">&#39;display.max_colwidth&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># show all text in cells</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get key from unversioned file</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">dotenv</span> <span class="kn">import</span> <span class="n">load_dotenv</span>
+<span class="n">load_dotenv</span><span class="p">()</span>
+<span class="n">beakey</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;beakey&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Walk-through">
+<h2>Walk-through<a class="headerlink" href="#Walk-through" title="Permalink to this heading">¶</a></h2>
+<p>Step 1a: Choose <code class="docutils literal notranslate"><span class="pre">DirectionofInvestment</span></code>. The first page of the iTables query asks you to pick the “Investment Type” which roughly maps to <code class="docutils literal notranslate"><span class="pre">DirectionOfInvestment</span></code></p>
+<ul class="simple">
+<li><p>Choose “inward” for most “foreign direct investment in the United States” requests. However, for certain data (series ID = 8, 9) by U.S. state, choose “state”</p></li>
+<li><p>Choose “outward” for most “United States direct investment abroad” requests. However, choose “parent” for “U.S. Direct Investment Abroad / Data on activities of multinational enterprises / Nonbank U.S. Parent Companies (data up to 2008)” or “U.S. Direct Investment Abroad / Data on activities of multinational enterprises /All U.S. Parent Companies (data for 2009 and forward)”</p></li>
+</ul>
+<p>Step 1b &amp; 2: Choose a <code class="docutils literal notranslate"><span class="pre">SeriesID</span></code></p>
+<ul class="simple">
+<li><p>The second question on first iTables page ask about the “Data Type” and this maps to a category of <code class="docutils literal notranslate"><span class="pre">SeriesID</span></code> (see below) that is then shown on the second iTables page (narrowed down given available <code class="docutils literal notranslate"><span class="pre">DirectionOfInvestment</span></code>).</p></li>
+</ul>
+<p>DataType:</p>
+<ul class="simple">
+<li><p>1-21 &amp; 46-61: Data on activites of multinational enterprises (AMNE)</p></li>
+<li><p>22-44: Balance of payments and direct investment position data</p></li>
+<li><p>62-69: Data on new foreign direct investment in the U.S.</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;TA_MNE_series_list.csv&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;Series ID&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Direction</th>
+      <th>Note</th>
+      <th>Short name</th>
+    </tr>
+    <tr>
+      <th>Series ID</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>All</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>inward/outward/parent</td>
+      <td>NaN</td>
+      <td>Assets</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>inward</td>
+      <td>NaN</td>
+      <td>Gross PPE</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>outward/parent</td>
+      <td>NaN</td>
+      <td>Capital Expenditures</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>inward/outward/parent</td>
+      <td>NaN</td>
+      <td>Sales</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>inward/outward/parent</td>
+      <td>NaN</td>
+      <td>Net Income</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>inward/outward/parent</td>
+      <td>NaN</td>
+      <td>Value Added</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>inward/outward/parent</td>
+      <td>NaN</td>
+      <td>Compensation</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>inward/outward/state/parent</td>
+      <td>NaN</td>
+      <td>Employment</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>state</td>
+      <td>1.0</td>
+      <td>Manufacturing Employment</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>inward/outward</td>
+      <td>NaN</td>
+      <td>Exports of Goods</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>defunct</td>
+      <td>NaN</td>
+      <td>Exports of Goods to the FPG</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>inward/outward</td>
+      <td>NaN</td>
+      <td>Imports of Goods</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>defunct</td>
+      <td>NaN</td>
+      <td>Imports of Goods from the FPG</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>inward/outward/parent</td>
+      <td>NaN</td>
+      <td>R&amp;D</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>defunct</td>
+      <td>NaN</td>
+      <td>Balance Sheet</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>defunct</td>
+      <td>NaN</td>
+      <td>U.S. Trade in Goods</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>parent</td>
+      <td>NaN</td>
+      <td>Liabilities</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>parent</td>
+      <td>NaN</td>
+      <td>Owner's Equity</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>inward</td>
+      <td>NaN</td>
+      <td>Inward Position</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>inward</td>
+      <td>NaN</td>
+      <td>Inward Flows</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>inward</td>
+      <td>NaN</td>
+      <td>Inward Equity flows</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>inward/outward</td>
+      <td>NaN</td>
+      <td>Reinvestment of earnings</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>inward</td>
+      <td>NaN</td>
+      <td>Debt inflows</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>inward/outward</td>
+      <td>NaN</td>
+      <td>Direct investment income</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>inward</td>
+      <td>2.0</td>
+      <td>Inward Royalties Payments</td>
+    </tr>
+    <tr>
+      <th>29</th>
+      <td>inward</td>
+      <td>2.0</td>
+      <td>OPS, U.S. affiliates payments</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>outward</td>
+      <td>NaN</td>
+      <td>Outward position</td>
+    </tr>
+    <tr>
+      <th>31</th>
+      <td>outward</td>
+      <td>NaN</td>
+      <td>Outward flows</td>
+    </tr>
+    <tr>
+      <th>32</th>
+      <td>outward</td>
+      <td>NaN</td>
+      <td>Equity outflows</td>
+    </tr>
+    <tr>
+      <th>33</th>
+      <td>outward</td>
+      <td>NaN</td>
+      <td>Debt outflows</td>
+    </tr>
+    <tr>
+      <th>34</th>
+      <td>outward</td>
+      <td>2.0</td>
+      <td>Royalties, U.S. parents' receipts</td>
+    </tr>
+    <tr>
+      <th>35</th>
+      <td>outward</td>
+      <td>2.0</td>
+      <td>OPS, U.S. parents receipts</td>
+    </tr>
+    <tr>
+      <th>39</th>
+      <td>outward</td>
+      <td>2.0</td>
+      <td>Royalties U.S. parents' payments</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>outward</td>
+      <td>2.0</td>
+      <td>OPS, U.S. parents' payments</td>
+    </tr>
+    <tr>
+      <th>41</th>
+      <td>inward</td>
+      <td>2.0</td>
+      <td>Royalties, U.S. affiliates' receipts</td>
+    </tr>
+    <tr>
+      <th>42</th>
+      <td>inward</td>
+      <td>2.0</td>
+      <td>OPS, U.S. affiliates receipts</td>
+    </tr>
+    <tr>
+      <th>43</th>
+      <td>inward</td>
+      <td>2.0</td>
+      <td>Royalties, Net inward payments</td>
+    </tr>
+    <tr>
+      <th>44</th>
+      <td>inward</td>
+      <td>2.0</td>
+      <td>OPS, new inward payments</td>
+    </tr>
+    <tr>
+      <th>46</th>
+      <td>parent</td>
+      <td>NaN</td>
+      <td>U.S. Exports, parents to non affiliates</td>
+    </tr>
+    <tr>
+      <th>47</th>
+      <td>parent</td>
+      <td>NaN</td>
+      <td>U.S. Imports, from affiliates to parents</td>
+    </tr>
+    <tr>
+      <th>48</th>
+      <td>parent</td>
+      <td>NaN</td>
+      <td>U.S. Imports, from non-affiliates to parents</td>
+    </tr>
+    <tr>
+      <th>50</th>
+      <td>defunct</td>
+      <td>NaN</td>
+      <td>U.S. trade in goods of affiliates</td>
+    </tr>
+    <tr>
+      <th>51</th>
+      <td>defunct</td>
+      <td>NaN</td>
+      <td>Total assets, U.S. parent</td>
+    </tr>
+    <tr>
+      <th>52</th>
+      <td>defunct</td>
+      <td>NaN</td>
+      <td>Total assets, affiliates</td>
+    </tr>
+    <tr>
+      <th>53</th>
+      <td>inward</td>
+      <td>NaN</td>
+      <td>Inward PPE expenditures</td>
+    </tr>
+    <tr>
+      <th>54</th>
+      <td>outward</td>
+      <td>NaN</td>
+      <td>Net property, plant, and equipment</td>
+    </tr>
+    <tr>
+      <th>55</th>
+      <td>defunct</td>
+      <td>NaN</td>
+      <td>Sales of services</td>
+    </tr>
+    <tr>
+      <th>56</th>
+      <td>defunct</td>
+      <td>NaN</td>
+      <td>Sales of goods</td>
+    </tr>
+    <tr>
+      <th>57</th>
+      <td>parent</td>
+      <td>NaN</td>
+      <td>U.S. Exports, parents to foreign affiliates</td>
+    </tr>
+    <tr>
+      <th>58</th>
+      <td>outward</td>
+      <td>NaN</td>
+      <td>Goods supplied</td>
+    </tr>
+    <tr>
+      <th>60</th>
+      <td>outward</td>
+      <td>NaN</td>
+      <td>Services supplied</td>
+    </tr>
+    <tr>
+      <th>61</th>
+      <td>outward</td>
+      <td>NaN</td>
+      <td>Services supplied to foreigners</td>
+    </tr>
+    <tr>
+      <th>62</th>
+      <td>inward</td>
+      <td>NaN</td>
+      <td>Investment Expenditures</td>
+    </tr>
+    <tr>
+      <th>64</th>
+      <td>inward</td>
+      <td>NaN</td>
+      <td>Employment of new affiliates</td>
+    </tr>
+    <tr>
+      <th>66</th>
+      <td>inward</td>
+      <td>NaN</td>
+      <td>Sales of new affiliates</td>
+    </tr>
+    <tr>
+      <th>68</th>
+      <td>inward</td>
+      <td>NaN</td>
+      <td>Net income of new affiliates</td>
+    </tr>
+    <tr>
+      <th>69</th>
+      <td>inward</td>
+      <td>NaN</td>
+      <td>Balance sheet items of new affiliates</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Notes:</p>
+<ol class="arabic simple">
+<li><p>Requires <code class="docutils literal notranslate"><span class="pre">classification=&quot;statebycountryofUBO&quot;</span></code>, even though no country data are provided</p></li>
+<li><p>Prior to 2006 only</p></li>
+</ol>
+<p>Step 3: Choose <code class="docutils literal notranslate"><span class="pre">Classification</span></code></p>
+<ul class="simple">
+<li><p>The classification depends on the direction and seriesID. The iTables are a guide as to which classifications are available</p></li>
+<li><p>“CountrybyIndustry” will yield a large number of countries broken down by major industry. “IndustrybyCountry” will yield the opposite.</p></li>
+<li><p>You can search for the iTables string in the table below</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">beaapi</span><span class="o">.</span><span class="n">get_parameter_values</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s1">&#39;MNE&#39;</span><span class="p">,</span> <span class="s1">&#39;Classification&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;key&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>desc</th>
+    </tr>
+    <tr>
+      <th>key</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Country</th>
+      <td>Set to classification equal to 'country' to obtain data for all countries for which data are available for the given series, ownership, and year.</td>
+    </tr>
+    <tr>
+      <th>CountryByDestination</th>
+      <td>CountryByDestination returns values for country broken out by destination for goods supplied and services supplied.</td>
+    </tr>
+    <tr>
+      <th>CountryByIndustry</th>
+      <td>CountryByIndustry provides data for a large set of countries broken down by major industry.</td>
+    </tr>
+    <tr>
+      <th>CountrybyType</th>
+      <td>Country by Type of Investment returns data on new foreign direct investment in the United States broken out by country of UBO and the type of investment (acquisition, establishment, or expansion).</td>
+    </tr>
+    <tr>
+      <th>CountryofUBO</th>
+      <td>? Presents data on foreign direct investment in the United States by the country of the Ultimate Beneficial Owner (UBO).  The ultimate beneficial owner (UBO) is the entity, proceeding up the foreign ownership chain, which is not more than 50 percent owned by another entity. The UBO is the entity that ultimately owns or controls an affiliated and thus ultimately derives the benefits and assumes the risks from owning or controlling an affiliate.</td>
+    </tr>
+    <tr>
+      <th>CountryofUBObyDestination</th>
+      <td>Presents data on services supplied by U.S. affiliates of foreign MNE?s, broken down by the country of Ultimate Beneficial Owner (UBO) and the destination (U.S. or foreign) of the service supplied</td>
+    </tr>
+    <tr>
+      <th>CountryofUBObyIndustry</th>
+      <td>Presents data on foreign direct investment in the United States broken down by the country of the Ultimate Beneficial Owner (UBO) and the industry of the affiliate.</td>
+    </tr>
+    <tr>
+      <th>countryofUBObyType</th>
+      <td>Country of UBO by Type of Investment returns data on new foreign direct investment in the United States broken out by the country of the Ultimate beneficial owner (UBO) and the type of investment (acquisition, establishment, or expansion).</td>
+    </tr>
+    <tr>
+      <th>Industry</th>
+      <td>Set to classification equal to 'industry' to obtain data for all industries for which data are available for the given series, ownership, and year.</td>
+    </tr>
+    <tr>
+      <th>IndustryByCountry</th>
+      <td>IndustryByCountry provides data for a large set of industries broken by major country.</td>
+    </tr>
+    <tr>
+      <th>IndustrybyCountryofUBO</th>
+      <td>Presents foreign direct investment data broken down by industry of the U.S. affiliate and the country of Ultimate Beneficial Owner (UBO)</td>
+    </tr>
+    <tr>
+      <th>IndustryByDestination</th>
+      <td>IndustryByDestination returns values for industry broken out by destination for goods supplied and services supplied.</td>
+    </tr>
+    <tr>
+      <th>IndustrybyType</th>
+      <td>Industry by Type of Investment returns data on new foreign direct investment in the United States broken out by industry of U.S. business and the type of investment (acquisition, establishment, or expansion).</td>
+    </tr>
+    <tr>
+      <th>IndustryofSales</th>
+      <td>Industry of Sales provides data on employment and sales for majority-owned U.S. affiliates of foreign MNEs.  Each majority-owned U.S. affiliate above a minimum size threshold was required to distribute its sales and its employment among the four-digit industry in which it had sales.  These data approximate an establishment-based distribution.</td>
+    </tr>
+    <tr>
+      <th>IndustryofUSParent</th>
+      <td>= IndustryofUSParent provides data for foreign affiliates of U.S. parents, broken down by the industry of the U.S. parent, which may differ from the industry of the affiliate.</td>
+    </tr>
+    <tr>
+      <th>IndustryofUSParentAllIndustries</th>
+      <td>IndustryofUSParentAllIndustries provides data for foreign affiliates of U.S. parents, broken down by the most detailed industry of the U.S. parent, which may differ from the industry of the affiliate.</td>
+    </tr>
+    <tr>
+      <th>IndustryofUSParentByCountry</th>
+      <td>IndustryofUSParentByCountry provides data for foreign affiliates of U.S. parents, broken down by the industry of the U.S. parent, which may differ from the industry of the affiliate, and broken by major country.</td>
+    </tr>
+    <tr>
+      <th>StatebyCountryofUBO</th>
+      <td>Presents selected activities of multinational enterprises data on U.S. affiliates, broken down U.S. state and country of UBO.</td>
+    </tr>
+    <tr>
+      <th>StatebyType</th>
+      <td>State by Type of Investment returns data on new foreign direct investment in the United States broken out by destination state and the type of investment (acquisition, establishment, or expansion).</td>
+    </tr>
+    <tr>
+      <th>TypeofExpenditure</th>
+      <td>Type of Expenditure returns values on investment expenditure for new foreign direct investment in the United States, broken out by type of expenditure.</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Step 4: For AMNE estimates, Choose <code class="docutils literal notranslate"><span class="pre">Ownershiplevel</span></code> and <code class="docutils literal notranslate"><span class="pre">Nonbankaffiliatesonly</span></code></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Nonbankaffiliatesonly</span></code> should be set to zero for any data from after about 2009.</p></li>
+<li><p>More data are available for <code class="docutils literal notranslate"><span class="pre">ownershiplevel</span> <span class="pre">=</span> <span class="pre">&quot;0&quot;</span></code> (majority-owned affiliates only) than for <code class="docutils literal notranslate"><span class="pre">ownershiplevel</span> <span class="pre">=</span> <span class="pre">&quot;1&quot;</span></code> (all affiliates)</p></li>
+</ul>
+<p>Step 5: Choose industry, country, year, etc…</p>
+<ul class="simple">
+<li><p>This is pretty straightforward. Full lists are show below. <code class="docutils literal notranslate"><span class="pre">Country</span> <span class="pre">=</span> <span class="pre">&quot;all&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">Industry</span> <span class="pre">=</span> <span class="pre">&quot;all&quot;</span></code> yield all results. We show full available options for both below.</p></li>
+<li><p>Years must be listed separately: <code class="docutils literal notranslate"><span class="pre">Year</span> <span class="pre">=</span> <span class="pre">&quot;2010,</span> <span class="pre">2011,</span> <span class="pre">2012,</span> <span class="pre">2013&quot;</span></code> for example. <code class="docutils literal notranslate"><span class="pre">Year</span> <span class="pre">=</span> <span class="pre">&quot;all&quot;</span></code> returns all years</p></li>
+</ul>
+<p>Countries:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">display</span><span class="p">(</span><span class="n">beaapi</span><span class="o">.</span><span class="n">get_parameter_values</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s2">&quot;MNE&quot;</span><span class="p">,</span> <span class="n">parametername</span><span class="o">=</span><span class="s2">&quot;Country&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">hide_index</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style type="text/css">
+</style>
+<table id="T_1da54_">
+  <thead>
+    <tr>
+      <th class="col_heading level0 col0" >key</th>
+      <th class="col_heading level0 col1" >desc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td id="T_1da54_row0_col0" class="data row0 col0" >all</td>
+      <td id="T_1da54_row0_col1" class="data row0 col1" > all</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row1_col0" class="data row1 col0" >000</td>
+      <td id="T_1da54_row1_col1" class="data row1 col1" > all Countries Total</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row2_col0" class="data row2 col0" >600</td>
+      <td id="T_1da54_row2_col1" class="data row2 col1" >Afghanistan</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row3_col0" class="data row3 col0" >499</td>
+      <td id="T_1da54_row3_col1" class="data row3 col1" >Africa</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row4_col0" class="data row4 col0" >350</td>
+      <td id="T_1da54_row4_col1" class="data row4 col1" >Albania</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row5_col0" class="data row5 col0" >400</td>
+      <td id="T_1da54_row5_col1" class="data row5 col1" >Algeria</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row6_col0" class="data row6 col0" >300</td>
+      <td id="T_1da54_row6_col1" class="data row6 col1" >Andorra</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row7_col0" class="data row7 col0" >401</td>
+      <td id="T_1da54_row7_col1" class="data row7 col1" >Angola</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row8_col0" class="data row8 col0" >272</td>
+      <td id="T_1da54_row8_col1" class="data row8 col1" >Anguilla</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row9_col0" class="data row9 col0" >273</td>
+      <td id="T_1da54_row9_col1" class="data row9 col1" >Antigua and Barbuda</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row10_col0" class="data row10 col0" >200</td>
+      <td id="T_1da54_row10_col1" class="data row10 col1" >Argentina</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row11_col0" class="data row11 col0" >334</td>
+      <td id="T_1da54_row11_col1" class="data row11 col1" >Armenia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row12_col0" class="data row12 col0" >274</td>
+      <td id="T_1da54_row12_col1" class="data row12 col1" >Aruba</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row13_col0" class="data row13 col0" >699</td>
+      <td id="T_1da54_row13_col1" class="data row13 col1" >Asia and Pacific</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row14_col0" class="data row14 col0" >601</td>
+      <td id="T_1da54_row14_col1" class="data row14 col1" >Australia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row15_col0" class="data row15 col0" >898</td>
+      <td id="T_1da54_row15_col1" class="data row15 col1" >Australia, New Zealand, and South Africa</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row16_col0" class="data row16 col0" >301</td>
+      <td id="T_1da54_row16_col1" class="data row16 col1" >Austria</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row17_col0" class="data row17 col0" >335</td>
+      <td id="T_1da54_row17_col1" class="data row17 col1" >Azerbaijan</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row18_col0" class="data row18 col0" >250</td>
+      <td id="T_1da54_row18_col1" class="data row18 col1" >Bahamas</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row19_col0" class="data row19 col0" >501</td>
+      <td id="T_1da54_row19_col1" class="data row19 col1" >Bahrain</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row20_col0" class="data row20 col0" >631</td>
+      <td id="T_1da54_row20_col1" class="data row20 col1" >Bangladesh</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row21_col0" class="data row21 col0" >251</td>
+      <td id="T_1da54_row21_col1" class="data row21 col1" >Barbados</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row22_col0" class="data row22 col0" >336</td>
+      <td id="T_1da54_row22_col1" class="data row22 col1" >Belarus</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row23_col0" class="data row23 col0" >302</td>
+      <td id="T_1da54_row23_col1" class="data row23 col1" >Belgium</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row24_col0" class="data row24 col0" >254</td>
+      <td id="T_1da54_row24_col1" class="data row24 col1" >Belize</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row25_col0" class="data row25 col0" >409</td>
+      <td id="T_1da54_row25_col1" class="data row25 col1" >Benin</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row26_col0" class="data row26 col0" >252</td>
+      <td id="T_1da54_row26_col1" class="data row26 col1" >Bermuda</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row27_col0" class="data row27 col0" >602</td>
+      <td id="T_1da54_row27_col1" class="data row27 col1" >Bhutan</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row28_col0" class="data row28 col0" >201</td>
+      <td id="T_1da54_row28_col1" class="data row28 col1" >Bolivia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row29_col0" class="data row29 col0" >358</td>
+      <td id="T_1da54_row29_col1" class="data row29 col1" >Bosnia and Herzegovina</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row30_col0" class="data row30 col0" >402</td>
+      <td id="T_1da54_row30_col1" class="data row30 col1" >Botswana</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row31_col0" class="data row31 col0" >202</td>
+      <td id="T_1da54_row31_col1" class="data row31 col1" >Brazil</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row32_col0" class="data row32 col0" >603</td>
+      <td id="T_1da54_row32_col1" class="data row32 col1" >Brunei</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row33_col0" class="data row33 col0" >351</td>
+      <td id="T_1da54_row33_col1" class="data row33 col1" >Bulgaria</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row34_col0" class="data row34 col0" >447</td>
+      <td id="T_1da54_row34_col1" class="data row34 col1" >Burkina Faso</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row35_col0" class="data row35 col0" >606</td>
+      <td id="T_1da54_row35_col1" class="data row35 col1" >Burma</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row36_col0" class="data row36 col0" >403</td>
+      <td id="T_1da54_row36_col1" class="data row36 col1" >Burundi</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row37_col0" class="data row37 col0" >450</td>
+      <td id="T_1da54_row37_col1" class="data row37 col1" >Cabo Verde</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row38_col0" class="data row38 col0" >607</td>
+      <td id="T_1da54_row38_col1" class="data row38 col1" >Cambodia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row39_col0" class="data row39 col0" >404</td>
+      <td id="T_1da54_row39_col1" class="data row39 col1" >Cameroon</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row40_col0" class="data row40 col0" >100</td>
+      <td id="T_1da54_row40_col1" class="data row40 col1" >Canada</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row41_col0" class="data row41 col0" >450</td>
+      <td id="T_1da54_row41_col1" class="data row41 col1" >Cape Verde</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row42_col0" class="data row42 col0" >405</td>
+      <td id="T_1da54_row42_col1" class="data row42 col1" >Central African Republic</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row43_col0" class="data row43 col0" >297</td>
+      <td id="T_1da54_row43_col1" class="data row43 col1" >Central America</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row44_col0" class="data row44 col0" >406</td>
+      <td id="T_1da54_row44_col1" class="data row44 col1" >Chad</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row45_col0" class="data row45 col0" >203</td>
+      <td id="T_1da54_row45_col1" class="data row45 col1" >Chile</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row46_col0" class="data row46 col0" >650</td>
+      <td id="T_1da54_row46_col1" class="data row46 col1" >China</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row47_col0" class="data row47 col0" >204</td>
+      <td id="T_1da54_row47_col1" class="data row47 col1" >Colombia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row48_col0" class="data row48 col0" >456</td>
+      <td id="T_1da54_row48_col1" class="data row48 col1" >Comoros</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row49_col0" class="data row49 col0" >407</td>
+      <td id="T_1da54_row49_col1" class="data row49 col1" >Congo</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row50_col0" class="data row50 col0" >407</td>
+      <td id="T_1da54_row50_col1" class="data row50 col1" >Congo (Brazzaville)</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row51_col0" class="data row51 col0" >408</td>
+      <td id="T_1da54_row51_col1" class="data row51 col1" >Congo (Kinshasa)</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row52_col0" class="data row52 col0" >205</td>
+      <td id="T_1da54_row52_col1" class="data row52 col1" >Costa Rica</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row53_col0" class="data row53 col0" >417</td>
+      <td id="T_1da54_row53_col1" class="data row53 col1" >Cote D'Ivoire</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row54_col0" class="data row54 col0" >359</td>
+      <td id="T_1da54_row54_col1" class="data row54 col1" >Croatia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row55_col0" class="data row55 col0" >206</td>
+      <td id="T_1da54_row55_col1" class="data row55 col1" >Cuba</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row56_col0" class="data row56 col0" >275</td>
+      <td id="T_1da54_row56_col1" class="data row56 col1" >Curacao</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row57_col0" class="data row57 col0" >304</td>
+      <td id="T_1da54_row57_col1" class="data row57 col1" >Cyprus</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row58_col0" class="data row58 col0" >364</td>
+      <td id="T_1da54_row58_col1" class="data row58 col1" >Czech Republic</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row59_col0" class="data row59 col0" >352</td>
+      <td id="T_1da54_row59_col1" class="data row59 col1" >Czechoslovakia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row60_col0" class="data row60 col0" >305</td>
+      <td id="T_1da54_row60_col1" class="data row60 col1" >Denmark</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row61_col0" class="data row61 col0" >390</td>
+      <td id="T_1da54_row61_col1" class="data row61 col1" >Denmark, Greece, and Ireland</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row62_col0" class="data row62 col0" >412</td>
+      <td id="T_1da54_row62_col1" class="data row62 col1" >Djibouti</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row63_col0" class="data row63 col0" >269</td>
+      <td id="T_1da54_row63_col1" class="data row63 col1" >Dominica</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row64_col0" class="data row64 col0" >207</td>
+      <td id="T_1da54_row64_col1" class="data row64 col1" >Dominican Republic</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row65_col0" class="data row65 col0" >660</td>
+      <td id="T_1da54_row65_col1" class="data row65 col1" >East Timor</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row66_col0" class="data row66 col0" >391</td>
+      <td id="T_1da54_row66_col1" class="data row66 col1" >Eastern Europe</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row67_col0" class="data row67 col0" >208</td>
+      <td id="T_1da54_row67_col1" class="data row67 col1" >Ecuador</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row68_col0" class="data row68 col0" >410</td>
+      <td id="T_1da54_row68_col1" class="data row68 col1" >Egypt</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row69_col0" class="data row69 col0" >209</td>
+      <td id="T_1da54_row69_col1" class="data row69 col1" >El Salvador</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row70_col0" class="data row70 col0" >438</td>
+      <td id="T_1da54_row70_col1" class="data row70 col1" >Equatorial Guinea</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row71_col0" class="data row71 col0" >457</td>
+      <td id="T_1da54_row71_col1" class="data row71 col1" >Eritrea</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row72_col0" class="data row72 col0" >331</td>
+      <td id="T_1da54_row72_col1" class="data row72 col1" >Estonia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row73_col0" class="data row73 col0" >442</td>
+      <td id="T_1da54_row73_col1" class="data row73 col1" >Eswatini</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row74_col0" class="data row74 col0" >411</td>
+      <td id="T_1da54_row74_col1" class="data row74 col1" >Ethiopia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row75_col0" class="data row75 col0" >399</td>
+      <td id="T_1da54_row75_col1" class="data row75 col1" >Europe</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row76_col0" class="data row76 col0" >392</td>
+      <td id="T_1da54_row76_col1" class="data row76 col1" >European Communities (10)</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row77_col0" class="data row77 col0" >393</td>
+      <td id="T_1da54_row77_col1" class="data row77 col1" >European Communities (12)</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row78_col0" class="data row78 col0" >398</td>
+      <td id="T_1da54_row78_col1" class="data row78 col1" >European Union</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row79_col0" class="data row79 col0" >657</td>
+      <td id="T_1da54_row79_col1" class="data row79 col1" >Federated States of Micronesia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row80_col0" class="data row80 col0" >632</td>
+      <td id="T_1da54_row80_col1" class="data row80 col1" >Fiji</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row81_col0" class="data row81 col0" >306</td>
+      <td id="T_1da54_row81_col1" class="data row81 col1" >Finland</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row82_col0" class="data row82 col0" >307</td>
+      <td id="T_1da54_row82_col1" class="data row82 col1" >France</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row83_col0" class="data row83 col0" >256</td>
+      <td id="T_1da54_row83_col1" class="data row83 col1" >French Guiana</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row84_col0" class="data row84 col0" >255</td>
+      <td id="T_1da54_row84_col1" class="data row84 col1" >French Islands, Caribbean</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row85_col0" class="data row85 col0" >609</td>
+      <td id="T_1da54_row85_col1" class="data row85 col1" >French Islands, Indian Ocean</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row86_col0" class="data row86 col0" >610</td>
+      <td id="T_1da54_row86_col1" class="data row86 col1" >French Islands, Pacific</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row87_col0" class="data row87 col0" >413</td>
+      <td id="T_1da54_row87_col1" class="data row87 col1" >Gabon</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row88_col0" class="data row88 col0" >414</td>
+      <td id="T_1da54_row88_col1" class="data row88 col1" >Gambia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row89_col0" class="data row89 col0" >337</td>
+      <td id="T_1da54_row89_col1" class="data row89 col1" >Georgia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row90_col0" class="data row90 col0" >308</td>
+      <td id="T_1da54_row90_col1" class="data row90 col1" >Germany</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row91_col0" class="data row91 col0" >415</td>
+      <td id="T_1da54_row91_col1" class="data row91 col1" >Ghana</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row92_col0" class="data row92 col0" >309</td>
+      <td id="T_1da54_row92_col1" class="data row92 col1" >Gibraltar</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row93_col0" class="data row93 col0" >310</td>
+      <td id="T_1da54_row93_col1" class="data row93 col1" >Greece</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row94_col0" class="data row94 col0" >311</td>
+      <td id="T_1da54_row94_col1" class="data row94 col1" >Greenland</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row95_col0" class="data row95 col0" >265</td>
+      <td id="T_1da54_row95_col1" class="data row95 col1" >Grenada</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row96_col0" class="data row96 col0" >210</td>
+      <td id="T_1da54_row96_col1" class="data row96 col1" >Guatemala</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row97_col0" class="data row97 col0" >416</td>
+      <td id="T_1da54_row97_col1" class="data row97 col1" >Guinea</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row98_col0" class="data row98 col0" >430</td>
+      <td id="T_1da54_row98_col1" class="data row98 col1" >Guinea-Bissau</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row99_col0" class="data row99 col0" >257</td>
+      <td id="T_1da54_row99_col1" class="data row99 col1" >Guyana</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row100_col0" class="data row100 col0" >211</td>
+      <td id="T_1da54_row100_col1" class="data row100 col1" >Haiti</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row101_col0" class="data row101 col0" >212</td>
+      <td id="T_1da54_row101_col1" class="data row101 col1" >Honduras</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row102_col0" class="data row102 col0" >611</td>
+      <td id="T_1da54_row102_col1" class="data row102 col1" >Hong Kong</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row103_col0" class="data row103 col0" >354</td>
+      <td id="T_1da54_row103_col1" class="data row103 col1" >Hungary</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row104_col0" class="data row104 col0" >312</td>
+      <td id="T_1da54_row104_col1" class="data row104 col1" >Iceland</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row105_col0" class="data row105 col0" >612</td>
+      <td id="T_1da54_row105_col1" class="data row105 col1" >India</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row106_col0" class="data row106 col0" >613</td>
+      <td id="T_1da54_row106_col1" class="data row106 col1" >Indonesia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row107_col0" class="data row107 col0" >999</td>
+      <td id="T_1da54_row107_col1" class="data row107 col1" >International</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row108_col0" class="data row108 col0" >998</td>
+      <td id="T_1da54_row108_col1" class="data row108 col1" >International - Drilling Rigs</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row109_col0" class="data row109 col0" >502</td>
+      <td id="T_1da54_row109_col1" class="data row109 col1" >Iran</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row110_col0" class="data row110 col0" >503</td>
+      <td id="T_1da54_row110_col1" class="data row110 col1" >Iraq</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row111_col0" class="data row111 col0" >509</td>
+      <td id="T_1da54_row111_col1" class="data row111 col1" >Iraq-Saudi Arabia Neutral Zone</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row112_col0" class="data row112 col0" >313</td>
+      <td id="T_1da54_row112_col1" class="data row112 col1" >Ireland</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row113_col0" class="data row113 col0" >504</td>
+      <td id="T_1da54_row113_col1" class="data row113 col1" >Israel</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row114_col0" class="data row114 col0" >314</td>
+      <td id="T_1da54_row114_col1" class="data row114 col1" >Italy</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row115_col0" class="data row115 col0" >417</td>
+      <td id="T_1da54_row115_col1" class="data row115 col1" >Ivory Coast</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row116_col0" class="data row116 col0" >258</td>
+      <td id="T_1da54_row116_col1" class="data row116 col1" >Jamaica</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row117_col0" class="data row117 col0" >614</td>
+      <td id="T_1da54_row117_col1" class="data row117 col1" >Japan</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row118_col0" class="data row118 col0" >505</td>
+      <td id="T_1da54_row118_col1" class="data row118 col1" >Jordan</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row119_col0" class="data row119 col0" >607</td>
+      <td id="T_1da54_row119_col1" class="data row119 col1" >Kampuchea</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row120_col0" class="data row120 col0" >338</td>
+      <td id="T_1da54_row120_col1" class="data row120 col1" >Kazakhstan</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row121_col0" class="data row121 col0" >418</td>
+      <td id="T_1da54_row121_col1" class="data row121 col1" >Kenya</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row122_col0" class="data row122 col0" >655</td>
+      <td id="T_1da54_row122_col1" class="data row122 col1" >Kiribati</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row123_col0" class="data row123 col0" >366</td>
+      <td id="T_1da54_row123_col1" class="data row123 col1" >Kosovo</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row124_col0" class="data row124 col0" >506</td>
+      <td id="T_1da54_row124_col1" class="data row124 col1" >Kuwait</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row125_col0" class="data row125 col0" >339</td>
+      <td id="T_1da54_row125_col1" class="data row125 col1" >Kyrgyzstan</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row126_col0" class="data row126 col0" >615</td>
+      <td id="T_1da54_row126_col1" class="data row126 col1" >Laos</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row127_col0" class="data row127 col0" >299</td>
+      <td id="T_1da54_row127_col1" class="data row127 col1" >Latin America and Other Western Hemisphere</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row128_col0" class="data row128 col0" >332</td>
+      <td id="T_1da54_row128_col1" class="data row128 col1" >Latvia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row129_col0" class="data row129 col0" >507</td>
+      <td id="T_1da54_row129_col1" class="data row129 col1" >Lebanon</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row130_col0" class="data row130 col0" >419</td>
+      <td id="T_1da54_row130_col1" class="data row130 col1" >Lesotho</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row131_col0" class="data row131 col0" >420</td>
+      <td id="T_1da54_row131_col1" class="data row131 col1" >Liberia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row132_col0" class="data row132 col0" >421</td>
+      <td id="T_1da54_row132_col1" class="data row132 col1" >Libya</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row133_col0" class="data row133 col0" >315</td>
+      <td id="T_1da54_row133_col1" class="data row133 col1" >Liechtenstein</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row134_col0" class="data row134 col0" >333</td>
+      <td id="T_1da54_row134_col1" class="data row134 col1" >Lithuania</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row135_col0" class="data row135 col0" >316</td>
+      <td id="T_1da54_row135_col1" class="data row135 col1" >Luxembourg</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row136_col0" class="data row136 col0" >616</td>
+      <td id="T_1da54_row136_col1" class="data row136 col1" >Macau</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row137_col0" class="data row137 col0" >422</td>
+      <td id="T_1da54_row137_col1" class="data row137 col1" >Madagascar</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row138_col0" class="data row138 col0" >423</td>
+      <td id="T_1da54_row138_col1" class="data row138 col1" >Malawi</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row139_col0" class="data row139 col0" >617</td>
+      <td id="T_1da54_row139_col1" class="data row139 col1" >Malaysia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row140_col0" class="data row140 col0" >633</td>
+      <td id="T_1da54_row140_col1" class="data row140 col1" >Maldives</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row141_col0" class="data row141 col0" >424</td>
+      <td id="T_1da54_row141_col1" class="data row141 col1" >Mali</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row142_col0" class="data row142 col0" >317</td>
+      <td id="T_1da54_row142_col1" class="data row142 col1" >Malta</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row143_col0" class="data row143 col0" >658</td>
+      <td id="T_1da54_row143_col1" class="data row143 col1" >Marshall Islands</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row144_col0" class="data row144 col0" >425</td>
+      <td id="T_1da54_row144_col1" class="data row144 col1" >Mauritania</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row145_col0" class="data row145 col0" >453</td>
+      <td id="T_1da54_row145_col1" class="data row145 col1" >Mauritius</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row146_col0" class="data row146 col0" >213</td>
+      <td id="T_1da54_row146_col1" class="data row146 col1" >Mexico</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row147_col0" class="data row147 col0" >657</td>
+      <td id="T_1da54_row147_col1" class="data row147 col1" >Micronesia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row148_col0" class="data row148 col0" >599</td>
+      <td id="T_1da54_row148_col1" class="data row148 col1" >Middle East</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row149_col0" class="data row149 col0" >340</td>
+      <td id="T_1da54_row149_col1" class="data row149 col1" >Moldova</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row150_col0" class="data row150 col0" >318</td>
+      <td id="T_1da54_row150_col1" class="data row150 col1" >Monaco</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row151_col0" class="data row151 col0" >651</td>
+      <td id="T_1da54_row151_col1" class="data row151 col1" >Mongolia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row152_col0" class="data row152 col0" >361</td>
+      <td id="T_1da54_row152_col1" class="data row152 col1" >Montenegro</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row153_col0" class="data row153 col0" >426</td>
+      <td id="T_1da54_row153_col1" class="data row153 col1" >Morocco</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row154_col0" class="data row154 col0" >427</td>
+      <td id="T_1da54_row154_col1" class="data row154 col1" >Mozambique</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row155_col0" class="data row155 col0" >437</td>
+      <td id="T_1da54_row155_col1" class="data row155 col1" >Namibia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row156_col0" class="data row156 col0" >635</td>
+      <td id="T_1da54_row156_col1" class="data row156 col1" >Nauru</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row157_col0" class="data row157 col0" >618</td>
+      <td id="T_1da54_row157_col1" class="data row157 col1" >Nepal</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row158_col0" class="data row158 col0" >319</td>
+      <td id="T_1da54_row158_col1" class="data row158 col1" >Netherlands</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row159_col0" class="data row159 col0" >259</td>
+      <td id="T_1da54_row159_col1" class="data row159 col1" >Netherlands Antilles</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row160_col0" class="data row160 col0" >277</td>
+      <td id="T_1da54_row160_col1" class="data row160 col1" >Netherlands Islands, Caribbean</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row161_col0" class="data row161 col0" >620</td>
+      <td id="T_1da54_row161_col1" class="data row161 col1" >New Zealand</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row162_col0" class="data row162 col0" >214</td>
+      <td id="T_1da54_row162_col1" class="data row162 col1" >Nicaragua</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row163_col0" class="data row163 col0" >428</td>
+      <td id="T_1da54_row163_col1" class="data row163 col1" >Niger</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row164_col0" class="data row164 col0" >429</td>
+      <td id="T_1da54_row164_col1" class="data row164 col1" >Nigeria</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row165_col0" class="data row165 col0" >652</td>
+      <td id="T_1da54_row165_col1" class="data row165 col1" >North Korea</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row166_col0" class="data row166 col0" >360</td>
+      <td id="T_1da54_row166_col1" class="data row166 col1" >North Macedonia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row167_col0" class="data row167 col0" >320</td>
+      <td id="T_1da54_row167_col1" class="data row167 col1" >Norway</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row168_col0" class="data row168 col0" >508</td>
+      <td id="T_1da54_row168_col1" class="data row168 col1" >Oman</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row169_col0" class="data row169 col0" >899</td>
+      <td id="T_1da54_row169_col1" class="data row169 col1" >OPEC</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row170_col0" class="data row170 col0" >698</td>
+      <td id="T_1da54_row170_col1" class="data row170 col1" >Other</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row171_col0" class="data row171 col0" >899</td>
+      <td id="T_1da54_row171_col1" class="data row171 col1" >Other Africa, Asia, and Pacific</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row172_col0" class="data row172 col0" >394</td>
+      <td id="T_1da54_row172_col1" class="data row172 col1" >Other EC</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row173_col0" class="data row173 col0" >298</td>
+      <td id="T_1da54_row173_col1" class="data row173 col1" >Other Western Hemisphere</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row174_col0" class="data row174 col0" >622</td>
+      <td id="T_1da54_row174_col1" class="data row174 col1" >Pakistan</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row175_col0" class="data row175 col0" >659</td>
+      <td id="T_1da54_row175_col1" class="data row175 col1" >Palau</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row176_col0" class="data row176 col0" >215</td>
+      <td id="T_1da54_row176_col1" class="data row176 col1" >Panama</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row177_col0" class="data row177 col0" >619</td>
+      <td id="T_1da54_row177_col1" class="data row177 col1" >Papua New Guinea</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row178_col0" class="data row178 col0" >216</td>
+      <td id="T_1da54_row178_col1" class="data row178 col1" >Paraguay</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row179_col0" class="data row179 col0" >217</td>
+      <td id="T_1da54_row179_col1" class="data row179 col1" >Peru</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row180_col0" class="data row180 col0" >623</td>
+      <td id="T_1da54_row180_col1" class="data row180 col1" >Philippines</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row181_col0" class="data row181 col0" >355</td>
+      <td id="T_1da54_row181_col1" class="data row181 col1" >Poland</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row182_col0" class="data row182 col0" >321</td>
+      <td id="T_1da54_row182_col1" class="data row182 col1" >Portugal</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row183_col0" class="data row183 col0" >510</td>
+      <td id="T_1da54_row183_col1" class="data row183 col1" >Qatar</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row184_col0" class="data row184 col0" >356</td>
+      <td id="T_1da54_row184_col1" class="data row184 col1" >Romania</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row185_col0" class="data row185 col0" >341</td>
+      <td id="T_1da54_row185_col1" class="data row185 col1" >Russia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row186_col0" class="data row186 col0" >432</td>
+      <td id="T_1da54_row186_col1" class="data row186 col1" >Rwanda</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row187_col0" class="data row187 col0" >637</td>
+      <td id="T_1da54_row187_col1" class="data row187 col1" >Samoa</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row188_col0" class="data row188 col0" >322</td>
+      <td id="T_1da54_row188_col1" class="data row188 col1" >San Marino</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row189_col0" class="data row189 col0" >451</td>
+      <td id="T_1da54_row189_col1" class="data row189 col1" >Sao Tome and Principe</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row190_col0" class="data row190 col0" >511</td>
+      <td id="T_1da54_row190_col1" class="data row190 col1" >Saudi Arabia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row191_col0" class="data row191 col0" >433</td>
+      <td id="T_1da54_row191_col1" class="data row191 col1" >Senegal</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row192_col0" class="data row192 col0" >362</td>
+      <td id="T_1da54_row192_col1" class="data row192 col1" >Serbia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row193_col0" class="data row193 col0" >454</td>
+      <td id="T_1da54_row193_col1" class="data row193 col1" >Seychelles</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row194_col0" class="data row194 col0" >434</td>
+      <td id="T_1da54_row194_col1" class="data row194 col1" >Sierra Leone</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row195_col0" class="data row195 col0" >625</td>
+      <td id="T_1da54_row195_col1" class="data row195 col1" >Singapore</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row196_col0" class="data row196 col0" >276</td>
+      <td id="T_1da54_row196_col1" class="data row196 col1" >Sint Maarten</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row197_col0" class="data row197 col0" >365</td>
+      <td id="T_1da54_row197_col1" class="data row197 col1" >Slovakia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row198_col0" class="data row198 col0" >363</td>
+      <td id="T_1da54_row198_col1" class="data row198 col1" >Slovenia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row199_col0" class="data row199 col0" >654</td>
+      <td id="T_1da54_row199_col1" class="data row199 col1" >Solomon Islands</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row200_col0" class="data row200 col0" >435</td>
+      <td id="T_1da54_row200_col1" class="data row200 col1" >Somalia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row201_col0" class="data row201 col0" >436</td>
+      <td id="T_1da54_row201_col1" class="data row201 col1" >South Africa</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row202_col0" class="data row202 col0" >296</td>
+      <td id="T_1da54_row202_col1" class="data row202 col1" >South America</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row203_col0" class="data row203 col0" >296</td>
+      <td id="T_1da54_row203_col1" class="data row203 col1" >South and Central America</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row204_col0" class="data row204 col0" >626</td>
+      <td id="T_1da54_row204_col1" class="data row204 col1" >South Korea</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row205_col0" class="data row205 col0" >458</td>
+      <td id="T_1da54_row205_col1" class="data row205 col1" >South Sudan</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row206_col0" class="data row206 col0" >323</td>
+      <td id="T_1da54_row206_col1" class="data row206 col1" >Spain</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row207_col0" class="data row207 col0" >608</td>
+      <td id="T_1da54_row207_col1" class="data row207 col1" >Sri Lanka</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row208_col0" class="data row208 col0" >267</td>
+      <td id="T_1da54_row208_col1" class="data row208 col1" >St. Kitts and Nevis</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row209_col0" class="data row209 col0" >270</td>
+      <td id="T_1da54_row209_col1" class="data row209 col1" >St. Lucia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row210_col0" class="data row210 col0" >263</td>
+      <td id="T_1da54_row210_col1" class="data row210 col1" >St. Pierre and Miquelon</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row211_col0" class="data row211 col0" >271</td>
+      <td id="T_1da54_row211_col1" class="data row211 col1" >St. Vincent and the Grenadines</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row212_col0" class="data row212 col0" >441</td>
+      <td id="T_1da54_row212_col1" class="data row212 col1" >Sudan</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row213_col0" class="data row213 col0" >260</td>
+      <td id="T_1da54_row213_col1" class="data row213 col1" >Suriname</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row214_col0" class="data row214 col0" >324</td>
+      <td id="T_1da54_row214_col1" class="data row214 col1" >Sweden</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row215_col0" class="data row215 col0" >325</td>
+      <td id="T_1da54_row215_col1" class="data row215 col1" >Switzerland</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row216_col0" class="data row216 col0" >512</td>
+      <td id="T_1da54_row216_col1" class="data row216 col1" >Syria</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row217_col0" class="data row217 col0" >628</td>
+      <td id="T_1da54_row217_col1" class="data row217 col1" >Taiwan</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row218_col0" class="data row218 col0" >342</td>
+      <td id="T_1da54_row218_col1" class="data row218 col1" >Tajikistan</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row219_col0" class="data row219 col0" >443</td>
+      <td id="T_1da54_row219_col1" class="data row219 col1" >Tanzania</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row220_col0" class="data row220 col0" >629</td>
+      <td id="T_1da54_row220_col1" class="data row220 col1" >Thailand</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row221_col0" class="data row221 col0" >660</td>
+      <td id="T_1da54_row221_col1" class="data row221 col1" >Timor-Leste</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row222_col0" class="data row222 col0" >444</td>
+      <td id="T_1da54_row222_col1" class="data row222 col1" >Togo</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row223_col0" class="data row223 col0" >638</td>
+      <td id="T_1da54_row223_col1" class="data row223 col1" >Tonga</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row224_col0" class="data row224 col0" >000</td>
+      <td id="T_1da54_row224_col1" class="data row224 col1" >Total </td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row225_col0" class="data row225 col0" >699</td>
+      <td id="T_1da54_row225_col1" class="data row225 col1" >Total Asia and Pac.</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row226_col0" class="data row226 col0" >399</td>
+      <td id="T_1da54_row226_col1" class="data row226 col1" >Total Europe</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row227_col0" class="data row227 col0" >299</td>
+      <td id="T_1da54_row227_col1" class="data row227 col1" >Total LA and OWH</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row228_col0" class="data row228 col0" >261</td>
+      <td id="T_1da54_row228_col1" class="data row228 col1" >Trinidad and Tobago</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row229_col0" class="data row229 col0" >445</td>
+      <td id="T_1da54_row229_col1" class="data row229 col1" >Tunisia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row230_col0" class="data row230 col0" >326</td>
+      <td id="T_1da54_row230_col1" class="data row230 col1" >Turkey</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row231_col0" class="data row231 col0" >343</td>
+      <td id="T_1da54_row231_col1" class="data row231 col1" >Turkmenistan</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row232_col0" class="data row232 col0" >656</td>
+      <td id="T_1da54_row232_col1" class="data row232 col1" >Tuvalu</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row233_col0" class="data row233 col0" >446</td>
+      <td id="T_1da54_row233_col1" class="data row233 col1" >Uganda</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row234_col0" class="data row234 col0" >344</td>
+      <td id="T_1da54_row234_col1" class="data row234 col1" >Ukraine</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row235_col0" class="data row235 col0" >357</td>
+      <td id="T_1da54_row235_col1" class="data row235 col1" >Union of Soviet Socialist Republics</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row236_col0" class="data row236 col0" >513</td>
+      <td id="T_1da54_row236_col1" class="data row236 col1" >United Arab Emirates</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row237_col0" class="data row237 col0" >327</td>
+      <td id="T_1da54_row237_col1" class="data row237 col1" >United Kingdom</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row238_col0" class="data row238 col0" >455</td>
+      <td id="T_1da54_row238_col1" class="data row238 col1" >United Kingdom Islands, Atlantic (Africa)</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row239_col0" class="data row239 col0" >268</td>
+      <td id="T_1da54_row239_col1" class="data row239 col1" >United Kingdom Islands, Atlantic (OWH)</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row240_col0" class="data row240 col0" >266</td>
+      <td id="T_1da54_row240_col1" class="data row240 col1" >United Kingdom Islands, Caribbean</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row241_col0" class="data row241 col0" >605</td>
+      <td id="T_1da54_row241_col1" class="data row241 col1" >United Kingdom Islands, Indian Ocean</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row242_col0" class="data row242 col0" >604</td>
+      <td id="T_1da54_row242_col1" class="data row242 col1" >United Kingdom Islands, Pacific</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row243_col0" class="data row243 col0" >199</td>
+      <td id="T_1da54_row243_col1" class="data row243 col1" >United States</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row244_col0" class="data row244 col0" >218</td>
+      <td id="T_1da54_row244_col1" class="data row244 col1" >Uruguay</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row245_col0" class="data row245 col0" >345</td>
+      <td id="T_1da54_row245_col1" class="data row245 col1" >Uzbekistan</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row246_col0" class="data row246 col0" >636</td>
+      <td id="T_1da54_row246_col1" class="data row246 col1" >Vanuatu</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row247_col0" class="data row247 col0" >330</td>
+      <td id="T_1da54_row247_col1" class="data row247 col1" >Vatican City</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row248_col0" class="data row248 col0" >219</td>
+      <td id="T_1da54_row248_col1" class="data row248 col1" >Venezuela</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row249_col0" class="data row249 col0" >653</td>
+      <td id="T_1da54_row249_col1" class="data row249 col1" >Vietnam</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row250_col0" class="data row250 col0" >440</td>
+      <td id="T_1da54_row250_col1" class="data row250 col1" >Western Sahara</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row251_col0" class="data row251 col0" >637</td>
+      <td id="T_1da54_row251_col1" class="data row251 col1" >Western Samoa </td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row252_col0" class="data row252 col0" >514</td>
+      <td id="T_1da54_row252_col1" class="data row252 col1" >Yemen</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row253_col0" class="data row253 col0" >500</td>
+      <td id="T_1da54_row253_col1" class="data row253 col1" >Yemen (Aden)</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row254_col0" class="data row254 col0" >514</td>
+      <td id="T_1da54_row254_col1" class="data row254 col1" >Yemen (Sanaa)</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row255_col0" class="data row255 col0" >328</td>
+      <td id="T_1da54_row255_col1" class="data row255 col1" >Yugoslavia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row256_col0" class="data row256 col0" >408</td>
+      <td id="T_1da54_row256_col1" class="data row256 col1" >Zaire</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row257_col0" class="data row257 col0" >448</td>
+      <td id="T_1da54_row257_col1" class="data row257 col1" >Zambia</td>
+    </tr>
+    <tr>
+      <td id="T_1da54_row258_col0" class="data row258 col0" >431</td>
+      <td id="T_1da54_row258_col1" class="data row258 col1" >Zimbabwe</td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+<p>Industries:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">industries</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_parameter_values</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s2">&quot;MNE&quot;</span><span class="p">,</span> <span class="n">parametername</span><span class="o">=</span><span class="s2">&quot;Industry&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">industries</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">hide_index</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style type="text/css">
+</style>
+<table id="T_db440_">
+  <thead>
+    <tr>
+      <th class="col_heading level0 col0" >key</th>
+      <th class="col_heading level0 col1" >desc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td id="T_db440_row0_col0" class="data row0 col0" >all</td>
+      <td id="T_db440_row0_col1" class="data row0 col1" > all</td>
+    </tr>
+    <tr>
+      <td id="T_db440_row1_col0" class="data row1 col0" >0000</td>
+      <td id="T_db440_row1_col1" class="data row1 col1" > All Industries Total</td>
+    </tr>
+    <tr>
+      <td id="T_db440_row2_col0" class="data row2 col0" >7210</td>
+      <td id="T_db440_row2_col1" class="data row2 col1" >Accommodation</td>
+    </tr>
+    <tr>
+      <td id="T_db440_row3_col0" class="data row3 col0" >7200</td>
+      <td id="T_db440_row3_col1" class="data row3 col1" >Accommodation and food services</td>
+    </tr>
+    <tr>
+      <td id="T_db440_row4_col0" class="data row4 col0" >5412</td>
+      <td id="T_db440_row4_col1" class="data row4 col1" >Accounting, tax preparation, bookkeeping, and payroll services</td>
+    </tr>
+  </tbody>
+</table></div>
+</div>
+</section>
+<section id="Examples:">
+<h2>Examples:<a class="headerlink" href="#Examples:" title="Permalink to this heading">¶</a></h2>
+<p>U.S. Direct investment abroad, total position, by industry, 2015-2020:</p>
+<ul class="simple">
+<li><p>U.S. Direct investment abroad requires directionofinvestment = outward</p></li>
+<li><p>Position is seriesID = 30</p></li>
+<li><p>Classification = industry</p></li>
+<li><p>Year = 2015,…,2020</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s2">&quot;MNE&quot;</span><span class="p">,</span> <span class="n">DirectionOfInvestment</span><span class="o">=</span><span class="s2">&quot;outward&quot;</span><span class="p">,</span>
+                <span class="n">Classification</span><span class="o">=</span><span class="s2">&quot;Industry&quot;</span><span class="p">,</span> <span class="n">SeriesID</span><span class="o">=</span><span class="s2">&quot;30&quot;</span><span class="p">,</span>
+                <span class="n">Year</span><span class="o">=</span><span class="s2">&quot;2015,2016,2017,2018,2019,2020&quot;</span><span class="p">,</span> <span class="n">getfootnotes</span><span class="o">=</span><span class="s2">&quot;yes&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Year</th>
+      <th>SeriesID</th>
+      <th>SeriesName</th>
+      <th>Row</th>
+      <th>ColumnGParent</th>
+      <th>ColumnParent</th>
+      <th>Column</th>
+      <th>RowCode</th>
+      <th>ColumnCode</th>
+      <th>ColumnParentCode</th>
+      <th>ColumnGParentCode</th>
+      <th>TableScale</th>
+      <th>DataValueUnformatted</th>
+      <th>TableColumnDisplayOrder</th>
+      <th>TableRowDisplayOrder</th>
+      <th>DataValue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2015</td>
+      <td>30</td>
+      <td>U.S. Direct Investment Position Abroad on a Hi...</td>
+      <td>All Industries Total</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Position</td>
+      <td>0000</td>
+      <td>000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>5289071</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>5,289,071</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2016</td>
+      <td>30</td>
+      <td>U.S. Direct Investment Position Abroad on a Hi...</td>
+      <td>All Industries Total</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Position</td>
+      <td>0000</td>
+      <td>000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>5518644</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>5,518,644</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2018</td>
+      <td>30</td>
+      <td>U.S. Direct Investment Position Abroad on a Hi...</td>
+      <td>All Industries Total</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Position</td>
+      <td>0000</td>
+      <td>000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>5792290</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>5,792,290</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Foreign direct investment in the United States, employment by majority-owned Canadian firms broken down by major industry, 2012 – 2019</p>
+<ul class="simple">
+<li><p>Foreign direct investment in the United States requires directionofinvestment = inward</p></li>
+<li><p>Employment series ID = 8</p></li>
+<li><p>Classification is CountrybyIndustry</p></li>
+<li><p>Majority-owned affiliates requires ownershiplevel = 0, Nonbankaffiliates = 0 for recent data</p></li>
+<li><p>Canada country code = 100</p></li>
+<li><p>Year = 2017, 2018, 2019</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s2">&quot;MNE&quot;</span><span class="p">,</span> <span class="n">DirectionOfInvestment</span><span class="o">=</span><span class="s2">&quot;inward&quot;</span><span class="p">,</span>
+                <span class="n">Classification</span><span class="o">=</span><span class="s2">&quot;CountrybyIndustry&quot;</span><span class="p">,</span> <span class="n">SeriesID</span><span class="o">=</span><span class="s2">&quot;8&quot;</span><span class="p">,</span>
+                <span class="n">Year</span><span class="o">=</span><span class="s2">&quot;2012,2013,2014,2015,2016,2017,2018,2019&quot;</span><span class="p">,</span> <span class="n">Country</span><span class="o">=</span><span class="s2">&quot;100&quot;</span><span class="p">,</span>
+                <span class="n">getfootnotes</span><span class="o">=</span><span class="s2">&quot;yes&quot;</span><span class="p">,</span> <span class="n">Ownershiplevel</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="n">NonbankAffiliatesOnly</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Year</th>
+      <th>SeriesID</th>
+      <th>SeriesName</th>
+      <th>Row</th>
+      <th>ColumnGParent</th>
+      <th>ColumnParent</th>
+      <th>Column</th>
+      <th>RowCode</th>
+      <th>ColumnCode</th>
+      <th>ColumnParentCode</th>
+      <th>ColumnGParentCode</th>
+      <th>TableScale</th>
+      <th>DataValueUnformatted</th>
+      <th>TableColumnDisplayOrder</th>
+      <th>TableRowDisplayOrder</th>
+      <th>DataValue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2012</td>
+      <td>8</td>
+      <td>Employment</td>
+      <td>Canada</td>
+      <td>None</td>
+      <td>None</td>
+      <td>All Industries Total</td>
+      <td>100</td>
+      <td>0000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Thousands of Employees</td>
+      <td>560.8</td>
+      <td>1.00</td>
+      <td>15.50</td>
+      <td>560.8</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2013</td>
+      <td>8</td>
+      <td>Employment</td>
+      <td>Canada</td>
+      <td>None</td>
+      <td>None</td>
+      <td>All Industries Total</td>
+      <td>100</td>
+      <td>0000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Thousands of Employees</td>
+      <td>580.9</td>
+      <td>1.00</td>
+      <td>15.50</td>
+      <td>580.9</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2015</td>
+      <td>8</td>
+      <td>Employment</td>
+      <td>Canada</td>
+      <td>None</td>
+      <td>None</td>
+      <td>All Industries Total</td>
+      <td>100</td>
+      <td>0000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Thousands of Employees</td>
+      <td>641.4</td>
+      <td>1.00</td>
+      <td>15.50</td>
+      <td>641.4</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Foreign direct investment in the United States, employment of majority-owned affiliates, by state and country, 2018</p>
+<ul class="simple">
+<li><p>Foreign direct investment in the United States employment by state requires directionofinvestment = state</p></li>
+<li><p>Employment series ID = 8</p></li>
+<li><p>Classification is StatebyCountryofUBO</p></li>
+<li><p>Majority-owned affiliates requires ownershiplevel = 0, Nonbankaffiliates = 0 for recent data</p></li>
+<li><p>Year = 2018</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s2">&quot;MNE&quot;</span><span class="p">,</span> <span class="n">DirectionOfInvestment</span><span class="o">=</span><span class="s2">&quot;state&quot;</span><span class="p">,</span>
+                <span class="n">OwnershipLevel</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="n">NonbankAffiliatesOnly</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="p">,</span>
+                <span class="n">Classification</span><span class="o">=</span><span class="s2">&quot;StatebyCountryofUBO&quot;</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="s2">&quot;2018&quot;</span><span class="p">,</span>
+                <span class="n">Country</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="n">seriesID</span><span class="o">=</span><span class="s2">&quot;8&quot;</span><span class="p">,</span> <span class="n">GetFootnotes</span><span class="o">=</span><span class="s2">&quot;yes&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Year</th>
+      <th>SeriesID</th>
+      <th>SeriesName</th>
+      <th>Row</th>
+      <th>ColumnGParent</th>
+      <th>ColumnParent</th>
+      <th>Column</th>
+      <th>RowCode</th>
+      <th>ColumnCode</th>
+      <th>ColumnParentCode</th>
+      <th>ColumnGParentCode</th>
+      <th>TableScale</th>
+      <th>DataValueUnformatted</th>
+      <th>TableColumnDisplayOrder</th>
+      <th>TableRowDisplayOrder</th>
+      <th>DataValue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2018</td>
+      <td>8</td>
+      <td>Employment</td>
+      <td>Total States and Areas</td>
+      <td>None</td>
+      <td>None</td>
+      <td>--- All Countries Total</td>
+      <td>00</td>
+      <td>000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Thousands of Employees</td>
+      <td>7862.2</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>7,862.2</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2018</td>
+      <td>8</td>
+      <td>Employment</td>
+      <td>Total States and Areas</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Canada</td>
+      <td>00</td>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Thousands of Employees</td>
+      <td>837.4</td>
+      <td>2.00</td>
+      <td>1.00</td>
+      <td>837.4</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2018</td>
+      <td>8</td>
+      <td>Employment</td>
+      <td>Total States and Areas</td>
+      <td>Europe</td>
+      <td>Total</td>
+      <td>Total</td>
+      <td>00</td>
+      <td>000</td>
+      <td>000</td>
+      <td>399</td>
+      <td>Thousands of Employees</td>
+      <td>4923.2</td>
+      <td>3.00</td>
+      <td>1.00</td>
+      <td>4,923.2</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>New foreign direct investment in the United States, Investment expenditures by type, by country, all years available</p>
+<ul class="simple">
+<li><p>New foreign direct investment in the United States requires directofinvestment = inward</p></li>
+<li><p>Series ID = 62</p></li>
+<li><p>Classification is CountryofUBObyType</p></li>
+<li><p>Year = all</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s2">&quot;MNE&quot;</span><span class="p">,</span> <span class="n">DirectionOfInvestment</span><span class="o">=</span><span class="s2">&quot;inward&quot;</span><span class="p">,</span>
+                <span class="n">Classification</span><span class="o">=</span><span class="s2">&quot;CountryofUBObyType&quot;</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span>
+                <span class="n">seriesID</span><span class="o">=</span><span class="s2">&quot;62&quot;</span><span class="p">,</span> <span class="n">GetFootnotes</span><span class="o">=</span><span class="s2">&quot;yes&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Year</th>
+      <th>SeriesID</th>
+      <th>SeriesName</th>
+      <th>Row</th>
+      <th>ColumnGParent</th>
+      <th>ColumnParent</th>
+      <th>Column</th>
+      <th>RowCode</th>
+      <th>ColumnCode</th>
+      <th>ColumnParentCode</th>
+      <th>ColumnGParentCode</th>
+      <th>TableScale</th>
+      <th>DataValueUnformatted</th>
+      <th>TableColumnDisplayOrder</th>
+      <th>TableRowDisplayOrder</th>
+      <th>DataValue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2020</td>
+      <td>62</td>
+      <td>Investment Expenditures</td>
+      <td>All Countries Total</td>
+      <td>First-year expenditures</td>
+      <td>Total</td>
+      <td>Total</td>
+      <td>000</td>
+      <td>000</td>
+      <td>000</td>
+      <td>111</td>
+      <td>Millions of dollars</td>
+      <td>120674</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>120,674</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2019</td>
+      <td>62</td>
+      <td>Investment Expenditures</td>
+      <td>All Countries Total</td>
+      <td>First-year expenditures</td>
+      <td>Total</td>
+      <td>Total</td>
+      <td>000</td>
+      <td>000</td>
+      <td>000</td>
+      <td>111</td>
+      <td>Millions of dollars</td>
+      <td>221215</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>221,215</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2014</td>
+      <td>62</td>
+      <td>Investment Expenditures</td>
+      <td>All Countries Total</td>
+      <td>First-year expenditures</td>
+      <td>Total</td>
+      <td>Total</td>
+      <td>000</td>
+      <td>000</td>
+      <td>000</td>
+      <td>111</td>
+      <td>Millions of dollars</td>
+      <td>260487</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>260,487</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>U.S. parent companies, assets, by industry, 2018</p>
+<ul class="simple">
+<li><p>U.S. parent companies requires directionofinvestment = parent</p></li>
+<li><p>Series ID = 1</p></li>
+<li><p>Classification = industry</p></li>
+<li><p>U.S. parent data requires ownershiplevel = 1, Nonbankaffiliates = 0 for recent data</p></li>
+<li><p>Year = 2018</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s2">&quot;MNE&quot;</span><span class="p">,</span> <span class="n">DirectionOfInvestment</span><span class="o">=</span><span class="s2">&quot;parent&quot;</span><span class="p">,</span>
+                <span class="n">Classification</span><span class="o">=</span><span class="s2">&quot;Industry&quot;</span><span class="p">,</span> <span class="n">SeriesID</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="s2">&quot;2018&quot;</span><span class="p">,</span>
+                <span class="n">getfootnotes</span><span class="o">=</span><span class="s2">&quot;yes&quot;</span><span class="p">,</span> <span class="n">Ownershiplevel</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="n">NonbankAffiliatesOnly</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Year</th>
+      <th>SeriesID</th>
+      <th>SeriesName</th>
+      <th>Row</th>
+      <th>ColumnGParent</th>
+      <th>ColumnParent</th>
+      <th>Column</th>
+      <th>RowCode</th>
+      <th>ColumnCode</th>
+      <th>ColumnParentCode</th>
+      <th>ColumnGParentCode</th>
+      <th>TableScale</th>
+      <th>DataValueUnformatted</th>
+      <th>TableColumnDisplayOrder</th>
+      <th>TableRowDisplayOrder</th>
+      <th>DataValue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2018</td>
+      <td>1</td>
+      <td>Total Assets</td>
+      <td>All Industries Total</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Total Assets</td>
+      <td>0000</td>
+      <td>180</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>43783215</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>43,783,215</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2018</td>
+      <td>1</td>
+      <td>Total Assets</td>
+      <td>Mining</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Total Assets</td>
+      <td>2198</td>
+      <td>180</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>562877</td>
+      <td>1.00</td>
+      <td>16.50</td>
+      <td>562,877</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2018</td>
+      <td>1</td>
+      <td>Total Assets</td>
+      <td>Oil and Gas Extraction</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Total Assets</td>
+      <td>2111</td>
+      <td>180</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>277707</td>
+      <td>1.00</td>
+      <td>17.50</td>
+      <td>277,707</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">beaapi</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Quick-start tutorial:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="README.html">beaapi</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API documentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to-guides:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="iTables_to_api.html">How to translate iTable tables to API queries</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">How to translate MNE tables to API queries</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="iTables_to_api.html" title="previous chapter">How to translate iTable tables to API queries</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, BEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/iTables_MNE.ipynb.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

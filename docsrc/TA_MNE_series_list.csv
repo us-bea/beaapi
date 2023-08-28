@@ -1,0 +1,59 @@
+Series ID,Direction,Note,Short name
+0,,,All
+1,inward/outward/parent,,Assets
+2,inward,,Gross PPE
+3,outward/parent,,Capital Expenditures
+4,inward/outward/parent,,Sales
+5,inward/outward/parent,,Net Income
+6,inward/outward/parent,,Value Added
+7,inward/outward/parent,,Compensation
+8,inward/outward/state/parent,,Employment
+9,state,1,Manufacturing Employment
+10,inward/outward,,Exports of Goods
+11,defunct,,Exports of Goods to the FPG
+12,inward/outward,,Imports of Goods
+13,defunct,,Imports of Goods from the FPG
+14,inward/outward/parent,,R&D
+16,defunct,,Balance Sheet
+19,defunct,,U.S. Trade in Goods
+20,parent,,Liabilities
+21,parent,,Owner's Equity
+22,inward,,Inward Position
+23,inward,,Inward Flows
+24,inward,,Inward Equity flows
+25,inward/outward,,Reinvestment of earnings
+26,inward,,Debt inflows
+27,inward/outward,,Direct investment income
+28,inward,2,Inward Royalties Payments
+29,inward,2,"OPS, U.S. affiliates payments"
+30,outward,,Outward position
+31,outward,,Outward flows
+32,outward,,Equity outflows
+33,outward,,Debt outflows
+34,outward,2,"Royalties, U.S. parents' receipts"
+35,outward,2,"OPS, U.S. parents receipts"
+39,outward,2,Royalties U.S. parents' payments
+40,outward,2,"OPS, U.S. parents' payments"
+41,inward,2,"Royalties, U.S. affiliates' receipts"
+42,inward,2,"OPS, U.S. affiliates receipts"
+43,inward,2,"Royalties, Net inward payments"
+44,inward,2,"OPS, new inward payments"
+46,parent,,"U.S. Exports, parents to non affiliates"
+47,parent,,"U.S. Imports, from affiliates to parents"
+48,parent,,"U.S. Imports, from non-affiliates to parents"
+50,defunct,,U.S. trade in goods of affiliates
+51,defunct,,"Total assets, U.S. parent"
+52,defunct,,"Total assets, affiliates"
+53,inward,,Inward PPE expenditures
+54,outward,,"Net property, plant, and equipment"
+55,defunct,,Sales of services
+56,defunct,,Sales of goods
+57,parent,,"U.S. Exports, parents to foreign affiliates"
+58,outward,,Goods supplied
+60,outward,,Services supplied
+61,outward,,Services supplied to foreigners
+62,inward,,Investment Expenditures
+64,inward,,Employment of new affiliates
+66,inward,,Sales of new affiliates
+68,inward,,Net income of new affiliates
+69,inward,,Balance sheet items of new affiliates

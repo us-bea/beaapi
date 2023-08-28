@@ -1,0 +1,1232 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Working &#8212; beaapi  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <p>Generate citations automatically</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">beaapi</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get key from unversioned file</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">dotenv</span> <span class="kn">import</span> <span class="n">load_dotenv</span>
+<span class="n">load_dotenv</span><span class="p">()</span>
+<span class="n">beakey</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;beakey&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[59]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bibtex_str_template</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;@misc{{</span><span class="si">{0}</span><span class="s2">,</span>
+<span class="s2">    title        = &quot;</span><span class="si">{1}</span><span class="s2">&quot;,</span>
+<span class="s2">    author       = &quot;{{U.S.}} {{B}}ureau of {{E}}conomic {{A}}nalysis&quot;,</span>
+<span class="s2">    year         = </span><span class="si">{2}</span><span class="s2">,</span>
+<span class="s2">    note         = &quot;Accessed: </span><span class="si">{3}</span><span class="s2">&quot;</span>
+<span class="s2">}}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">formatted_template</span> <span class="o">=</span> <span class="s2">&quot;U.S. Bureau of Economic Analysis, “</span><span class="si">{0}</span><span class="s2">,” (accessed </span><span class="si">{1}</span><span class="s2">).&quot;</span>
+<span class="k">def</span> <span class="nf">citation_named</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">cite_suffix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="c1"># Generates a single-line formatted cite and bibtek entry to manually import.</span>
+    <span class="n">now</span>  <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
+    <span class="n">access_date</span> <span class="o">=</span> <span class="n">now</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">formatted</span> <span class="o">=</span> <span class="n">formatted_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">access_date</span><span class="p">)</span>
+    <span class="n">citekey</span> <span class="o">=</span> <span class="s2">&quot;bea&quot;</span><span class="o">+</span><span class="n">cite_suffix</span>
+
+    <span class="n">bibtex_str</span> <span class="o">=</span> <span class="n">bibtex_str_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">citekey</span><span class="p">,</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">now</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y&#39;</span><span class="p">),</span> <span class="n">access_date</span><span class="p">)</span>
+    <span class="c1"># howpublished = &quot;\\url{{https://www.nasa.gov/nh/pluto-the-other-red-planet}}&quot;,</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">formatted</span><span class="p">,</span> <span class="n">bibtex_str</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">citation_search</span><span class="p">(</span><span class="n">tableid</span><span class="p">,</span> <span class="n">beakey</span><span class="p">):</span>
+    <span class="c1"># get&#39;s tablename from metadata_search, only for NIPA, NIUnderlyingDetail and FixedAssets</span>
+    <span class="n">search_data</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">search_metadata</span><span class="p">(</span><span class="n">tableid</span><span class="p">,</span> <span class="n">beakey</span><span class="p">)</span>
+    <span class="n">table_name2</span> <span class="o">=</span> <span class="n">search_data</span><span class="p">[</span><span class="n">search_data</span><span class="p">[</span><span class="s2">&quot;TableId&quot;</span><span class="p">]</span><span class="o">==</span><span class="n">tableid</span><span class="p">][</span><span class="s1">&#39;TableName&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">citation_named</span><span class="p">(</span><span class="n">table_name2</span><span class="p">,</span> <span class="n">tableid</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>Next we’ll go through each dataset and try to generate one</p>
+<section id="Working">
+<h1>Working<a class="headerlink" href="#Working" title="Permalink to this heading">¶</a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NIPA</span>
+<span class="n">tableid</span> <span class="o">=</span> <span class="s1">&#39;T20305&#39;</span>
+<span class="n">bea_tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="n">datasetname</span><span class="o">=</span><span class="s1">&#39;NIPA&#39;</span><span class="p">,</span> <span class="n">TableName</span><span class="o">=</span><span class="n">tableid</span><span class="p">,</span> <span class="n">Frequency</span><span class="o">=</span><span class="s1">&#39;Q&#39;</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="s1">&#39;2015&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># check out if any attrs might be helpful</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Extra detail keys:&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">])</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">][</span><span class="s1">&#39;Notes&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+dict_keys([&#39;params&#39;, &#39;response_size&#39;, &#39;detail&#39;, &#39;time_invariant_keys&#39;, &#39;time_invariant_vars&#39;, &#39;time_variant_keys&#39;, &#39;time_variant_vars&#39;, &#39;time_variant_only_vars&#39;, &#39;index_cols&#39;])
+Extra detail keys:dict_keys([&#39;Statistic&#39;, &#39;UTCProductionTime&#39;, &#39;Dimensions&#39;, &#39;Notes&#39;])
+Let&#39;s look at some interesting ones.
+Statistic: NIPA Table
+Notes corresponding to NoteRef:
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>NoteRef</th>
+      <th>NoteText</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>T20305</td>
+      <td>Table 2.3.5. Personal Consumption Expenditures...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>T20305.1</td>
+      <td>1. Net expenses of NPISHs, defined as their gr...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>T20305.2</td>
+      <td>2. Gross output is net of unrelated sales, sec...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>T20305.3</td>
+      <td>3. Excludes unrelated sales, secondary sales, ...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>T20305.4</td>
+      <td>4. Food consists of food and beverages purchas...</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>T20305.5</td>
+      <td>5. Consists of gasoline and other energy goods...</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>T20305.6</td>
+      <td>6. Market-based PCE is a supplemental measure ...</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Two methods. The second one looks better as we don&#39;t have to parse out the units and LastRevised</span>
+<span class="n">table_name1</span> <span class="o">=</span> <span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">][</span><span class="s1">&#39;Notes&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">table_name1</span><span class="p">)</span>
+
+
+<span class="n">formatted</span><span class="p">,</span> <span class="n">bibtex_str</span> <span class="o">=</span> <span class="n">citation_search</span><span class="p">(</span><span class="n">tableid</span><span class="p">,</span> <span class="n">beakey</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">formatted</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bibtex_str</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Table 2.3.5. Personal Consumption Expenditures by Major Type of Product [Billions of dollars] - LastRevised: September 29, 2022
+U.S. Bureau of Economic Analysis, “Table 2.3.5. Personal Consumption Expenditures by Major Type of Product,” (accessed 2022-10-18).
+@misc{beaT20305,
+    title        = &#34;Table 2.3.5. Personal Consumption Expenditures by Major Type of Product&#34;,
+    author       = &#34;{U.S.} {B}ureau of {E}conomic {A}nalysis&#34;,
+    year         = 2022,
+    note         = &#34;Accessed: 2022-10-18&#34;
+}
+
+</pre></div></div>
+</div>
+<p>Now just use the metadata search for NIUnderlyingDetail and FixedAssets</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NIUnderlyingDetail</span>
+<span class="n">TableName</span><span class="o">=</span><span class="s2">&quot;U001A&quot;</span>
+<span class="n">bea_tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="n">datasetname</span><span class="o">=</span><span class="s1">&#39;NIUnderlyingDetail&#39;</span><span class="p">,</span> <span class="n">TableName</span><span class="o">=</span><span class="n">TableName</span><span class="p">,</span> <span class="n">Frequency</span><span class="o">=</span><span class="s1">&#39;Q&#39;</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="s1">&#39;1995&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">][</span><span class="s1">&#39;Notes&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">formatted</span><span class="p">,</span> <span class="n">bibtex_str</span> <span class="o">=</span> <span class="n">citation_search</span><span class="p">(</span><span class="n">TableName</span><span class="p">,</span> <span class="n">beakey</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">formatted</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bibtex_str</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Table 1AU. Real Manufacturing and Trade Inventories, Seasonally Adjusted, End of Period [Chained 1996 dollars, 1967-96, SIC] [Millions of chained (1996) dollars; seasonally adjusted, end of period] - LastRevised: July 27, 2018
+U.S. Bureau of Economic Analysis, “Table 1AU. Real Manufacturing and Trade Inventories, Seasonally Adjusted, End of Period [Chained 1996 dollars, 1967-96, SIC],” (accessed 2022-10-18).
+@misc{beaU001A,
+    title        = &#34;Table 1AU. Real Manufacturing and Trade Inventories, Seasonally Adjusted, End of Period [Chained 1996 dollars, 1967-96, SIC]&#34;,
+    author       = &#34;{U.S.} {B}ureau of {E}conomic {A}nalysis&#34;,
+    year         = 2022,
+    note         = &#34;Accessed: 2022-10-18&#34;
+}
+
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># FixedAssets</span>
+<span class="n">TableName</span><span class="o">=</span><span class="s2">&quot;FAAt101&quot;</span>
+<span class="n">bea_tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="n">datasetname</span><span class="o">=</span><span class="s1">&#39;FixedAssets&#39;</span><span class="p">,</span> <span class="n">TableName</span><span class="o">=</span><span class="n">TableName</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="s1">&#39;2013&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">][</span><span class="s1">&#39;Notes&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">formatted</span><span class="p">,</span> <span class="n">bibtex_str</span> <span class="o">=</span> <span class="n">citation_search</span><span class="p">(</span><span class="n">TableName</span><span class="p">,</span> <span class="n">beakey</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">formatted</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bibtex_str</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Table 1.1. Current-Cost Net Stock of Fixed Assets and Consumer Durable Goods [Billions of dollars; yearend estimates] - LastRevised: September 30, 2022
+U.S. Bureau of Economic Analysis, “Table 1.1. Current-Cost Net Stock of Fixed Assets and Consumer Durable Goods,” (accessed 2022-10-18).
+@misc{beaFAAt101,
+    title        = &#34;Table 1.1. Current-Cost Net Stock of Fixed Assets and Consumer Durable Goods&#34;,
+    author       = &#34;{U.S.} {B}ureau of {E}conomic {A}nalysis&#34;,
+    year         = 2022,
+    note         = &#34;Accessed: 2022-10-18&#34;
+}
+
+</pre></div></div>
+</div>
+<p>For regional we try a different approach</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[54]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Regional</span>
+<span class="n">tablename</span><span class="o">=</span><span class="s2">&quot;CAINC1&quot;</span>
+<span class="n">spec</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;TableName&quot;</span><span class="p">:</span><span class="n">tablename</span><span class="p">,</span><span class="s2">&quot;LineCode&quot;</span><span class="p">:</span><span class="s2">&quot;2&quot;</span><span class="p">,</span><span class="s2">&quot;Year&quot;</span><span class="p">:</span><span class="s2">&quot;2012,2013&quot;</span><span class="p">,</span><span class="s2">&quot;GeoFips&quot;</span><span class="p">:</span><span class="s2">&quot;09003,53033&quot;</span><span class="p">}</span>
+<span class="n">bea_tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s1">&#39;Regional&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">spec</span><span class="p">)</span>
+
+<span class="c1"># check out attrs</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Extra detail keys:&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Notes corresponding to NoteRef:&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">][</span><span class="s1">&#39;Notes&#39;</span><span class="p">])</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+dict_keys([&#39;params&#39;, &#39;response_size&#39;, &#39;detail&#39;, &#39;time_invariant_keys&#39;, &#39;time_invariant_vars&#39;, &#39;time_variant_keys&#39;, &#39;time_variant_vars&#39;, &#39;time_variant_only_vars&#39;, &#39;index_cols&#39;])
+Extra detail keys:dict_keys([&#39;Statistic&#39;, &#39;UnitOfMeasure&#39;, &#39;PublicTable&#39;, &#39;UTCProductionTime&#39;, &#39;NoteRef&#39;, &#39;Dimensions&#39;, &#39;Notes&#39;])
+{&#39;Statistic&#39;: &#39;Population&#39;, &#39;UnitOfMeasure&#39;: &#39;Number of persons&#39;, &#39;PublicTable&#39;: &#39;CAINC1 County and MSA personal income summary: personal income, population, per capita personal income&#39;, &#39;UTCProductionTime&#39;: &#39;2022-10-18T20:18:33.067&#39;, &#39;NoteRef&#39;: &#39;1&#39;, &#39;Dimensions&#39;:          Name DataType  IsValue
+0        Code   string        0
+1     GeoFips   string        0
+2     GeoName   string        0
+3  TimePeriod   string        0
+4   DataValue  numeric        1
+5     CL_UNIT   string        0
+6   UNIT_MULT  numeric        0, &#39;Notes&#39;:   NoteRef                                           NoteText
+0       1  Census Bureau midyear population estimates. Es...
+1          Metropolitan Areas are defined (geographically...
+2   Note.  All dollar estimates are in thousands of curre...
+3          Last updated: November 16, 2021-- new statisti...}
+Notes corresponding to NoteRef:
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>NoteRef</th>
+      <th>NoteText</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Census Bureau midyear population estimates. Es...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td></td>
+      <td>Metropolitan Areas are defined (geographically...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Note.</td>
+      <td>All dollar estimates are in thousands of curre...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td></td>
+      <td>Last updated: November 16, 2021-- new statisti...</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[58]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">formatted</span><span class="p">,</span> <span class="n">bibtex_str</span> <span class="o">=</span> <span class="n">citation_named</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">][</span><span class="s1">&#39;PublicTable&#39;</span><span class="p">],</span> <span class="n">cite_suffix</span><span class="o">=</span><span class="n">tablename</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">formatted</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bibtex_str</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+U.S. Bureau of Economic Analysis, “CAINC1 County and MSA personal income summary: personal income, population, per capita personal income,” (accessed 2022-10-18).
+@misc{beaCAINC1,
+    title        = &#34;CAINC1 County and MSA personal income summary: personal income, population, per capita personal income&#34;,
+    author       = &#34;{U.S.} {B}ureau of {E}conomic {A}nalysis&#34;,
+    year         = 2022,
+    note         = &#34;Accessed: 2022-10-18&#34;
+}
+
+</pre></div></div>
+</div>
+</section>
+<section id="Not-working">
+<h1>Not working<a class="headerlink" href="#Not-working" title="Permalink to this heading">¶</a></h1>
+<p>For the rest, we can’t use metadata search and none of the attrs[‘detail’] are helpful</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[53]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#underlyingGDPbyIndustry</span>
+<span class="n">spec</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Year&quot;</span><span class="p">:</span><span class="s2">&quot;2013,2012&quot;</span><span class="p">,</span><span class="s2">&quot;Industry&quot;</span><span class="p">:</span><span class="s2">&quot;ALL&quot;</span><span class="p">,</span><span class="s2">&quot;tableID&quot;</span><span class="p">:</span><span class="s2">&quot;210,211&quot;</span><span class="p">,</span><span class="s2">&quot;Frequency&quot;</span><span class="p">:</span><span class="s2">&quot;A,Q&quot;</span><span class="p">}</span>
+<span class="n">bea_tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s1">&#39;underlyingGDPbyIndustry&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">spec</span><span class="p">)</span>
+
+<span class="c1"># check out attrs</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Extra detail keys:&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Notes corresponding to NoteRef:&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">][</span><span class="s1">&#39;Notes&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+underlyinggdpbyindustry currenty only returns Annual results (even if you ask for additional frequencies).
+dict_keys([&#39;params&#39;, &#39;response_size&#39;, &#39;detail&#39;, &#39;time_invariant_keys&#39;, &#39;time_invariant_vars&#39;, &#39;time_variant_keys&#39;, &#39;time_variant_vars&#39;, &#39;time_variant_only_vars&#39;, &#39;index_cols&#39;])
+Extra detail keys:dict_keys([&#39;Statistic&#39;, &#39;UTCProductionTime&#39;, &#39;Dimensions&#39;, &#39;Notes&#39;])
+{&#39;Statistic&#39;: &#39;GDP by Industry Table&#39;, &#39;UTCProductionTime&#39;: &#39;2022-10-18T20:17:30.463&#39;, &#39;Dimensions&#39;:    Ordinal                 Name DataType  IsValue
+0        1              TableID  numeric        0
+1        2            Frequency   string        0
+2        3                 Year   string        0
+3        4              Quarter   string        0
+4        5             Industry   string        0
+5        6  IndustryDescription   string        0
+6        7            DataValue  numeric        1, &#39;Notes&#39;:       NoteRef                                           NoteText
+0   210.1.A,Q  1. Consists of agriculture, forestry, fishing,...
+1   210.2.A,Q  2. Consists of utilities; wholesale trade; ret...
+2   210.3.A,Q  3. Consists of computer and electronic product...
+3   210.0.A,Q  Note. Detail may not add to total due to round...
+4   210.0.A,Q  Note. The Bureau of Economic Analysis does not...
+5         210    U.Value Added by Industry [Billions of dollars]
+6   211.1.A,Q  1. Consists of agriculture, forestry, fishing,...
+7   211.2.A,Q  2. Consists of utilities; wholesale trade; ret...
+8   211.3.A,Q  3. Consists of computer and electronic product...
+9   211.0.A,Q  Note. Detail may not add to total due to round...
+10  211.0.A,Q  Note. The Bureau of Economic Analysis does not...
+11        211  U.Value added by Industry as a Percentage of G...}
+Notes corresponding to NoteRef:
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>NoteRef</th>
+      <th>NoteText</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>210.1.A,Q</td>
+      <td>1. Consists of agriculture, forestry, fishing,...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>210.2.A,Q</td>
+      <td>2. Consists of utilities; wholesale trade; ret...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>210.3.A,Q</td>
+      <td>3. Consists of computer and electronic product...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>210.0.A,Q</td>
+      <td>Note. Detail may not add to total due to round...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>210.0.A,Q</td>
+      <td>Note. The Bureau of Economic Analysis does not...</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>210</td>
+      <td>U.Value Added by Industry [Billions of dollars]</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>211.1.A,Q</td>
+      <td>1. Consists of agriculture, forestry, fishing,...</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>211.2.A,Q</td>
+      <td>2. Consists of utilities; wholesale trade; ret...</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>211.3.A,Q</td>
+      <td>3. Consists of computer and electronic product...</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>211.0.A,Q</td>
+      <td>Note. Detail may not add to total due to round...</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>211.0.A,Q</td>
+      <td>Note. The Bureau of Economic Analysis does not...</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>211</td>
+      <td>U.Value added by Industry as a Percentage of G...</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[52]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#GDPbyIndustry</span>
+<span class="n">spec</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Year&#39;</span><span class="p">:</span><span class="s1">&#39;2012,2011&#39;</span><span class="p">,</span><span class="s1">&#39;Industry&#39;</span><span class="p">:</span><span class="s1">&#39;ALL&#39;</span><span class="p">,</span><span class="s1">&#39;tableID&#39;</span><span class="p">:</span><span class="s1">&#39;1, 2&#39;</span><span class="p">,</span> <span class="s2">&quot;Frequency&quot;</span><span class="p">:</span><span class="s2">&quot;A,Q&quot;</span><span class="p">}</span>
+<span class="n">bea_tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s1">&#39;GDPbyIndustry&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">spec</span><span class="p">)</span>
+
+<span class="c1"># check out attrs</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Extra detail keys:&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Notes corresponding to NoteRef:&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">][</span><span class="s1">&#39;Notes&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+dict_keys([&#39;params&#39;, &#39;response_size&#39;, &#39;detail&#39;, &#39;time_invariant_keys&#39;, &#39;time_invariant_vars&#39;, &#39;time_variant_keys&#39;, &#39;time_variant_vars&#39;, &#39;time_variant_only_vars&#39;, &#39;index_cols&#39;])
+Extra detail keys:dict_keys([&#39;Statistic&#39;, &#39;UTCProductionTime&#39;, &#39;Dimensions&#39;, &#39;Notes&#39;])
+{&#39;Statistic&#39;: &#39;GDP by Industry Table&#39;, &#39;UTCProductionTime&#39;: &#39;2022-10-18T20:13:58.440&#39;, &#39;Dimensions&#39;:    Ordinal                 Name DataType  IsValue
+0        1              TableID  numeric        0
+1        2            Frequency   string        0
+2        3                 Year   string        0
+3        4              Quarter   string        0
+4        5             Industry   string        0
+5        6  IndustryDescription   string        0
+6        7            DataValue  numeric        1, &#39;Notes&#39;:    NoteRef                                           NoteText
+0  1.1.A,Q  1. Consists of agriculture, forestry, fishing,...
+1  1.2.A,Q  2. Consists of utilities; wholesale trade; ret...
+2  1.3.A,Q  3. Consists of computer and electronic product...
+3  1.0.A,Q  Note. Detail may not add to total due to round...
+4        1      Value Added by Industry [Billions of dollars]}
+Notes corresponding to NoteRef:
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>NoteRef</th>
+      <th>NoteText</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1.1.A,Q</td>
+      <td>1. Consists of agriculture, forestry, fishing,...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.2.A,Q</td>
+      <td>2. Consists of utilities; wholesale trade; ret...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1.3.A,Q</td>
+      <td>3. Consists of computer and electronic product...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.0.A,Q</td>
+      <td>Note. Detail may not add to total due to round...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1</td>
+      <td>Value Added by Industry [Billions of dollars]</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[51]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#IntlServTrade</span>
+<span class="n">spec</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;AreaOrCountry&quot;</span><span class="p">:</span><span class="s2">&quot;Germany&quot;</span><span class="p">,</span><span class="s2">&quot;Year&quot;</span><span class="p">:</span><span class="s2">&quot;1999,2000&quot;</span><span class="p">}</span>
+<span class="n">bea_tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s1">&#39;IntlServTrade&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">spec</span><span class="p">)</span>
+
+<span class="c1"># check out attrs</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Extra detail keys:&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Notes corresponding to NoteRef:&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">][</span><span class="s1">&#39;Notes&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+dict_keys([&#39;params&#39;, &#39;response_size&#39;, &#39;detail&#39;, &#39;time_invariant_keys&#39;, &#39;time_invariant_vars&#39;, &#39;time_variant_keys&#39;, &#39;time_variant_vars&#39;, &#39;time_variant_only_vars&#39;, &#39;index_cols&#39;])
+Extra detail keys:dict_keys([&#39;TsLastUpdated&#39;, &#39;EarliestFullYear&#39;, &#39;LatestFullYear&#39;, &#39;Dimensions&#39;, &#39;Notes&#39;])
+{&#39;TsLastUpdated&#39;: &#39;2022-07-07 10:00:00.000&#39;, &#39;EarliestFullYear&#39;: &#39;1999&#39;, &#39;LatestFullYear&#39;: &#39;2021&#39;, &#39;Dimensions&#39;:     Ordinal                   Name DataType  IsValue
+0         1          TypeOfService   string        0
+1         2         TradeDirection   string        0
+2         3            Affiliation   string        0
+3         4          AreaOrCountry   string        0
+4         5                   Year   string        0
+5         6           TimeSeriesId   string        0
+6         7  TimeSeriesDescription   string        0
+7         8             TimePeriod   string        0
+8         9                CL_UNIT   string        0
+9        10              UNIT_MULT   string        0
+10       11              DataValue  numeric        1, &#39;Notes&#39;:          NoteRef                                           NoteText
+0            (D)  Suppressed to avoid the disclosure of data of ...
+1  IntlServ2.3:1  Courier services are included in &#34;Air transpor...
+2  IntlServ2.3:2  Insurance services transactions are considered...
+3  IntlServ2.3:3  Outcomes of research and development include p...
+4  IntlServ2.3:4  This category includes installation, alteratio...
+5           n.a.  Transactions are possible, but data are not av...}
+Notes corresponding to NoteRef:
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>NoteRef</th>
+      <th>NoteText</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>(D)</td>
+      <td>Suppressed to avoid the disclosure of data of ...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>IntlServ2.3:1</td>
+      <td>Courier services are included in "Air transpor...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>IntlServ2.3:2</td>
+      <td>Insurance services transactions are considered...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>IntlServ2.3:3</td>
+      <td>Outcomes of research and development include p...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>IntlServ2.3:4</td>
+      <td>This category includes installation, alteratio...</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>n.a.</td>
+      <td>Transactions are possible, but data are not av...</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[50]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#InputOutput</span>
+<span class="n">spec</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Year&quot;</span><span class="p">:</span><span class="s2">&quot;2010,2011,2012,2013&quot;</span><span class="p">,</span><span class="s2">&quot;tableID&quot;</span><span class="p">:</span><span class="s2">&quot;56&quot;</span><span class="p">}</span> <span class="c1"># Note: due to api error, only as for one table at a time</span>
+<span class="n">bea_tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s1">&#39;InputOutput&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">spec</span><span class="p">)</span>
+
+<span class="c1"># check out attrs</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Extra detail keys:&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Notes corresponding to NoteRef:&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">][</span><span class="s1">&#39;Notes&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+dict_keys([&#39;params&#39;, &#39;response_size&#39;, &#39;detail&#39;, &#39;time_invariant_keys&#39;, &#39;time_invariant_vars&#39;, &#39;time_variant_keys&#39;, &#39;time_variant_vars&#39;, &#39;time_variant_only_vars&#39;, &#39;index_cols&#39;])
+Extra detail keys:dict_keys([&#39;Statistic&#39;, &#39;UTCProductionTime&#39;, &#39;Dimensions&#39;, &#39;Notes&#39;])
+{&#39;Statistic&#39;: &#39;Input-Output Table&#39;, &#39;UTCProductionTime&#39;: &#39;2022-10-18T20:11:55.573&#39;, &#39;Dimensions&#39;:    Ordinal       Name DataType  IsValue
+0        1    TableID  numeric        0
+1        2       Year   string        0
+2        3    RowCode   string        0
+3        4   RowDescr   string        0
+4        5    RowType   string        0
+5        6    ColCode   string        0
+6        7   ColDescr   string        0
+7        8    ColType   string        0
+8        9  DataValue  numeric        1, &#39;Notes&#39;:                                             NoteText NoteRef
+0  Note. Detail may not add to total due to round...    &lt;NA&gt;
+1  Industry-by-Commodity Total Requirements, Afte...    6003}
+Notes corresponding to NoteRef:
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>NoteText</th>
+      <th>NoteRef</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Note. Detail may not add to total due to round...</td>
+      <td>&lt;NA&gt;</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Industry-by-Commodity Total Requirements, Afte...</td>
+      <td>6003</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[49]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#IIP</span>
+<span class="n">spec</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;TypeOfInvestment&quot;</span><span class="p">:</span><span class="s2">&quot;FinAssetsExclFinDeriv&quot;</span><span class="p">,</span><span class="s2">&quot;Component&quot;</span><span class="p">:</span><span class="s2">&quot;ALL&quot;</span><span class="p">,</span><span class="s2">&quot;Frequency&quot;</span><span class="p">:</span><span class="s2">&quot;ALL&quot;</span><span class="p">,</span><span class="s2">&quot;Year&quot;</span><span class="p">:</span><span class="s2">&quot;ALL&quot;</span><span class="p">}</span>
+<span class="n">bea_tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s1">&#39;IIP&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">spec</span><span class="p">)</span>
+
+<span class="c1"># check out attrs</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Extra detail keys:&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">])</span>
+<span class="c1">#print(&quot;Notes corresponding to NoteRef:&quot;)</span>
+<span class="c1">#display(bea_tbl.attrs[&#39;detail&#39;][&#39;Notes&#39;])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+dict_keys([&#39;params&#39;, &#39;response_size&#39;, &#39;detail&#39;, &#39;time_invariant_keys&#39;, &#39;time_invariant_vars&#39;, &#39;time_variant_keys&#39;, &#39;time_variant_vars&#39;, &#39;time_variant_only_vars&#39;, &#39;index_cols&#39;])
+Extra detail keys:dict_keys([&#39;Dimensions&#39;])
+{&#39;Dimensions&#39;:    Ordinal                   Name DataType  IsValue
+0        1       TypeOfInvestment   string        0
+1        2              Component   string        0
+2        4              Frequency   string        0
+3        5                   Year   string        0
+4        6           TimeSeriesId   string        0
+5        7  TimeSeriesDescription   string        0
+6        8             TimePeriod   string        0
+7        9                CL_UNIT   string        0
+8       10              UNIT_MULT   string        0
+9       11              DataValue  numeric        1}
+Notes corresponding to NoteRef:
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span class="ansi-red-intense-fg ansi-bold">---------------------------------------------------------------------------</span>
+<span class="ansi-red-intense-fg ansi-bold">KeyError</span>                                  Traceback (most recent call last)
+<span class="ansi-green-intense-fg ansi-bold">c:\Users\bquis\Documents\GitHub\base-bea-api\docs\citations.ipynb Cell 9</span> in <span class="ansi-cyan-fg">&lt;cell line: 10&gt;</span><span class="ansi-blue-intense-fg ansi-bold">()</span>
+<span class="ansi-green-fg">      &lt;a href=&#39;vscode-notebook-cell:/c%3A/Users/bquis/Documents/GitHub/base-bea-api/docs/citations.ipynb#X16sZmlsZQ%3D%3D?line=7&#39;&gt;8&lt;/a&gt;</span> print(bea_tbl.attrs[&#39;detail&#39;])
+<span class="ansi-green-fg">      &lt;a href=&#39;vscode-notebook-cell:/c%3A/Users/bquis/Documents/GitHub/base-bea-api/docs/citations.ipynb#X16sZmlsZQ%3D%3D?line=8&#39;&gt;9&lt;/a&gt;</span> print(&#34;Notes corresponding to NoteRef:&#34;)
+<span class="ansi-green-intense-fg ansi-bold">---&gt; &lt;a href=&#39;vscode-notebook-cell:/c%3A/Users/bquis/Documents/GitHub/base-bea-api/docs/citations.ipynb#X16sZmlsZQ%3D%3D?line=9&#39;&gt;10&lt;/a&gt;</span> display(bea_tbl.attrs[&#39;detail&#39;][&#39;Notes&#39;])
+
+<span class="ansi-red-intense-fg ansi-bold">KeyError</span>: &#39;Notes&#39;
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[48]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#ITA</span>
+<span class="n">spec</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Indicator&#39;</span><span class="p">:</span><span class="s2">&quot;BalGds&quot;</span><span class="p">,</span><span class="s2">&quot;AreaOrCountry&quot;</span><span class="p">:</span><span class="s2">&quot;China,Brazil&quot;</span><span class="p">,</span><span class="s2">&quot;Frequency&quot;</span><span class="p">:</span><span class="s2">&quot;A,QSA,QNSA&quot;</span><span class="p">,</span> <span class="s2">&quot;Year&quot;</span><span class="p">:</span><span class="s2">&quot;2011,2012&quot;</span><span class="p">}</span>
+<span class="n">bea_tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s1">&#39;ITA&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">spec</span><span class="p">)</span>
+
+<span class="c1"># check out attrs</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Extra detail keys:&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Notes corresponding to NoteRef:&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">][</span><span class="s1">&#39;Notes&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+dict_keys([&#39;params&#39;, &#39;response_size&#39;, &#39;detail&#39;, &#39;time_invariant_keys&#39;, &#39;time_invariant_vars&#39;, &#39;time_variant_keys&#39;, &#39;time_variant_vars&#39;, &#39;time_variant_only_vars&#39;, &#39;index_cols&#39;])
+Extra detail keys:dict_keys([&#39;TsLastUpdated&#39;, &#39;Dimensions&#39;, &#39;Notes&#39;])
+{&#39;TsLastUpdated&#39;: &#39;2022-09-22 08:30:00.000&#39;, &#39;Dimensions&#39;:    Ordinal                   Name DataType  IsValue
+0        1              Indicator   string        0
+1        2          AreaOrCountry   string        0
+2        3              Frequency   string        0
+3        4                   Year   string        0
+4        5           TimeSeriesId   string        0
+5        6  TimeSeriesDescription   string        0
+6        7             TimePeriod   string        0
+7        8                CL_UNIT   string        0
+8        9              UNIT_MULT   string        0
+9       10              DataValue  numeric        1, &#39;Notes&#39;:   NoteRef                                           NoteText
+0       Q  Quarterly estimates are not annualized and are...}
+Notes corresponding to NoteRef:
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>NoteRef</th>
+      <th>NoteText</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Q</td>
+      <td>Quarterly estimates are not annualized and are...</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#MNE</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DI&quot;</span><span class="p">)</span>
+<span class="n">spec</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Country&#39;</span><span class="p">:</span><span class="s1">&#39;650,699&#39;</span><span class="p">,</span> <span class="s1">&#39;SeriesId&#39;</span><span class="p">:</span><span class="s1">&#39;27,30&#39;</span><span class="p">,</span> <span class="s1">&#39;DirectionOfInvestment&#39;</span><span class="p">:</span><span class="s1">&#39;Outward&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Year&#39;</span><span class="p">:</span><span class="s1">&#39;2012,2011&#39;</span><span class="p">,</span> <span class="s1">&#39;Classification&#39;</span><span class="p">:</span><span class="s1">&#39;Country&#39;</span><span class="p">,</span> <span class="s1">&#39;GetFootnotes&#39;</span><span class="p">:</span><span class="s1">&#39;Yes&#39;</span><span class="p">}</span>
+<span class="c1">#bea_tbl = beaapi.get_data(beakey, &#39;MNE&#39;, **spec)</span>
+
+<span class="c1"># check out attrs</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Extra detail keys:&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Notes corresponding to NoteRef:&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">][</span><span class="s1">&#39;Notes&#39;</span><span class="p">])</span>
+
+<span class="c1">#print(&quot;AMNE&quot;)</span>
+<span class="c1">#spec = {&quot;Year&quot;:&quot;2012,2011&quot;,&quot;Country&quot;:&quot;202&quot;,&quot;Industry&quot;:&quot;all&quot;,&quot;DirectionOfInvestment&quot;:&quot;Outward&quot;,</span>
+<span class="c1">#        &quot;Classification&quot;:&quot;CountryByIndustry&quot;,&quot;SeriesId&quot;:&quot;5,4&quot;,&quot;NonBankAffiliatesOnly&quot;:&quot;0&quot;,&quot;OwnershipLevel&quot;:&quot;0&quot;, &#39;GetFootnotes&#39;:&#39;Yes&#39;}</span>
+<br/><br/></pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+DI
+dict_keys([&#39;params&#39;, &#39;response_size&#39;, &#39;detail&#39;, &#39;time_invariant_keys&#39;, &#39;time_invariant_vars&#39;, &#39;time_variant_keys&#39;, &#39;time_variant_vars&#39;, &#39;time_variant_only_vars&#39;, &#39;index_cols&#39;])
+Extra detail keys:dict_keys([&#39;Table_Count&#39;, &#39;rowTypeID&#39;, &#39;InvestmentType&#39;, &#39;DataType&#39;, &#39;Entity&#39;, &#39;IndustryClassification&#39;, &#39;YearList&#39;, &#39;DIRECTIONOFINVESTMENT&#39;, &#39;OwnershipLevel&#39;, &#39;NonbankAffiliatesOnly&#39;, &#39;Tables&#39;, &#39;cnt&#39;, &#39;Dimensions&#39;, &#39;Notes&#39;])
+{&#39;Table_Count&#39;: &#39;2&#39;, &#39;rowTypeID&#39;: &#39;10&#39;, &#39;InvestmentType&#39;: &#39;U.S. Direct Investment Abroad&#39;, &#39;DataType&#39;: &#39;Balance of Payments and Direct Investment Position Data&#39;, &#39;Entity&#39;: &#39;None&#39;, &#39;IndustryClassification&#39;: &#39;NAICS&#39;, &#39;YearList&#39;: &#39;2012,2011&#39;, &#39;DIRECTIONOFINVESTMENT&#39;: &#39;OUTWARD&#39;, &#39;OwnershipLevel&#39;: &#39;2&#39;, &#39;NonbankAffiliatesOnly&#39;: &#39;2&#39;, &#39;Tables&#39;: &#39;210,211&#39;, &#39;cnt&#39;: &#39;8&#39;, &#39;Dimensions&#39;:    Ordinal                  Name DataType  IsValue
+0        1                  Year  numeric        0
+1        2              SeriesID  numeric        0
+2        3            SeriesName   string        0
+3        4                   Row   string        0
+4        5                Column   string        0
+5        6               RowCode   string        0
+6        7            ColumnCode   string        0
+7        8            TableScale   string        0
+8        9  DataValueUnformatted   string        1
+9       10             DataValue   string        1, &#39;Notes&#39;:                                              NoteText   NoteRef
+0   &lt;strong&gt;n.s.&lt;/strong&gt;  Not shown.  Data may no...      2.00
+1    ? The data appear on another line in this table.      4.00
+2   ? The data are not shown in this table but may...      6.00
+3   ? The data are not available, do not apply, or...      8.00
+4   &lt;strong&gt;(*)&lt;/strong&gt; A nonzero value that roun...     10.00
+5   &lt;strong&gt;(D)&lt;/strong&gt; indicates that the data i...     12.00
+6   Balance of payments transactions (and associat...     34.00
+7   The composition of the &#34;Other&#34; categories show...     36.00
+8           Source: U.S. Bureau of Economic Analysis      41.00
+9   1.&amp;#x09;In 2021, the euro area includes Austri...    112.01
+10  1. The &#34;United Kingdom Islands, Caribbean&#34; is ...    113.00
+11  2. Data for the European Union (EU) reflect th...    114.00
+12  3. OPEC (Organization of Petroleum Exporting C...    115.00
+13  1.&amp;#x09;In 2021, the euro area includes Austri...    221.00
+14  2. The ?United Kingdom Islands, Caribbean? inc...    222.00
+15  3. Prior to 2011, data were included in the Ne...    223.00
+16  4. Prior to 2011, included data for Curacao, S...    224.00
+17   5. Prior to 2011, included data for South Sudan.    225.00
+18  2. OPEC (Organization of Petroleum Exporting C...    226.00
+19  If you have a question about the availability ...  10000.00}
+Let&#39;s look at some interesting ones.
+Notes corresponding to NoteRef:
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>NoteText</th>
+      <th>NoteRef</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>&lt;strong&gt;n.s.&lt;/strong&gt;  Not shown.  Data may no...</td>
+      <td>2.00</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>? The data appear on another line in this table.</td>
+      <td>4.00</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>? The data are not shown in this table but may...</td>
+      <td>6.00</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>? The data are not available, do not apply, or...</td>
+      <td>8.00</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>&lt;strong&gt;(*)&lt;/strong&gt; A nonzero value that roun...</td>
+      <td>10.00</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>&lt;strong&gt;(D)&lt;/strong&gt; indicates that the data i...</td>
+      <td>12.00</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Balance of payments transactions (and associat...</td>
+      <td>34.00</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>The composition of the "Other" categories show...</td>
+      <td>36.00</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Source: U.S. Bureau of Economic Analysis</td>
+      <td>41.00</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>1.&amp;#x09;In 2021, the euro area includes Austri...</td>
+      <td>112.01</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>1. The "United Kingdom Islands, Caribbean" is ...</td>
+      <td>113.00</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>2. Data for the European Union (EU) reflect th...</td>
+      <td>114.00</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>3. OPEC (Organization of Petroleum Exporting C...</td>
+      <td>115.00</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>1.&amp;#x09;In 2021, the euro area includes Austri...</td>
+      <td>221.00</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>2. The ?United Kingdom Islands, Caribbean? inc...</td>
+      <td>222.00</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>3. Prior to 2011, data were included in the Ne...</td>
+      <td>223.00</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>4. Prior to 2011, included data for Curacao, S...</td>
+      <td>224.00</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>5. Prior to 2011, included data for South Sudan.</td>
+      <td>225.00</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>2. OPEC (Organization of Petroleum Exporting C...</td>
+      <td>226.00</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>If you have a question about the availability ...</td>
+      <td>10000.00</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">beaapi</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Quick-start tutorial:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="README.html">beaapi</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API documentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to-guides:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="iTables_to_api.html">How to translate iTable tables to API queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="iTables_MNE.html">How to translate MNE tables to API queries</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, BEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/citations.ipynb.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
