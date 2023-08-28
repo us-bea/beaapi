@@ -1,6 +1,8 @@
 # beaapi
   beaapi: A Python library library to make it easier to retrieve and work with BEA data. 
 
+For documentation online, see [here](https://us-bea.github.io/beaapi/).
+
 For development and building information, see [CONTRIBUTING.md](https://github.com/us-bea/beaapi/blobl/main/CONTRIBUTING.md).
 
 ## To Get Started
