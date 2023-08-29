@@ -1,10 +1,9 @@
-
 # beaapi
   beaapi: A Python library library to make it easier to retrieve and work with BEA data. 
 
 For documentation online, see [here](https://us-bea.github.io/beaapi/).
 
-For development and building information, see [CONTRIBUTING.md](https://github.com/us-bea/beaapi/blobl/main/CONTRIBUTING.md).
+For development and building information, see [CONTRIBUTING.md](https://github.com/us-bea/beaapi/blob/main/CONTRIBUTING.md).
 
 ## To Get Started
 Once you have installed the package, you can load it in your Python script as follows:
@@ -698,10 +697,10 @@ See the docs for additional information on:
 ## Quick Links
 * [CODE_OF_CONDUCT.md](https://github.com/us-bea/.github/blob/main/CODE_OF_CONDUCT.md)
 * [SECURITY](https://github.com/us-bea/beaapi/security/policy)
-* [LICENSE](https://github.com/us-bea/beaapi/blobl/main/LICENSE)
-* [CONTRIBUTING.md](https://github.com/us-bea/beaapi/blobl/main/CONTRIBUTING.md)
-* [SUPPORT.md](https://github.com/us-bea/beaapi/blobl/main/SUPPORT.md)
-* [CHANGELOG.md](https://github.com/us-bea/beaapi/blobl/main/CHANGELOG.md)
+* [LICENSE](https://github.com/us-bea/beaapi/blob/main/LICENSE)
+* [CONTRIBUTING.md](https://github.com/us-bea/beaapi/blob/main/CONTRIBUTING.md)
+* [SUPPORT.md](https://github.com/us-bea/beaapi/blob/main/SUPPORT.md)
+* [CHANGELOG.md](https://github.com/us-bea/beaapi/blob/main/CHANGELOG.md)
 
 ## Disclaimer
 The United States Department of Commerce (DOC) GitHub project code is provided on an ‘as is’ basis and the user assumes responsibility for its use. DOC has relinquished control of the information and no longer has responsibility to protect the integrity, confidentiality, or availability of the information. Any claims against the Department of Commerce stemming from the use of its GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by the Department of Commerce. The Department of Commerce seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by DOC or the United States Government.

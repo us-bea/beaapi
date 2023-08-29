@@ -11,7 +11,7 @@
     "\n",
     "For documentation online, see [here](https://us-bea.github.io/beaapi/).\n",
     "\n",
-    "For development and building information, see [CONTRIBUTING.md](https://github.com/us-bea/beaapi/blobl/main/CONTRIBUTING.md).\n",
+    "For development and building information, see [CONTRIBUTING.md](https://github.com/us-bea/beaapi/blob/main/CONTRIBUTING.md).\n",
     "\n",
     "## To Get Started\n",
     "Once you have installed the package, you can load it in your Python script as follows:"
@@ -1138,10 +1138,10 @@
     "## Quick Links\n",
     "* [CODE_OF_CONDUCT.md](https://github.com/us-bea/.github/blob/main/CODE_OF_CONDUCT.md)\n",
     "* [SECURITY](https://github.com/us-bea/beaapi/security/policy)\n",
-    "* [LICENSE](https://github.com/us-bea/beaapi/blobl/main/LICENSE)\n",
-    "* [CONTRIBUTING.md](https://github.com/us-bea/beaapi/blobl/main/CONTRIBUTING.md)\n",
-    "* [SUPPORT.md](https://github.com/us-bea/beaapi/blobl/main/SUPPORT.md)\n",
-    "* [CHANGELOG.md](https://github.com/us-bea/beaapi/blobl/main/CHANGELOG.md)"
+    "* [LICENSE](https://github.com/us-bea/beaapi/blob/main/LICENSE)\n",
+    "* [CONTRIBUTING.md](https://github.com/us-bea/beaapi/blob/main/CONTRIBUTING.md)\n",
+    "* [SUPPORT.md](https://github.com/us-bea/beaapi/blob/main/SUPPORT.md)\n",
+    "* [CHANGELOG.md](https://github.com/us-bea/beaapi/blob/main/CHANGELOG.md)"
    ]
   },
   {
