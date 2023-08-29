@@ -1,3 +1,4 @@
+
 # beaapi
   beaapi: A Python library library to make it easier to retrieve and work with BEA data. 
 
@@ -6,17 +7,6 @@ For documentation online, see [here](https://us-bea.github.io/beaapi/).
 For development and building information, see [CONTRIBUTING.md](https://github.com/us-bea/beaapi/blobl/main/CONTRIBUTING.md).
 
 ## To Get Started
-Requirements: You will need Python and the `pandas` package with at least version 1.5.6. 
-
-Installation: You can download the `.whl` file for the latest [release](https://github.com/us-bea/beaapi/releases/) and then install using the following command (executed from the folder that has the downloaded file).
-```
-pip install beaapi-0.0.2-py3-none-any.whl
-```
-
-Alternatively, you can clone this repo and build it locally. 
-
-
-
 Once you have installed the package, you can load it in your Python script as follows:
 
 
@@ -54,19 +44,6 @@ display(list_of_sets)  # Note the last dataset is only for speeding up metadata 
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -151,19 +128,6 @@ display(list_of_params)
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -243,19 +207,6 @@ display(list_of_param_vals)
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -297,19 +248,6 @@ display(tbl.head())
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -361,19 +299,6 @@ search_data.head(2)
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -449,19 +374,6 @@ display(bea_tbl.head(2))
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -519,19 +431,6 @@ display(bea_tbl.set_index(bea_tbl.attrs['index_cols']).head(2))
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -607,19 +506,6 @@ display(bea_tbl.attrs['detail']['Notes'].head())
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -672,19 +558,6 @@ display(beaapi.to_wide_vars_in_cols(bea_tbl).head(3))
 
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -823,10 +696,8 @@ See the docs for additional information on:
 
 
 ## Quick Links
-<!--
-* [CODE_OF_CONDUCT.md]
-* [SECURITY.md]
--->
+* [CODE_OF_CONDUCT.md](https://github.com/us-bea/.github/blob/main/CODE_OF_CONDUCT.md)
+* [SECURITY](https://github.com/us-bea/beaapi/security/policy)
 * [LICENSE](https://github.com/us-bea/beaapi/blobl/main/LICENSE)
 * [CONTRIBUTING.md](https://github.com/us-bea/beaapi/blobl/main/CONTRIBUTING.md)
 * [SUPPORT.md](https://github.com/us-bea/beaapi/blobl/main/SUPPORT.md)
