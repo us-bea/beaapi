@@ -6,6 +6,17 @@ For documentation online, see [here](https://us-bea.github.io/beaapi/).
 For development and building information, see [CONTRIBUTING.md](https://github.com/us-bea/beaapi/blobl/main/CONTRIBUTING.md).
 
 ## To Get Started
+Requirements: You will need Python and the `pandas` package with at least version 1.5.6. 
+
+Installation: You can download the `.whl` file for the latest [release](https://github.com/us-bea/beaapi/releases/) and then install using the following command (executed from the folder that has the downloaded file).
+```
+pip install beaapi-0.0.2-py3-none-any.whl
+```
+
+Alternatively, you can clone this repo and build it locally. 
+
+
+
 Once you have installed the package, you can load it in your Python script as follows:
 
 

@@ -9,16 +9,33 @@
     "# beaapi\n",
     "  beaapi: A Python library library to make it easier to retrieve and work with BEA data. \n",
     "\n",
-    "For documentation online, see the [html docs here](https://beanet/intranet/python/BEA_API_Python_Package/). (Alternative [markdown docs here](https://devops/OneBEA%20Collection/_git/BEA%20API%20Python%20Package?path=%2Fdocs%2F_build%2Fmarkdown%2Findex.md&_a=preview).)\n",
+    "For documentation online, see [here](https://us-bea.github.io/beaapi/).\n",
     "\n",
-    "For development and building information, see [CONTRIBUTING.md](https://devops/OneBEA%20Collection/_git/BEA%20API%20Python%20Package?path=%2Fdocs%2F_build%2Fmarkdown%2FCONTRIBUTING.md&_a=preview).\n",
-    "\n",
-    "BEA Users! Help us improve the package and API by using it for your internal data needs (aka [Eating our own dogfood](https://en.wikipedia.org/wiki/Eating_your_own_dog_food) or \"Dogfooding\").\n",
-    "\n",
-    "Installation: Version 0.0.1 is already installed in the Python Sandbox (current version is 0.0.2). If you would like to install this package, down the [wheel zip file](https://beanet/intranet/python/BEA_API_Python_Package/dist/beaapi-0.0.2-py3-none-any.zip), unzip it, and then you can use `conda install beaapi-0.0.2-py3-none-any.whl`.\n",
-    "\n",
-    "\n",
+    "For development and building information, see [CONTRIBUTING.md](https://github.com/us-bea/beaapi/blobl/main/CONTRIBUTING.md)."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "34d41f9d",
+   "metadata": {},
+   "source": [
     "## To Get Started\n",
+    "Requirements: You will need Python and the `pandas` package with at least version 1.5.6. \n",
+    "\n",
+    "Installation: You can download the `.whl` file for the latest [release](https://github.com/us-bea/beaapi/releases/) and then install using the following command (executed from the folder that has the downloaded file).\n",
+    "```\n",
+    "pip install beaapi-0.0.2-py3-none-any.whl\n",
+    "```\n",
+    "\n",
+    "Alternatively, you can clone this repo and build it locally. \n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "77ad4035",
+   "metadata": {},
+   "source": [
     "Once you have installed the package, you can load it in your Python script as follows:"
    ]
   },
@@ -37,7 +54,7 @@
    "id": "91b833f0",
    "metadata": {},
    "source": [
-    "To use the package, you must first  [register for an API key](http://www.bea.gov/API/signup/index.cfm) from BEA by providing your name and email address. The key will be emailed to you. \n",
+    "To use the package, you must first  [register for an API key](https://apps.bea.gov/api/signup/) from BEA by providing your name and email address. The key will be emailed to you. \n",
     "\n",
     "Once you have received your BEA API key, you can save it to a variable to make it easier to use later: "
    ]
@@ -1132,6 +1149,23 @@
     "\n",
     "See the docs for additional information on:\n",
     "- How to construct API queries to pull data from existing iTables."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2d3b57cd",
+   "metadata": {},
+   "source": [
+    "\n",
+    "## Quick Links\n",
+    "<!--\n",
+    "* [CODE_OF_CONDUCT.md]\n",
+    "* [SECURITY.md]\n",
+    "-->\n",
+    "* [LICENSE](https://github.com/us-bea/beaapi/blobl/main/LICENSE)\n",
+    "* [CONTRIBUTING.md](https://github.com/us-bea/beaapi/blobl/main/CONTRIBUTING.md)\n",
+    "* [SUPPORT.md](https://github.com/us-bea/beaapi/blobl/main/SUPPORT.md)\n",
+    "* [CHANGELOG.md](https://github.com/us-bea/beaapi/blobl/main/CHANGELOG.md)"
    ]
   },
   {
