@@ -169,7 +169,7 @@ def get_data(userid: str, datasetname: str, do_checks: bool = False,
     # List of allowable paratmers (generated from metadata.ipynb)
     allowable_params = {'nipa': ['frequency', 'showmillions', 'tableid', 'tablename', 'year'],
                         'niunderlyingdetail': ['frequency', 'tableid', 'tablename', 'year'],
-                        'mne': ['directionofinvestment', 'ownershiplevel', 'nonbankaffiliatesonly', 'classification ', 'country', 'industry', 'year', 'state', 'seriesid', 'getfootnotes', 'investment', 'parentinvestment'],
+                        'mne': ['directionofinvestment', 'ownershiplevel', 'nonbankaffiliatesonly', 'classification', 'country', 'industry', 'year', 'state', 'seriesid', 'getfootnotes', 'investment', 'parentinvestment'],
                         'fixedassets': ['tablename', 'year'],
                         'ita': ['indicator', 'areaorcountry', 'frequency', 'year'],
                         'iip': ['typeofinvestment', 'component', 'frequency', 'year'],
