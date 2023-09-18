@@ -59,6 +59,7 @@ All takes place `docsrc/`. To build `README.md` from `README.ipynb` you will nee
 ```
 jupyter nbconvert --to markdown README.ipynb --output "../README.md"
 ```
+This includes some inline styles, which GitHub won't render. To remove those, find and replace this regex `\n<style(.|\n)+?</style>`.
 
 To build the docs you will need `sphinx`, `nbsphinx`, `pandoc` and `nbconvert`. Then:
 

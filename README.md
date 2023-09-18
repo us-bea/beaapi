@@ -1,5 +1,5 @@
 # beaapi
-  beaapi: A Python library library to make it easier to retrieve and work with BEA data. 
+  beaapi: A Python library library to make it easier to retrieve and work with BEA data. For the parallel R-package, see [bea.R](https://github.com/us-bea/bea.R/).
 
 For documentation online, see [here](https://us-bea.github.io/beaapi/).
 

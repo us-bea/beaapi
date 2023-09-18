@@ -58,5 +58,8 @@ html_theme = 'alabaster'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
+# disable makeing _source/ and linking on each page to their source.
+html_copy_source = False
+html_show_sourcelink = False
 
 # -- Extension configuration -------------------------------------------------
