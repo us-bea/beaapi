@@ -4,9 +4,9 @@ import math
 # import urllib.request
 # import urllib.parse
 import requests
-from typing import Union, Any, Dict, List
-import pandas as pd
-import http
+from typing import Union, Dict, List
+#import pandas as pd
+from throttling_caller import throttling_data, ThrottlingCaller
 
 # from .beaapi_error import BEAAPIFailure, BEAAPIResponseError
 
@@ -59,30 +59,53 @@ class ApiRequest:
         user_id: str,
         method: BeaApiParams.RequestMethods,
         result_format: BeaApiParams.ResultFormats,
+        throttle: bool = True,
     ):
         self._required_params_ = {"UserID": user_id}
         for i in [method, result_format]:
             self._required_params_.update(i)
+        if user_id not in throttling_data:
+          throttling_data[user_id] = ThrottlingCaller()
+    
+    def make_request(func: callable) -> requests.Response:
+        """Makes the API request"""
+        def wrappper(*args, **kwargs):
+            data = func(*args, **kwargs)
+            res = requests.get(ApiRequest.BASE_URI, params=data)
+            res.raise_for_status()
+            res.apparent_encoding
+            return res.json().get("BEAAPI", {}).get("Results", {})
+        return wrappper
 
-    def build_data(
+    @make_request
+    def get_data(
         self,
-        frequency: Union[BeaApiParams.Frequency, str] = None,
+        frequency: Dict[str,Union[BeaApiParams.Frequency, str]] = None,
         datasetname: str = None,
         tablename: str = None,
         year: List[str] = None,
         **kwargs
     ) -> str:
-        if datasetname:
-            self._required_params_.update({"datasetname": datasetname})
-        if tablename:
-            self._required_params_.update({"ParameterName": tablename})
-        if year:
-            self._required_params_.update({"year": year})
-        if frequency:
-            self._required_params_.update(frequency)
-        if kwargs:
-            self._required_params_.update(kwargs)
+        """Builds the request data for the API request"""
+
+        new_params = {"datasetname": datasetname,
+            "TableName" : tablename,
+            "year": year,} 
+        self._required_params_.update(frequency) if frequency is not None else None
+        self._required_params_.update({k:v for k,v in new_params.items() if v is not None})
         return self._required_params_
+
+if __name__ == "__main__":
+    user_id = "ABB82901-7933-4E04-BDFB-2B906DDDB0ED"
+    method = BeaApiParams.RequestMethods.GET_DATA
+    result_format = BeaApiParams.ResultFormats.JSON
+    api = ApiRequest(user_id, method, result_format)
+    #print(api._required_params_)
+    req = api.get_data(frequency=BeaApiParams.Frequency.ANNUAL, datasetname="NIPA", tablename="T20305", year=["2021"])
+    print(req)
+
+
+
 
 
 # def api_request(beaspec: Dict[str, str], as_string: bool = False, as_dict: bool = False,
