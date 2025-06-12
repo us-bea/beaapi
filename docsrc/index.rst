@@ -1,4 +1,4 @@
-.. base-bea-api documentation master file, created by
+.. beaapi documentation master file, created by
    sphinx-quickstart on Mon Jan 10 09:09:03 2022.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.

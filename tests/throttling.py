@@ -5,10 +5,8 @@ import beaapi
 class TestThrottling(unittest.TestCase):
     def setUp(self):
         # Get key from unversioned file
-        import os
-        from dotenv import load_dotenv
-        load_dotenv()
-        self.beakey = os.environ.get("beakey")
+        from dotenv import dotenv_values
+        self.beakey = dotenv_values()["beakey"]
 
     def test_rate_throttling(self):        
         for _ in range(beaapi.MAX_REQUESTS_PER_MINUTE+1):

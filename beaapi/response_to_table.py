@@ -130,6 +130,14 @@ def response_to_table(bea_payload: Union[list, pd.DataFrame, HTTPResponse],
                                                       .replace("(NA)", ""))
                 else:
                     bea_response[col] = pd.to_numeric(bea_response[col])
+                # Newer pandas will use these extension dtypes, but harder for normal user and not needed.
+                if str(bea_response[col].dtype) == 'Float64':
+                    bea_response[col] = bea_response[col].astype('float64')
+                if str(bea_response[col].dtype) == 'Int64':
+                    try:
+                        bea_response[col] = bea_response[col].astype('int64')
+                    except:
+                        pass # Somehow has missing (unlikely), so leave as Int64
             except Exception as e:
                 print("Couldn't convert column " + col + ". Error: " + str(e))
 

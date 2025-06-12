@@ -11,9 +11,31 @@
     "\n",
     "For documentation online, see [here](https://us-bea.github.io/beaapi/).\n",
     "\n",
-    "For development and building information, see [CONTRIBUTING.md](https://github.com/us-bea/beaapi/blob/main/CONTRIBUTING.md).\n",
-    "\n",
+    "For development and building information, see [CONTRIBUTING.md](https://github.com/us-bea/beaapi/blobl/main/CONTRIBUTING.md)."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "34d41f9d",
+   "metadata": {},
+   "source": [
     "## To Get Started\n",
+    "Requirements: You will need Python and the `pandas` package with at least version 1.5.6. \n",
+    "\n",
+    "Installation: You can download the `.whl` file for the latest [release](https://github.com/us-bea/beaapi/releases/) and then install using the following command (executed from the folder that has the downloaded file).\n",
+    "```\n",
+    "pip install beaapi-0.0.2-py3-none-any.whl\n",
+    "```\n",
+    "\n",
+    "Alternatively, you can clone this repo and build it locally. \n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "77ad4035",
+   "metadata": {},
+   "source": [
     "Once you have installed the package, you can load it in your Python script as follows:"
    ]
   },
@@ -1136,12 +1158,14 @@
    "source": [
     "\n",
     "## Quick Links\n",
-    "* [CODE_OF_CONDUCT.md](https://github.com/us-bea/.github/blob/main/CODE_OF_CONDUCT.md)\n",
-    "* [SECURITY](https://github.com/us-bea/beaapi/security/policy)\n",
-    "* [LICENSE](https://github.com/us-bea/beaapi/blob/main/LICENSE)\n",
-    "* [CONTRIBUTING.md](https://github.com/us-bea/beaapi/blob/main/CONTRIBUTING.md)\n",
-    "* [SUPPORT.md](https://github.com/us-bea/beaapi/blob/main/SUPPORT.md)\n",
-    "* [CHANGELOG.md](https://github.com/us-bea/beaapi/blob/main/CHANGELOG.md)"
+    "<!--\n",
+    "* [CODE_OF_CONDUCT.md]\n",
+    "* [SECURITY.md]\n",
+    "-->\n",
+    "* [LICENSE](https://github.com/us-bea/beaapi/blobl/main/LICENSE)\n",
+    "* [CONTRIBUTING.md](https://github.com/us-bea/beaapi/blobl/main/CONTRIBUTING.md)\n",
+    "* [SUPPORT.md](https://github.com/us-bea/beaapi/blobl/main/SUPPORT.md)\n",
+    "* [CHANGELOG.md](https://github.com/us-bea/beaapi/blobl/main/CHANGELOG.md)"
    ]
   },
   {

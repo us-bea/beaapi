@@ -4,6 +4,7 @@ import urllib.parse
 from typing import Union, Any, Dict
 import pandas as pd
 import http
+import beaapi
 
 from .beaapi_error import BEAAPIFailure, BEAAPIResponseError
 
@@ -90,6 +91,12 @@ def api_request(beaspec: Dict[str, str], as_string: bool = False, as_dict: bool 
     if not ('resultformat' in list(beaspec.keys())):
         beaspec['resultformat'] = 'json'
 
+    if throttle and not (beaspec['resultformat'] == 'json' and (as_string or as_dict or as_table)):
+        print(f"{beaspec['resultformat']} == 'json' and not {as_string} and ({as_dict} or {as_table})")
+        # TODO
+        import warnings
+        warnings.warn("Warning: BEA API throttling is only supported for (resultformat=='json' and not as_string and (as_dict or as_table)).", UserWarning)
+
     if(len(beaspec['userid']) != 36):
         raise Exception('Invalid API key: ' + beaspec['userid'])
     # Parse user settings into API URL
@@ -105,52 +112,62 @@ def api_request(beaspec: Dict[str, str], as_string: bool = False, as_dict: bool 
         throttling_data[userid].wait_until_available()
 
     # Make the API call and, for now, just return the response
-    with urllib.request.urlopen(bea_url) as f:
-        if(f.getcode() > 200):
-            raise Exception(f"Failed to retrieve data from {bea_url} with status code"
-                            " {f.getcode()}")
-        # beaPayload = f.read().decode(encoding_str)
-        bea_payload = f
-        # return(beaPayload)
-
-        try:
-            if(math.floor(bea_payload.status / 100) != 2):
-                raise Exception('Request failed. Returned HTTP status code: '
-                                + str(bea_payload['status_code']))
-        except Exception:
-            raise Exception('Submitted variable is not a valid https response class'
-                            ' object.')
-
-        # Give user format they want (do it in order of least modification unless
-        # nothing but as_table=False specified)
-        if(as_string):
-            bea_content = bea_payload.read().decode(encoding_str)
-            return(bea_content)
-        else:
-            if not as_dict and not as_table:
-                return(bea_payload)
+    try:
+        with urllib.request.urlopen(bea_url) as f:
+            if(f.getcode() > 200):
+                raise Exception(f"Failed to retrieve data from {bea_url} with status code"
+                                " {f.getcode()}")
+            # beaPayload = f.read().decode(encoding_str)
+            bea_payload = f
+            # return(beaPayload)
 
             try:
-                if (as_dict):
-                    from beaapi.response_to_dict import response_to_dict
-                    bea_response = response_to_dict(bea_payload, is_meta=is_meta)
-                    if throttle:
-                        rs = bea_response["response_size"]
-                        assert isinstance(rs, int)
-                        throttling_data[userid].log_query(rs)
-                    return(bea_response)
-                else:  # as_table
-                    from beaapi.response_to_table import response_to_table
-                    bea_results = response_to_table(bea_payload)
-                    if throttle:
-                        td = throttling_data[userid]
-                        td.log_query(bea_results.attrs["response_size"])
-                    return(bea_results)
-            except BEAAPIFailure as e:
+                if(math.floor(bea_payload.status / 100) != 2):
+                    raise Exception('Request failed. Returned HTTP status code: '
+                                    + str(bea_payload['status_code']))
+            except Exception:
+                raise Exception('Submitted variable is not a valid https response class'
+                                ' object.')
+
+            # Give user format they want (do it in order of least modification unless
+            # nothing but as_table=False specified)
+            if(as_string):
+                bea_content = bea_payload.read().decode(encoding_str)
                 if throttle:
-                    throttling_data[userid].wait_prev_failure = True
-                raise e
-            except BEAAPIResponseError as e:
-                if throttle:
-                    throttling_data[userid].log_query(e.response_size, True)
-                raise e
+                    throttling_data[userid].log_query(len(bea_content))
+                return(bea_content)
+            else:
+                if not as_dict and not as_table:
+                    # TODO: can I read here and then let user read again?
+                    #if throttle:
+                    #    bea_content = bea_payload.read().decode(encoding_str)
+                    #    throttling_data[userid].log_query(len(bea_content))
+                    return(bea_payload)
+
+                try:
+                    if (as_dict):
+                        from beaapi.response_to_dict import response_to_dict
+                        bea_response = response_to_dict(bea_payload, is_meta=is_meta)
+                        if throttle:
+                            rs = bea_response["response_size"]
+                            assert isinstance(rs, int)
+                            throttling_data[userid].log_query(rs)
+                        return(bea_response)
+                    else:  # as_table
+                        from beaapi.response_to_table import response_to_table
+                        bea_results = response_to_table(bea_payload)
+                        if throttle:
+                            throttling_data[userid].log_query(bea_results.attrs["response_size"])
+                        return(bea_results)
+                except BEAAPIFailure as e:
+                    if throttle:
+                        throttling_data[userid].wait_prev_failure = True
+                    raise e
+                except BEAAPIResponseError as e:
+                    if throttle:
+                        throttling_data[userid].log_query(e.response_size, True)
+                    raise e
+    except urllib.error.HTTPError as e:
+        if e.code == 429:
+            print(f"BEA API: You've exceeded a rate limit (either # of requests, # of errors, or amount of data), and your requests will be blocked for the next hour. Use the throttling option to wait sufficiently next time.")
+        raise e

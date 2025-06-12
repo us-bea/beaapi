@@ -1,6 +1,54 @@
 [build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
-]
+requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
+
+[project]
+# Change this to match your package name, repo name, and package folder name (they should all match)
+name = "beaapi"
+
+authors = [
+    {name = "Bureau of Economic Analysis", email = "developers@bea.gov"},
+]
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "CC0"}
+description = "BEA API Python package"
+dynamic = ["classifiers","dependencies","version"]
+
+[tool.setuptools]
+packages = ["beaapi"]
+
+[project.urls]
+"Homepage" = "https://github.com/us-bea/beaapi"
+"Bug Tracker" = "https://github.com/us-bea/beaapi/issues"
+
+
+[tool.setuptools_scm]
+
+[tool.setuptools.dynamic]
+classifiers = {file = "classifiers.txt"}
+dependencies = {file = "requirements.txt"}
+
+## To get the typing working
+[tool.setuptools.package-data]
+beaapi = ["py.typed"]
+
+# Provide optional dependencies https://setuptools.pypa.io/en/latest/userguide/dependency_management.html#optional-dependencies
+[project.optional-dependencies]
+dev = [
+    "build",
+    "setuptools",
+    "setuptools-scm",
+    "wheel",
+    "jupyter",
+    "python-dotenv",
+    "nbconvert",
+    "sphinx",
+    "nbsphinx",
+    "pandoc",
+    "unittest",
+    "flake8",
+    "mypy",
+    "twine"
+]
+

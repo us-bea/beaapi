@@ -13,9 +13,16 @@ import beaapi
 
 
 class ThrottlingCaller(object):
-    # An instance of this class encapsulates information to self-throttle api calls.
-    # Just wrap a bea callable and they will be called slow
-    # enough to not go over the BEA limits.
+    """
+    An instance of this class encapsulates information to self-throttle api calls.
+    Just wrap a bea callable and they will be called slow enough to not go over 
+    the BEA limits.
+    It should throttle exactly for the limits on the number of request and number
+    of errors per minute. For the volume of data per minute limit, it assumes the
+    next request will have the same size as the average of requests in the last minute.
+    If there's a failure, it could be due to a large volume of data, so it waits
+    longer before the next call (60 seconds) to be conservative.
+    """
     def __init__(self):
         self.rel_queries = pd.DataFrame({'time': pd.Series(dtype='datetime64[ns]'),
                                          'size': pd.Series(dtype='float'),
@@ -38,16 +45,21 @@ class ThrottlingCaller(object):
             n_not_allow = self.rel_queries.shape[0] - beaapi.MAX_REQUESTS_PER_MINUTE + 1
             allowable_mask = self.rel_queries.index >= n_not_allow
             oldest_allowable_ts = self.rel_queries[allowable_mask]['time'].min()
-            time.sleep(60 - (n - oldest_allowable_ts).seconds + 1)
+            time.sleep(max(60 - (n - oldest_allowable_ts).seconds + 1),0)
 
         # wait till not too much volume
         n = pd.Timestamp.now()
         mask = self.rel_queries['time'] >= n - pd.Timedelta(1, "minute")
-        if self.rel_queries['size'][mask].sum() >= beaapi.MAX_DATA_PER_MINUTE:
+        n_prev = mask.sum()
+        expected_scalup = 1 if n_prev<=0 else (n_prev+1)/n_prev
+        if self.rel_queries['size'][mask].sum()*expected_scalup >= beaapi.MAX_DATA_PER_MINUTE:
             rev_cumsum = self.rel_queries.iloc[::-1]['size'].cumsum().iloc[::-1]
-            allowable_mask = rev_cumsum < beaapi.MAX_DATA_PER_MINUTE
-            oldest_allowable_ts = self.rel_queries[allowable_mask]['time'].min()
-            time.sleep(60 - (n - oldest_allowable_ts).seconds + 1)
+            allowable_mask = rev_cumsum*expected_scalup < beaapi.MAX_DATA_PER_MINUTE
+            if allowable_mask.sum() == 0:
+                oldest_allowable_ts = self.rel_queries['time'].max()
+            else:
+                oldest_allowable_ts = self.rel_queries[allowable_mask]['time'].min()
+            time.sleep(max(60 - (n - oldest_allowable_ts).seconds + 1,0))
 
         # wait till not-too-many errors
         n = pd.Timestamp.now()
@@ -56,7 +68,7 @@ class ThrottlingCaller(object):
             rev_cumsum = self.rel_queries.iloc[::-1]['errors'].cumsum().iloc[::-1]
             allowable_mask = rev_cumsum < beaapi.MAX_ERRORS_PER_MINUTE
             oldest_allowable_ts = self.rel_queries[allowable_mask]['time'].min()
-            time.sleep(60 - (n - oldest_allowable_ts).seconds + 1)
+            time.sleep(max(60 - (n - oldest_allowable_ts).seconds + 1),0)
 
     def wait_full_reset(self) -> None:
         time.sleep(60)

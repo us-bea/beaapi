@@ -12,13 +12,13 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../src/'))
+sys.path.insert(0, os.path.abspath('../'))
 
 
 # -- Project information -----------------------------------------------------
 
 project = 'beaapi'
-copyright = '2022, BEA'
+#copyright = '2022, BEA'
 author = 'BEA'
 
 
@@ -57,6 +57,9 @@ html_theme = 'alabaster'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+# Disable "Copyright XXX"
+html_show_copyright = False
 
 # disable makeing _source/ and linking on each page to their source.
 html_copy_source = False

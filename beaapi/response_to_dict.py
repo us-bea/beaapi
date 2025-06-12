@@ -56,10 +56,16 @@ def response_to_dict(bea_payload: HTTPResponse,
     if(bea_payload.url.find("resultformat=xml") > -1):  # type: ignore
         bea_url = bea_payload.url.replace("resultformat=xml",  # type: ignore
                                           "resultformat=json")
-        with urllib.request.urlopen(bea_url) as f:
-            bin_content = f.read()
-            response_size = len(bin_content)
-            bea_content = bin_content.decode(encoding_str)
+        try:
+            # We don't throttle here, but from the calling function api_requests (also via response_to_table)
+            with urllib.request.urlopen(bea_url) as f:
+                bin_content = f.read()
+                response_size = len(bin_content)
+                bea_content = bin_content.decode(encoding_str)
+        except urllib.error.HTTPError as e:
+            if e.code == 429:
+                print(f"BEA API: You've exceeded a rate limit (either # of requests, # of errors, or amount of data), and your requests will be blocked for the next hour. Use the throttling option to wait sufficiently next time.")
+            raise e
 
     else:
         bin_content = bea_payload.read()

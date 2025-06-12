@@ -37,6 +37,7 @@
             
   <section id="module-beaapi">
 <span id="api-documentation"></span><h1>API documentation<a class="headerlink" href="#module-beaapi" title="Permalink to this heading">¶</a></h1>
+<p>This is a place to provide a slightly longer package description.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="beaapi.BEAAPIError">
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">beaapi.</span></span><span class="sig-name descname"><span class="pre">BEAAPIError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#beaapi.BEAAPIError" title="Permalink to this definition">¶</a></dt>
@@ -91,6 +92,19 @@ check the <code class="docutils literal notranslate"><span class="pre">messages<
 </ul>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="beaapi.ThrottlingCaller">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">beaapi.</span></span><span class="sig-name descname"><span class="pre">ThrottlingCaller</span></span><a class="headerlink" href="#beaapi.ThrottlingCaller" title="Permalink to this definition">¶</a></dt>
+<dd><p>An instance of this class encapsulates information to self-throttle api calls.
+Just wrap a bea callable and they will be called slow enough to not go over
+the BEA limits.
+It should throttle exactly for the limits on the number of request and number
+of errors per minute. For the volume of data per minute limit, it assumes the
+next request will have the same size as the average of requests in the last minute.
+If there’s a failure, it could be due to a large volume of data, so it waits
+longer before the next call (60 seconds) to be conservative.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -149,7 +163,7 @@ metadata stored as an attribute in <code class="docutils literal notranslate"><s
 
 <dl class="py function">
 <dt class="sig sig-object py" id="beaapi.get_data">
-<span class="sig-prename descclassname"><span class="pre">beaapi.</span></span><span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">userid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datasetname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_checks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">throttle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#beaapi.get_data" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">beaapi.</span></span><span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">userid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datasetname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_checks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">throttle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#beaapi.get_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a data table.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -159,6 +173,7 @@ metadata stored as an attribute in <code class="docutils literal notranslate"><s
 <li><p><strong>**kwargs</strong> – Other named parameters as key-value pairs</p></li>
 <li><p><strong>do_checks</strong> (<em>bool</em>) – </p></li>
 <li><p><strong>throttle</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>force</strong> (<em>bool</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -194,7 +209,7 @@ extra info referenced from the main data.</p></li>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">beaapi</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">beaapi</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="s1">&#39;yourAPIkey&#39;</span><span class="p">,</span> <span class="s1">&#39;NIPA&#39;</span><span class="p">,</span> <span class="n">TableName</span><span class="o">=</span><span class="s1">&#39;T20305&#39;</span><span class="p">,</span> <span class="n">Frequency</span><span class="o">=</span><span class="s1">&#39;Q&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="s1">&#39;yourAPIkey&#39;</span><span class="p">,</span> <span class="s1">&#39;NIPA&#39;</span><span class="p">,</span> <span class="n">TableName</span><span class="o">=</span><span class="s1">&#39;T20305&#39;</span><span class="p">,</span> <span class="n">Frequency</span><span class="o">=</span><span class="s1">&#39;Q&#39;</span><span class="p">,</span>
 <span class="gp">&gt;&gt;&gt; </span>                   <span class="n">Year</span><span class="o">=</span><span class="s1">&#39;X&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -402,7 +417,7 @@ Utilizes the column info in <code class="docutils literal notranslate"><span cla
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">beaapi</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">wide_tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">to_wide_vars_in_cols</span><span class="p">(</span><span class="n">tbl</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -427,7 +442,7 @@ Utilizes the column info in <code class="docutils literal notranslate"><span cla
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">beaapi</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">wide_tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">to_wide_vars_in_rows</span><span class="p">(</span><span class="n">tbl</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -560,9 +575,6 @@ working directory.</p></li>
       Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
-      |
-      <a href="_sources/api.rst.txt"
-          rel="nofollow">Page source</a>
     </div>
 
     

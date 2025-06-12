@@ -51,47 +51,49 @@ python -m pip install --upgrade --force-reinstall dist/beaapi-X.Y.Z-py3-none-any
 
 An alternative to installing the wheel is to install this package in "development mode" for Anaconda:
 ```
-conda develop src
+conda develop .
 ```
 
 ### Building docs
-All takes place `docsrc/`. To build `README.md` from `README.ipynb` you will need `jupyter`, `python-dotenv`, and `nbconvert` (6.4.4 in main Anaconda channel had error, so use higher)
+All takes place `docsrc/`. To build `README.md` from `README.ipynb` you will need `jupyter`, `python-dotenv`, and `nbconvert` (6.4.4 has error, 7.2.9 works)
 ```
 jupyter nbconvert --to markdown README.ipynb --output "../README.md"
 ```
-This includes some inline styles, which GitHub won't render. To remove those, find and replace this regex `\n<style(.|\n)+?</style>`.
 
 To build the docs you will need `sphinx`, `nbsphinx`, `pandoc` and `nbconvert`. Then:
 
 ```
 make html
 ```
-which will generate html docs viewable at `docsrc/_build/html/index.html`. Then copy `_build/html/` (except *.ipynb) to `../docs`.
+which will generate html docs viewable at `docsrc/_build/html/index.html`. 
+
+Then copy `_build/html/` (except *.ipynb) to `../docs`.
+
+```
+robocopy "_build/html" "../docs" /mir
+del ..\docs\*.ipynb
+```
 
 
 ### Testing
-To run the unit-tests, make sure the package `unittest` is installed.
-
 To run just a a quick-test
 ```
-python -m unittest tests.test_main
+pytest tests/
 ```
 
-To run all (including some slow ones)
+Optional (non-default) tests can be run with:
 ```
-python -m unittest
+pytest tests/throttling.py
 ```
+
+Try to run the tests in the latest version of pandas.
 
 ### Linting
 We use the `flake8` and `mypy` package to check for style errors. (To fully use `mypy` you will also need to install the `pandas-stubs` package.)
 ```
-flake8 src/beaapi/
-mypy src/beaapi/
+flake8 beaapi/
+mypy beaapi/
 ```
 `mypy` might complain about fuzzywuzzy which is OK
 
-### Releasing
-1. Bump version in `setup.py`, `setup.cfg`, `src/beaapi/__init__.py`, `docs/README.ipynb`
-2. Rebuild docs (Internal: after committing, push to internal website, along with binary zipped in `dist/`)
-3. Mention in `CHANGELOG.md`
 

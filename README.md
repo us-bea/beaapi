@@ -1,7 +1,7 @@
 # beaapi
-  beaapi: A Python library library to make it easier to retrieve and work with BEA data. For the parallel R-package, see [bea.R](https://github.com/us-bea/bea.R/).
+  `beaapi`: A Python library library to make it easier to retrieve and work with BEA data. For the parallel R-package, see [bea.R](https://github.com/us-bea/bea.R/).
 
-To install the package, download the `.whl` file for the [latest release](https://github.com/us-bea/beaapi/releases), and install using `pip`.
+To install the package, use `pip install beaapi`.
 
 For help, see our [documentation](https://us-bea.github.io/beaapi/).
 
@@ -28,10 +28,8 @@ For scripts, an even better method is to create an unversioned text file called 
 
 
 ```python
-import os
-from dotenv import load_dotenv
-load_dotenv()
-beakey = os.environ.get("beakey")
+from dotenv import dotenv_values
+beakey = dotenv_values()["beakey"]
 ```
 
 ## Get metadata
@@ -45,6 +43,19 @@ display(list_of_sets)  # Note the last dataset is only for speeding up metadata 
 
 
 <div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -96,21 +107,26 @@ display(list_of_sets)  # Note the last dataset is only for speeding up metadata 
     </tr>
     <tr>
       <th>8</th>
+      <td>IntlServSTA</td>
+      <td>International Services Supplied Through Affili...</td>
+    </tr>
+    <tr>
+      <th>9</th>
       <td>GDPbyIndustry</td>
       <td>GDP by Industry</td>
     </tr>
     <tr>
-      <th>9</th>
+      <th>10</th>
       <td>Regional</td>
       <td>Regional data sets</td>
     </tr>
     <tr>
-      <th>10</th>
+      <th>11</th>
       <td>UnderlyingGDPbyIndustry</td>
       <td>Underlying GDP by Industry</td>
     </tr>
     <tr>
-      <th>11</th>
+      <th>12</th>
       <td>APIDatasetMetaData</td>
       <td>Metadata about other API datasets</td>
     </tr>
@@ -129,6 +145,19 @@ display(list_of_params)
 
 
 <div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -208,6 +237,19 @@ display(list_of_param_vals)
 
 
 <div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -249,6 +291,19 @@ display(tbl.head())
 
 
 <div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -296,10 +351,28 @@ search_data = beaapi.search_metadata('Gross domestic', beakey)
 search_data.head(2)
 ```
 
+    Created directory: beaapi_data
+    Creating first-time local copy of metadata for all datasets - only done once in working directory.
+    Datasets will be updated only if timestamps indicate metadata obsolete in future searches, and only obsolete metadata sets will be updated.
+    
+
 
 
 
 <div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -375,6 +448,19 @@ display(bea_tbl.head(2))
 
 
 <div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -402,7 +488,7 @@ display(bea_tbl.head(2))
       <td>Current Dollars</td>
       <td>Level</td>
       <td>6</td>
-      <td>12083904</td>
+      <td>12119763</td>
       <td>T20305</td>
     </tr>
     <tr>
@@ -415,7 +501,7 @@ display(bea_tbl.head(2))
       <td>Current Dollars</td>
       <td>Level</td>
       <td>6</td>
-      <td>12224707</td>
+      <td>12264140</td>
       <td>T20305</td>
     </tr>
   </tbody>
@@ -432,6 +518,19 @@ display(bea_tbl.set_index(bea_tbl.attrs['index_cols']).head(2))
 
 
 <div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -469,7 +568,7 @@ display(bea_tbl.set_index(bea_tbl.attrs['index_cols']).head(2))
       <td>Current Dollars</td>
       <td>Level</td>
       <td>6</td>
-      <td>12083904</td>
+      <td>12119763</td>
       <td>T20305</td>
     </tr>
     <tr>
@@ -480,7 +579,7 @@ display(bea_tbl.set_index(bea_tbl.attrs['index_cols']).head(2))
       <td>Current Dollars</td>
       <td>Level</td>
       <td>6</td>
-      <td>12224707</td>
+      <td>12264140</td>
       <td>T20305</td>
     </tr>
   </tbody>
@@ -495,6 +594,7 @@ Extra meta-data from the API is returned in a dictionary in the attributes calle
 print('Extra detail keys:' + str(bea_tbl.attrs['detail'].keys()))
 print("Let's look at some interesting ones.")
 print('Statistic: ' + bea_tbl.attrs['detail']['Statistic'])
+print('UTCProductionTime (to know the vintage): ' + bea_tbl.attrs['detail']['UTCProductionTime'])  # some datasets use 'TsLastUpdated'
 print("Notes corresponding to NoteRef:")
 display(bea_tbl.attrs['detail']['Notes'].head())
 ```
@@ -502,11 +602,25 @@ display(bea_tbl.attrs['detail']['Notes'].head())
     Extra detail keys:dict_keys(['Statistic', 'UTCProductionTime', 'Dimensions', 'Notes'])
     Let's look at some interesting ones.
     Statistic: NIPA Table
+    UTCProductionTime (to know the vintage): 2024-03-28T13:07:19.130
     Notes corresponding to NoteRef:
     
 
 
 <div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -559,6 +673,19 @@ display(beaapi.to_wide_vars_in_cols(bea_tbl).head(3))
 
 
 <div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -574,9 +701,6 @@ display(beaapi.to_wide_vars_in_cols(bea_tbl).head(3))
       <th>9</th>
       <th>10</th>
       <th>...</th>
-      <th>19</th>
-      <th>20</th>
-      <th>21</th>
       <th>22</th>
       <th>23</th>
       <th>24</th>
@@ -584,6 +708,9 @@ display(beaapi.to_wide_vars_in_cols(bea_tbl).head(3))
       <th>26</th>
       <th>27</th>
       <th>28</th>
+      <th>29</th>
+      <th>30</th>
+      <th>31</th>
     </tr>
     <tr>
       <th>TimePeriod</th>
@@ -613,79 +740,79 @@ display(beaapi.to_wide_vars_in_cols(bea_tbl).head(3))
   <tbody>
     <tr>
       <th>2015Q1</th>
-      <td>12083904</td>
-      <td>3867908</td>
-      <td>1283823</td>
-      <td>465426</td>
-      <td>285887</td>
-      <td>332965</td>
-      <td>199546</td>
-      <td>2584085</td>
-      <td>917371</td>
-      <td>366171</td>
+      <td>12119763</td>
+      <td>3896791</td>
+      <td>1291044</td>
+      <td>478782</td>
+      <td>284726</td>
+      <td>335481</td>
+      <td>192055</td>
+      <td>2605746</td>
+      <td>935572</td>
+      <td>376595</td>
       <td>...</td>
-      <td>814298</td>
-      <td>960760</td>
-      <td>992461</td>
-      <td>362114</td>
-      <td>1367850</td>
-      <td>1005736</td>
-      <td>10619844</td>
-      <td>546689</td>
-      <td>10570891</td>
-      <td>9107467</td>
+      <td>352308</td>
+      <td>1360579</td>
+      <td>1008271</td>
+      <td>10625316</td>
+      <td>8771780</td>
+      <td>558876</td>
+      <td>6123874</td>
+      <td>1853536</td>
+      <td>10600376</td>
+      <td>9106564</td>
     </tr>
     <tr>
       <th>2015Q2</th>
-      <td>12224707</td>
-      <td>3927357</td>
-      <td>1309627</td>
-      <td>481820</td>
-      <td>292631</td>
-      <td>333600</td>
-      <td>201577</td>
-      <td>2617730</td>
-      <td>916930</td>
-      <td>368315</td>
+      <td>12264140</td>
+      <td>3958930</td>
+      <td>1317766</td>
+      <td>496967</td>
+      <td>291226</td>
+      <td>336325</td>
+      <td>193249</td>
+      <td>2641163</td>
+      <td>937029</td>
+      <td>379874</td>
       <td>...</td>
-      <td>828712</td>
-      <td>977198</td>
-      <td>1003757</td>
-      <td>363147</td>
-      <td>1374002</td>
-      <td>1010855</td>
-      <td>10759482</td>
-      <td>548295</td>
-      <td>10693235</td>
-      <td>9228648</td>
+      <td>356465</td>
+      <td>1369721</td>
+      <td>1013256</td>
+      <td>10769675</td>
+      <td>8899946</td>
+      <td>557436</td>
+      <td>6211388</td>
+      <td>1869729</td>
+      <td>10718003</td>
+      <td>9224176</td>
     </tr>
     <tr>
       <th>2015Q3</th>
-      <td>12347752</td>
-      <td>3960436</td>
-      <td>1318493</td>
-      <td>481620</td>
-      <td>297306</td>
-      <td>337083</td>
-      <td>202483</td>
-      <td>2641944</td>
-      <td>924494</td>
-      <td>370385</td>
+      <td>12382494</td>
+      <td>3993596</td>
+      <td>1326900</td>
+      <td>497705</td>
+      <td>295659</td>
+      <td>340178</td>
+      <td>193359</td>
+      <td>2666696</td>
+      <td>946571</td>
+      <td>383041</td>
       <td>...</td>
-      <td>836130</td>
-      <td>978430</td>
-      <td>1012278</td>
-      <td>373825</td>
-      <td>1385653</td>
-      <td>1011828</td>
-      <td>10877903</td>
-      <td>545354</td>
-      <td>10802962</td>
-      <td>9333737</td>
+      <td>367356</td>
+      <td>1380892</td>
+      <td>1013536</td>
+      <td>10881970</td>
+      <td>8994136</td>
+      <td>553953</td>
+      <td>6278542</td>
+      <td>1887834</td>
+      <td>10821082</td>
+      <td>9321182</td>
     </tr>
   </tbody>
 </table>
-<p>3 rows × 28 columns</p>
+<p>3 rows × 31 columns</p>
 </div>
 
 
@@ -700,6 +827,7 @@ See the docs for additional information on:
 * [CODE_OF_CONDUCT.md](https://github.com/us-bea/.github/blob/main/CODE_OF_CONDUCT.md)
 * [SECURITY](https://github.com/us-bea/beaapi/security/policy)
 * [LICENSE](https://github.com/us-bea/beaapi/blob/main/LICENSE)
+* [CONTRIBUTORS.md](https://github.com/us-bea/beaapi/blob/main/CONTRIBUTORS.md)
 * [CONTRIBUTING.md](https://github.com/us-bea/beaapi/blob/main/CONTRIBUTING.md)
 * [SUPPORT.md](https://github.com/us-bea/beaapi/blob/main/SUPPORT.md)
 * [CHANGELOG.md](https://github.com/us-bea/beaapi/blob/main/CHANGELOG.md)

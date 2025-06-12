@@ -125,9 +125,11 @@ def search_metadata(search_term: str, userid: str = None,
                 time_comp = (bea_meta_mtime.merge(bea_meta_info, on="Dataset",
                                                   how="right")
                              [['Dataset', 'mtime', 'JSONUpdateDate']])
+                
+                # JSONUpdateDate sometime has milliseconds (".sss"), but this hasn't always been valid ISO8601 for pandas, so convert to 
 
                 time_comp['APImtime'] = pd.to_datetime(time_comp['JSONUpdateDate'],
-                                                       format="%Y-%m-%dT%H:%M:%S")
+                                                       format="%Y-%m-%dT%H:%M:%S.%f")
 
                 both_valid = np.logical_and(~pd.isnull(time_comp['APImtime']),
                                             ~pd.isnull(time_comp['mtime']))
@@ -139,12 +141,13 @@ def search_metadata(search_term: str, userid: str = None,
                 outdated_local_meta = time_comp['Dataset'][l_outdate_or_miss]
                 bea_meta_first_to_cache = local_miss_mask.sum() > 0
 
-            except Exception:
+            except Exception as e:
                 warnings.warn("API metadata mofication time table structure changed.\n"
                               " Check for package update")
                 bea_meta_first_to_cache = True
                 response_size += update_metadata(userid, bea_known_meta_sets,
                                                  throttle=throttle)
+                raise e
 
             lowerlocalmeta = [localmeta.lower() for localmeta in outdated_local_meta]
             newy_known = list(set(lowerlocalmeta) - set(bea_known_meta_sets))

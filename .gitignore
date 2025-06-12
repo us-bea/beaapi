@@ -1,4 +1,3 @@
-beaapi_data/
 .vscode/
 
 # Byte-compiled / optimized / DLL files
@@ -132,4 +131,5 @@ dmypy.json
 .pyre/
 
 # local files
+beaapi_data/
 local/

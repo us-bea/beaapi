@@ -1,8 +1,10 @@
+from datetime import datetime
+import warnings
 import pandas as pd
 
 
 def get_data(userid: str, datasetname: str, do_checks: bool = False,
-             throttle: bool = True, **kwargs) -> pd.DataFrame:
+             throttle: bool = True, force: bool = False, **kwargs) -> pd.DataFrame:
     """
     Returns a data table.
 
@@ -46,7 +48,7 @@ def get_data(userid: str, datasetname: str, do_checks: bool = False,
     Examples
     --------
     >>> import beaapi
-    >>> beaapi.get_dataset('yourAPIkey', 'NIPA', TableName='T20305', Frequency='Q',
+    >>> beaapi.get_data('yourAPIkey', 'NIPA', TableName='T20305', Frequency='Q',
     >>>                    Year='X')
     """
     from beaapi import api_request, BEAAPIPkgException
@@ -75,9 +77,10 @@ def get_data(userid: str, datasetname: str, do_checks: bool = False,
         'fixedassets' : ['SeriesCode', 'LineNumber'],
         'ita' : ['Indicator', 'AreaOrCountry', 'Frequency'],
         'iip' : ['Frequency', 'TypeOfInvestment', 'Component'],
-        "inputoutput" : ['TableID', 'RowCode', 'ColCode'],
+        "intlservsta":["Channel","Destination","Industry","AreaOrCountry"],
         "intlservtrade" : ['TypeOfService', 'TradeDirection', 'Affiliation',
                            "AreaOrCountry"],
+        "inputoutput" : ['TableID', 'RowCode', 'ColCode'],
         "gdpbyindustry" : ['TableID', 'Industry', 'IndustrYDescription'],
         "underlyinggdpbyindustry" : ['TableID', 'Industry'],
         "regional" : ['Code', 'GeoFips']
@@ -97,9 +100,10 @@ def get_data(userid: str, datasetname: str, do_checks: bool = False,
                                          'CL_UNIT', 'UNIT_MULT', 'NoteRef'],
         'ita' : ['TimeSeriesId', 'TimeSeriesDescription', 'CL_UNIT', 'UNIT_MULT'],
         'iip' : ['TimeSeriesId', 'TimeSeriesDescription', 'CL_UNIT', 'UNIT_MULT'],
-        "inputoutput" : ['RowDescr', 'RowType', 'ColType', 'ColDescr', 'NoteRef'],
+        "intlservsta":["TimeSeriesId","TimeSeriesDescription",'CL_UNIT','UNIT_MULT'],
         "intlservtrade" : ['TimeSeriesId', 'TimeSeriesDescription', 'CL_UNIT',
                            'UNIT_MULT'],
+        "inputoutput" : ['RowDescr', 'RowType', 'ColType', 'ColDescr', 'NoteRef'],
         "gdpbyindustry" : ['NoteRef'],
         "underlyinggdpbyindustry" : ['Frequency'] + ['IndustrYDescription', 'NoteRef'],
         "regional" : ['GeoName', 'CL_UNIT', 'UNIT_MULT']
@@ -119,6 +123,7 @@ def get_data(userid: str, datasetname: str, do_checks: bool = False,
         'fixedassets' : ['TimePeriod'],
         'ita' : ['TimePeriod'],
         'iip' : ['TimePeriod'],
+        "intlservsta":["TimePeriod"],
         "inputoutput" : ['Year'],
         "intlservtrade" : ['TimePeriod'],
         "gdpbyindustry" : ['Frequency', 'Year', 'Quarter'],
@@ -133,6 +138,7 @@ def get_data(userid: str, datasetname: str, do_checks: bool = False,
         'fixedassets' : ['DataValue'],
         'ita' : ['DataValue', 'NoteRef'],
         'iip' : ['DataValue', 'NoteRef'],
+        "intlservsta" : ['DataValue', 'NoteRef'],
         "inputoutput" : ['DataValue'],
         "intlservtrade" : ['DataValue', 'NoteRef'],
         "gdpbyindustry" : ['DataValue'],
@@ -148,6 +154,7 @@ def get_data(userid: str, datasetname: str, do_checks: bool = False,
     time_variant_only_vars = {
         'ita': ['Year'],
         'iip': ['Year'],
+        "intlservsta":["Year"],
         "intlservtrade": ['Year']
     }
 
@@ -156,7 +163,7 @@ def get_data(userid: str, datasetname: str, do_checks: bool = False,
 
     # Check for API error (API team is looking into this)
     if (bea_spec['datasetname'] == "inputoutput"
-       and "," in bea_spec.get("tableid", "")):
+       and "," in bea_spec.get("tableid", "") and not force):
         raise Exception("There is some concern about the data returned from InputOutput"
                         ' when asking for multiple tables at once. Retry with separate'
                         " requests.")
@@ -164,15 +171,18 @@ def get_data(userid: str, datasetname: str, do_checks: bool = False,
        and "," in bea_spec.get("frequency", "")):
         print("underlyinggdpbyindustry currenty only returns Annual results (even if"
               " you ask for additional frequencies).")
+    if (bea_spec['datasetname'] == "apidatasetmetadata"):
+        raise NotImplementedError("This function does not yet support data from APIDatasetMetaData. See search_metadata().")
 
     # Warn about dropped extra parameters
     # List of allowable paratmers (generated from metadata.ipynb)
-    allowable_params = {'nipa': ['frequency', 'showmillions', 'tableid', 'tablename', 'year'],
-                        'niunderlyingdetail': ['frequency', 'tableid', 'tablename', 'year'],
+    allowable_params = {'nipa': ['frequency', 'showmillions', 'tablename', 'year'],
+                        'niunderlyingdetail': ['frequency', 'tablename', 'year'],
                         'mne': ['directionofinvestment', 'ownershiplevel', 'nonbankaffiliatesonly', 'classification', 'country', 'industry', 'year', 'state', 'seriesid', 'getfootnotes', 'investment', 'parentinvestment'],
                         'fixedassets': ['tablename', 'year'],
                         'ita': ['indicator', 'areaorcountry', 'frequency', 'year'],
                         'iip': ['typeofinvestment', 'component', 'frequency', 'year'],
+                        "intlservtrade":["channel", "destination","industry","areaorcountry","Year"],
                         'inputoutput': ['tableid', 'year'],
                         'intlservtrade': ['typeofservice', 'tradedirection', 'affiliation', 'areaorcountry', 'year'],
                         'gdpbyindustry': ['frequency', 'industry', 'tableid', 'year'],
@@ -188,6 +198,8 @@ def get_data(userid: str, datasetname: str, do_checks: bool = False,
 
     tbl = api_request(bea_spec, as_dict=False, as_table=True, is_meta=False,
                       throttle=throttle)
+    # print(tbl.attrs['detail'])
+    # print(tbl.attrs['detail']['Notes'])
     assert isinstance(tbl, pd.DataFrame)
 
     tbl.attrs['time_invariant_keys'] = time_invariant_keys[datasetname.lower()]
@@ -203,6 +215,38 @@ def get_data(userid: str, datasetname: str, do_checks: bool = False,
     tbl.attrs['time_variant_only_vars'] = \
         time_variant_only_vars.get(datasetname.lower(), [])
     tbl.attrs['index_cols'] = index_cols[datasetname.lower()]
+
+    def parse_tabletitle_nipa(df, tablename):
+        notes = df.attrs['detail']['Notes']
+        rawtabletitle = notes[notes.NoteRef==tablename.upper()]['NoteText'].iloc[0]
+        tabletitle, lastrevised_str = rawtabletitle.split(" - LastRevised: ")
+        lastrevised = datetime.strptime(lastrevised_str, '%B %d, %Y').date()
+        return((tabletitle, lastrevised))
+    
+    def parse_tablenote_reg(df):
+        notes = df.attrs['detail']['Notes']
+        prefix = "Last updated: "
+        rawnote = notes.NoteText[notes.NoteText.str.startswith(prefix)].iloc[0]
+        if "--" in rawnote:
+            update_date_part, update_note_part = rawnote.split("--", 1)
+            update_note = update_note_part.strip()
+        else:
+            update_date_part = rawnote[:-1]  #sometimes just a "." at end
+            update_note = None
+        lastrevised_str = update_date_part[len(prefix):].strip()
+        lastrevised = datetime.strptime(lastrevised_str, '%B %d, %Y').date()
+        return((lastrevised,update_note))
+    
+    try:  # string processing sometimes fails
+        if datasetname.lower() in ['nipa', "niunderlyingdetail", "fixedassets"]:
+            tbl.attrs['release_date'] = parse_tabletitle_nipa(tbl, bea_spec['tablename'])[1]
+        elif datasetname.lower()=="regional":
+            tbl.attrs['release_date'] = parse_tablenote_reg(tbl)[0]
+        elif datasetname.lower() in ["ita", "intlservtrade", "intlservsta", "iip"]:
+            tbl.attrs['release_date'] = datetime.strptime(tbl.attrs['detail']['TsLastUpdated'][:-4],'%Y-%m-%d %H:%M:%S') #Has milliseconds (".000") appended
+    except Exception as e:
+        print(tbl.attrs['detail']['Notes'])
+        warnings.warn(str(e))
 
     if do_checks:
         expected_cols = tbl.attrs['time_invariant_keys'] \
@@ -244,7 +288,7 @@ def to_wide_vars_in_cols(bea_tbl):
     Examples
     --------
     >>> import beaapi
-    >>> tbl = beaapi.get_dataset(...)
+    >>> tbl = beaapi.get_data(...)
     >>> wide_tbl = beaapi.to_wide_vars_in_cols(tbl)
     """
     if 'wide_format' in bea_tbl.attrs:
@@ -278,7 +322,7 @@ def to_wide_vars_in_rows(bea_tbl):
     Examples
     --------
     >>> import beaapi
-    >>> tbl = beaapi.get_dataset(...)
+    >>> tbl = beaapi.get_data(...)
     >>> wide_tbl = beaapi.to_wide_vars_in_rows(tbl)
     """
     if 'wide_format' in bea_tbl.attrs:

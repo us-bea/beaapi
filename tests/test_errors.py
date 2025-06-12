@@ -7,10 +7,8 @@ import beaapi
 class TestErrors(unittest.TestCase):
     def setUp(self):
         # Get key from unversioned file
-        import os
-        from dotenv import load_dotenv
-        load_dotenv()
-        self.beakey = os.environ.get("beakey")
+        from dotenv import dotenv_values
+        self.beakey = dotenv_values()["beakey"]
 
     def test_bad_key(self):
         # Error code 1

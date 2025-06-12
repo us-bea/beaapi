@@ -1,3 +1,20 @@
+"""
+This is a place to provide a slightly longer package description.
+"""
+
+# Provides a version number from your Git repositry, Git tags--DO NOT REMOVE
+from importlib.metadata import version, PackageNotFoundError
+
+try:
+    __version__ = version("beaapi")
+except PackageNotFoundError:
+    __version__ = "unknown version"
+
+# Include any code that should get run when the package is imported here
+# Common examples of code to place here include:
+#    * Defining important constants
+#    * Importing functionality from modules that you don't want your user to need to separately import
+
 __all__ = ['api_request', 'get_data', 'get_data_set_list', 'get_parameter_list',
            'get_parameter_values', 'update_metadata', 'search_metadata',
            'get_parameter_values_filtered', 'to_wide_vars_in_cols',
@@ -25,5 +42,3 @@ MAX_ERRORS_PER_MINUTE = 30
 
 #: Max number of API requests per minute before throttling happens
 BACKOFF_SECS = 60 * 60
-
-__version__ = "0.0.2"
