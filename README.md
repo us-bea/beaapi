@@ -594,7 +594,6 @@ Extra meta-data from the API is returned in a dictionary in the attributes calle
 print('Extra detail keys:' + str(bea_tbl.attrs['detail'].keys()))
 print("Let's look at some interesting ones.")
 print('Statistic: ' + bea_tbl.attrs['detail']['Statistic'])
-print('UTCProductionTime (to know the vintage): ' + bea_tbl.attrs['detail']['UTCProductionTime'])  # some datasets use 'TsLastUpdated'
 print("Notes corresponding to NoteRef:")
 display(bea_tbl.attrs['detail']['Notes'].head())
 ```
@@ -602,7 +601,6 @@ display(bea_tbl.attrs['detail']['Notes'].head())
     Extra detail keys:dict_keys(['Statistic', 'UTCProductionTime', 'Dimensions', 'Notes'])
     Let's look at some interesting ones.
     Statistic: NIPA Table
-    UTCProductionTime (to know the vintage): 2024-03-28T13:07:19.130
     Notes corresponding to NoteRef:
     
 

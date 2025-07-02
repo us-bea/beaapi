@@ -666,7 +666,6 @@ Datasets will be updated only if timestamps indicate metadata obsolete in future
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Extra detail keys:&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Let&#39;s look at some interesting ones.&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Statistic: &#39;</span> <span class="o">+</span> <span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">][</span><span class="s1">&#39;Statistic&#39;</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;UTCProductionTime (to know the vintage): &#39;</span> <span class="o">+</span> <span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">][</span><span class="s1">&#39;UTCProductionTime&#39;</span><span class="p">])</span>  <span class="c1"># some datasets use &#39;TsLastUpdated&#39;</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Notes corresponding to NoteRef:&quot;</span><span class="p">)</span>
 <span class="n">display</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;detail&#39;</span><span class="p">][</span><span class="s1">&#39;Notes&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
 </pre></div>
@@ -680,7 +679,6 @@ Datasets will be updated only if timestamps indicate metadata obsolete in future
 Extra detail keys:dict_keys([&#39;Statistic&#39;, &#39;UTCProductionTime&#39;, &#39;Dimensions&#39;, &#39;Notes&#39;])
 Let&#39;s look at some interesting ones.
 Statistic: NIPA Table
-UTCProductionTime (to know the vintage): 2024-03-28T13:07:19.130
 Notes corresponding to NoteRef:
 </pre></div></div>
 </div>
@@ -987,9 +985,9 @@ processes, or services by service mark, trademark, manufacturer, or otherwise, d
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2022, BEA.
       
-      |
+      
+      
       Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
