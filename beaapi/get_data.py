@@ -51,7 +51,7 @@ def get_data(userid: str, datasetname: str, do_checks: bool = False,
     >>> beaapi.get_data('yourAPIkey', 'NIPA', TableName='T20305', Frequency='Q',
     >>>                    Year='X')
     """
-    from beaapi import api_request, BEAAPIPkgException
+    from beaapi import api_request, BEAAPIPkgException, response_to_table
 
     bea_spec = {k.lower(): v for k, v in kwargs.items()}
     bea_spec.update({
@@ -191,7 +191,7 @@ def get_data(userid: str, datasetname: str, do_checks: bool = False,
                         }
     if (bea_spec['datasetname'] in allowable_params.keys()):
         for param in bea_spec.keys():
-            if param not in ['UserID', 'method', 'GetData', 'datasetname','ResultFormat'] and param not in allowable_params[bea_spec['datasetname']]:
+            if param not in ['UserID', 'method', 'GetData', 'datasetname','ResultFormat']+['base_url'] and param not in allowable_params[bea_spec['datasetname']]:
                 print("Parameter " + param + " not allowed in current query and will be dropped by API.")
 
     
@@ -202,22 +202,27 @@ def get_data(userid: str, datasetname: str, do_checks: bool = False,
     # print(tbl.attrs['detail']['Notes'])
     assert isinstance(tbl, pd.DataFrame)
 
-    tbl.attrs['time_invariant_keys'] = time_invariant_keys[datasetname.lower()]
-    tbl.attrs['time_invariant_vars'] = time_invariant_vars[datasetname.lower()]
-    for col in time_invariant_opt_vars.get(datasetname.lower(), []):
-        if col in tbl.columns:
-            tbl.attrs['time_invariant_vars'] = tbl.attrs['time_invariant_vars'] + [col]
-    tbl.attrs['time_variant_keys'] = time_variant_keys[datasetname.lower()]
-    tbl.attrs['time_variant_vars'] = time_variant_vars[datasetname.lower()]
-    for col in time_variant_opt_vars.get(datasetname.lower(), []):
-        if col in tbl.columns:
-            tbl.attrs['time_variant_vars'] = tbl.attrs['time_variant_vars'] + [col]
-    tbl.attrs['time_variant_only_vars'] = \
-        time_variant_only_vars.get(datasetname.lower(), [])
-    tbl.attrs['index_cols'] = index_cols[datasetname.lower()]
+    if datasetname.lower() not in time_invariant_keys.keys():
+        print("Warning: unknown datasetname returned (no indexing info available for reshaping).")
+    else:
+        tbl.attrs['time_invariant_keys'] = time_invariant_keys[datasetname.lower()]
+        tbl.attrs['time_invariant_vars'] = time_invariant_vars[datasetname.lower()]
+        for col in time_invariant_opt_vars.get(datasetname.lower(), []):
+            if col in tbl.columns:
+                tbl.attrs['time_invariant_vars'] = tbl.attrs['time_invariant_vars'] + [col]
+        tbl.attrs['time_variant_keys'] = time_variant_keys[datasetname.lower()]
+        tbl.attrs['time_variant_vars'] = time_variant_vars[datasetname.lower()]
+        for col in time_variant_opt_vars.get(datasetname.lower(), []):
+            if col in tbl.columns:
+                tbl.attrs['time_variant_vars'] = tbl.attrs['time_variant_vars'] + [col]
+        tbl.attrs['time_variant_only_vars'] = \
+            time_variant_only_vars.get(datasetname.lower(), [])
+        tbl.attrs['index_cols'] = index_cols[datasetname.lower()]
 
     def parse_tabletitle_nipa(df, tablename):
         notes = df.attrs['detail']['Notes']
+        if response_to_table.avoid_df_in_attrs:
+            notes = response_to_table.notes_detail_to_df(notes)
         rawtabletitle = notes[notes.NoteRef==tablename.upper()]['NoteText'].iloc[0]
         tabletitle, lastrevised_str = rawtabletitle.split(" - LastRevised: ")
         lastrevised = datetime.strptime(lastrevised_str, '%B %d, %Y').date()
@@ -225,6 +230,8 @@ def get_data(userid: str, datasetname: str, do_checks: bool = False,
     
     def parse_tablenote_reg(df):
         notes = df.attrs['detail']['Notes']
+        if response_to_table.avoid_df_in_attrs:
+            notes = response_to_table.notes_detail_to_df(notes)
         prefix = "Last updated: "
         rawnote = notes.NoteText[notes.NoteText.str.startswith(prefix)].iloc[0]
         if "--" in rawnote:
@@ -249,6 +256,8 @@ def get_data(userid: str, datasetname: str, do_checks: bool = False,
         warnings.warn(str(e))
 
     if do_checks:
+        if datasetname.lower() not in time_invariant_keys.keys():
+            raise BEAAPIPkgException("Error in checking: Unkown datasetname.")
         expected_cols = tbl.attrs['time_invariant_keys'] \
             + tbl.attrs['time_invariant_vars'] \
             + tbl.attrs['time_variant_keys'] \

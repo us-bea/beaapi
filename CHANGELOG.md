@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.2.0
+### Fixed
+- Fixed bug in throttling code.
+- Fixed incorrect reporting or release_date (some datasets report UTCProductionTime which is not the same)
+- With metadata tables returned via `.attrs['detail']`, work around bug where pandas would generate an error when doing manipulations on the main dataframes if the metadata tables were Dataframes. Instead return list of observations.
+- Degrade gracefully if package encounters an unknown dataset.
+- Ensure `NoteRef` columns always contain strings (convert `pd.NA` to empty string).
+### Added
+- Made the throttling code more conservative to avoid threshold problems.
 ## 0.1.0
 ### Added
 - Add some general SBOM info in `conda.txt`

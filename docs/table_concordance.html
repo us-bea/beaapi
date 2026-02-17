@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Table Concordance &#8212; beaapi  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <script src="_static/documentation_options.js?v=7f41d439"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="Table-Concordance">
+<h1>Table Concordance<a class="headerlink" href="#Table-Concordance" title="Link to this heading">¶</a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">beaapi</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">dotenv_values</span>
+
+<span class="n">beakey</span> <span class="o">=</span> <span class="n">dotenv_values</span><span class="p">()[</span><span class="s2">&quot;beakey&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">year</span> <span class="o">=</span> <span class="mi">2024</span>
+<span class="n">extra_details</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;State GDP State detail&quot;</span><span class="p">,</span>
+                  <span class="p">[(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;datasetname&#39;</span><span class="p">:</span><span class="s1">&#39;GDPbyIndustry&#39;</span><span class="p">,</span> <span class="s1">&#39;TableId&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;year&#39;</span><span class="p">:</span><span class="n">year</span><span class="p">,</span> <span class="s2">&quot;Frequency&quot;</span><span class="p">:</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;Industry&quot;</span><span class="p">:</span><span class="s2">&quot;ALL&quot;</span><span class="p">},</span> <span class="p">{</span><span class="s1">&#39;datasetname&#39;</span><span class="p">:</span><span class="s1">&#39;Regional&#39;</span><span class="p">,</span> <span class="s1">&#39;TableName&#39;</span><span class="p">:</span><span class="s1">&#39;SAGDP2&#39;</span><span class="p">,</span> <span class="s1">&#39;year&#39;</span><span class="p">:</span><span class="n">year</span><span class="p">,</span> <span class="s1">&#39;LineCode&#39;</span><span class="p">:</span><span class="s1">&#39;ALL&#39;</span><span class="p">,</span> <span class="s1">&#39;GeoFips&#39;</span><span class="p">:</span><span class="s2">&quot;00000&quot;</span><span class="p">}),</span>
+                  <span class="p">(</span><span class="s1">&#39;Q&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;datasetname&#39;</span><span class="p">:</span><span class="s1">&#39;GDPbyIndustry&#39;</span><span class="p">},</span> <span class="p">{</span><span class="s1">&#39;datasetname&#39;</span><span class="p">:</span><span class="s1">&#39;Regional&#39;</span><span class="p">,</span> <span class="s1">&#39;TableId&#39;</span><span class="p">:</span><span class="s1">&#39;SQGDP2&#39;</span><span class="p">})])]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_parameter_values</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s2">&quot;GDPbyIndustry&quot;</span><span class="p">,</span> <span class="s2">&quot;TableID&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Key</th>
+      <th>Desc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Value Added by Industry (A) (Q)</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>5</td>
+      <td>Value added by Industry as a Percentage of Gro...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>6</td>
+      <td>Components of Value Added by Industry (A)</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>7</td>
+      <td>Components of Value Added by Industry as a Per...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>8</td>
+      <td>Chain-Type Quantity Indexes for Value Added by...</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>9</td>
+      <td>Percent Changes in Chain-Type Quantity Indexes...</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>10</td>
+      <td>Real Value Added by Industry (A) (Q)</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>11</td>
+      <td>Chain-Type Price Indexes for Value Added by In...</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>12</td>
+      <td>Percent Changes in Chain-Type Price Indexes fo...</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>13</td>
+      <td>Contributions to Percent Change in Real Gross ...</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>14</td>
+      <td>Contributions to Percent Change in the Chain-T...</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>15</td>
+      <td>Gross Output by Industry (A) (Q)</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>16</td>
+      <td>Chain-Type Quantity Indexes for Gross Output b...</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>17</td>
+      <td>Percent Changes in Chain-Type Quantity Indexes...</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>18</td>
+      <td>Chain-Type Price Indexes for Gross Output by I...</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>19</td>
+      <td>Percent Changes in Chain-Type Price Indexes fo...</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>20</td>
+      <td>Intermediate Inputs by Industry (A) (Q)</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>21</td>
+      <td>Chain-Type Quantity Indexes for Intermediate I...</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>22</td>
+      <td>Percent Changes in Chain-Type Quantity Indexes...</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>23</td>
+      <td>Chain-Type Price Indexes for Intermediate Inpu...</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>24</td>
+      <td>Percent Changes in Chain-Type Price Indexes fo...</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>25</td>
+      <td>Composition of Gross Output by Industry (A)</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>26</td>
+      <td>Shares of Gross Output by Industry (A)</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>29</td>
+      <td>Contributions to Percent Changes in Chain-Type...</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>30</td>
+      <td>Contributions to Percent Changes in Chain-Type...</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>31</td>
+      <td>Chain-Type Quantity Indexes for Energy Inputs ...</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>32</td>
+      <td>Contributions to Percent Change by Industry in...</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>33</td>
+      <td>Chain-Type Price Indexes for Energy Inputs by ...</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>34</td>
+      <td>Contributions to Percent Change by Industry in...</td>
+    </tr>
+    <tr>
+      <th>29</th>
+      <td>35</td>
+      <td>Chain-Type Quantity Indexes for Materials Inpu...</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>36</td>
+      <td>Contributions to Percent Change by Industry in...</td>
+    </tr>
+    <tr>
+      <th>31</th>
+      <td>37</td>
+      <td>Chain-Type Price Indexes for Materials Inputs ...</td>
+    </tr>
+    <tr>
+      <th>32</th>
+      <td>38</td>
+      <td>Contributions to Percent Change by Industry in...</td>
+    </tr>
+    <tr>
+      <th>33</th>
+      <td>39</td>
+      <td>Chain-Type Quantity Indexes for Purchased Serv...</td>
+    </tr>
+    <tr>
+      <th>34</th>
+      <td>40</td>
+      <td>Contributions to Percent Change by Industry in...</td>
+    </tr>
+    <tr>
+      <th>35</th>
+      <td>41</td>
+      <td>Chain-Type Price Indexes for Purchased Service...</td>
+    </tr>
+    <tr>
+      <th>36</th>
+      <td>42</td>
+      <td>Contributions to Percent Change by Industry in...</td>
+    </tr>
+    <tr>
+      <th>37</th>
+      <td>208</td>
+      <td>Real Gross Output by Industry (A) (Q)</td>
+    </tr>
+    <tr>
+      <th>38</th>
+      <td>209</td>
+      <td>Real Intermediate Inputs by Industry (A) (Q)</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">detail_i</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">detail_description</span> <span class="o">=</span> <span class="n">extra_details</span><span class="p">[</span><span class="n">detail_i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">freq_i</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">freq</span><span class="p">,</span> <span class="n">agg_tbl_args</span><span class="p">,</span> <span class="n">detail_tbl_args</span> <span class="o">=</span> <span class="n">extra_details</span><span class="p">[</span><span class="n">detail_i</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="n">freq_i</span><span class="p">]</span>
+<span class="n">agg_tbl0</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="o">**</span><span class="n">agg_tbl_args</span><span class="p">)</span>
+<span class="n">detail_tbl0</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="o">**</span><span class="n">detail_tbl_args</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">agg_tbl0</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">detail_tbl0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>TableID</th>
+      <th>Frequency</th>
+      <th>Year</th>
+      <th>Quarter</th>
+      <th>Industry</th>
+      <th>IndustrYDescription</th>
+      <th>DataValue</th>
+      <th>NoteRef</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>A</td>
+      <td>2024</td>
+      <td>2024</td>
+      <td>11</td>
+      <td>Agriculture, forestry, fishing, and hunting</td>
+      <td>248.4</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>A</td>
+      <td>2024</td>
+      <td>2024</td>
+      <td>111CA</td>
+      <td>Farms</td>
+      <td>199.1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1</td>
+      <td>A</td>
+      <td>2024</td>
+      <td>2024</td>
+      <td>113FF</td>
+      <td>Forestry, fishing, and related activities</td>
+      <td>49.3</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1</td>
+      <td>A</td>
+      <td>2024</td>
+      <td>2024</td>
+      <td>21</td>
+      <td>Mining</td>
+      <td>393.7</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1</td>
+      <td>A</td>
+      <td>2024</td>
+      <td>2024</td>
+      <td>211</td>
+      <td>Oil and gas extraction</td>
+      <td>241.5</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>94</th>
+      <td>1</td>
+      <td>A</td>
+      <td>2024</td>
+      <td>2024</td>
+      <td>ORE</td>
+      <td>Other real estate</td>
+      <td>837.0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>95</th>
+      <td>1</td>
+      <td>A</td>
+      <td>2024</td>
+      <td>2024</td>
+      <td>PGOOD</td>
+      <td>Private goods-producing industries&lt;sup&gt;1&lt;/sup&gt;</td>
+      <td>4867.5</td>
+      <td>1;1.1.A</td>
+    </tr>
+    <tr>
+      <th>96</th>
+      <td>1</td>
+      <td>A</td>
+      <td>2024</td>
+      <td>2024</td>
+      <td>PROF</td>
+      <td>Professional and business services</td>
+      <td>3847.4</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>97</th>
+      <td>1</td>
+      <td>A</td>
+      <td>2024</td>
+      <td>2024</td>
+      <td>PSERV</td>
+      <td>Private services-producing industries&lt;sup&gt;2&lt;/sup&gt;</td>
+      <td>21023.7</td>
+      <td>1;1.2.A</td>
+    </tr>
+    <tr>
+      <th>98</th>
+      <td>1</td>
+      <td>A</td>
+      <td>2024</td>
+      <td>2024</td>
+      <td>PVT</td>
+      <td>Private industries</td>
+      <td>25891.2</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+<p>99 rows × 8 columns</p>
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Code</th>
+      <th>GeoFips</th>
+      <th>GeoName</th>
+      <th>TimePeriod</th>
+      <th>Description</th>
+      <th>CL_UNIT</th>
+      <th>UNIT_MULT</th>
+      <th>DataValue</th>
+      <th>NoteRef</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>SAGDP2-1</td>
+      <td>00000</td>
+      <td>United States</td>
+      <td>2024</td>
+      <td>All industry total</td>
+      <td>Millions of current dollars</td>
+      <td>6</td>
+      <td>29184890.0</td>
+      <td>*</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>SAGDP2-2</td>
+      <td>00000</td>
+      <td>United States</td>
+      <td>2024</td>
+      <td>Private industries</td>
+      <td>Millions of current dollars</td>
+      <td>6</td>
+      <td>25891209.0</td>
+      <td>*</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>SAGDP2-3</td>
+      <td>00000</td>
+      <td>United States</td>
+      <td>2024</td>
+      <td>Agriculture, forestry, fishing and hunting</td>
+      <td>Millions of current dollars</td>
+      <td>6</td>
+      <td>248390.0</td>
+      <td>*</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>SAGDP2-4</td>
+      <td>00000</td>
+      <td>United States</td>
+      <td>2024</td>
+      <td>Farms</td>
+      <td>Millions of current dollars</td>
+      <td>6</td>
+      <td>0.0</td>
+      <td>(NA) *</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>SAGDP2-5</td>
+      <td>00000</td>
+      <td>United States</td>
+      <td>2024</td>
+      <td>Forestry, fishing, and related activities</td>
+      <td>Millions of current dollars</td>
+      <td>6</td>
+      <td>0.0</td>
+      <td>(NA) *</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>91</th>
+      <td>SAGDP2-92</td>
+      <td>00000</td>
+      <td>United States</td>
+      <td>2024</td>
+      <td>Private services-providing industries 3/</td>
+      <td>Millions of current dollars</td>
+      <td>6</td>
+      <td>21023662.0</td>
+      <td>3 *</td>
+    </tr>
+    <tr>
+      <th>92</th>
+      <td>SAGDP2-100</td>
+      <td>00000</td>
+      <td>United States</td>
+      <td>2024</td>
+      <td>All industry total, overseas activity</td>
+      <td>Millions of current dollars</td>
+      <td>6</td>
+      <td>158867.8</td>
+      <td>*</td>
+    </tr>
+    <tr>
+      <th>93</th>
+      <td>SAGDP2-101</td>
+      <td>00000</td>
+      <td>United States</td>
+      <td>2024</td>
+      <td>Government and government enterprises, oversea...</td>
+      <td>Millions of current dollars</td>
+      <td>6</td>
+      <td>158867.8</td>
+      <td>*</td>
+    </tr>
+    <tr>
+      <th>94</th>
+      <td>SAGDP2-102</td>
+      <td>00000</td>
+      <td>United States</td>
+      <td>2024</td>
+      <td>Federal civilian, overseas activity</td>
+      <td>Millions of current dollars</td>
+      <td>6</td>
+      <td>0.0</td>
+      <td>(NA) *</td>
+    </tr>
+    <tr>
+      <th>95</th>
+      <td>SAGDP2-103</td>
+      <td>00000</td>
+      <td>United States</td>
+      <td>2024</td>
+      <td>Military, overseas activity</td>
+      <td>Millions of current dollars</td>
+      <td>6</td>
+      <td>0.0</td>
+      <td>(NA) *</td>
+    </tr>
+  </tbody>
+</table>
+<p>96 rows × 9 columns</p>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">agg_tbl</span> <span class="o">=</span> <span class="n">agg_tbl0</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Frequency&#39;</span><span class="p">,</span> <span class="s1">&#39;NoteRef&#39;</span><span class="p">,</span> <span class="s1">&#39;TableID&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;DataValue&#39;</span><span class="p">:</span><span class="s1">&#39;DataValue_Agg&#39;</span><span class="p">})</span>
+<span class="n">detail_tbl</span> <span class="o">=</span> <span class="n">detail_tbl0</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">detail_tbl</span><span class="p">[</span><span class="s1">&#39;Quarter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;2024&#39;</span>
+<span class="c1">#detail_tbl[&#39;LineCode&#39;] = detail_tbl[&#39;Code&#39;].str.slice(7)</span>
+<span class="n">detail_tbl</span><span class="p">[</span><span class="s1">&#39;Description&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">detail_tbl</span><span class="p">[</span><span class="s1">&#39;Description&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<span class="n">xw</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;../../bea_data_transformations/REA/metadata/ind_rea_va_xw.csv&quot;</span><span class="p">)</span>
+<span class="n">detail_tbl</span> <span class="o">=</span> <span class="n">detail_tbl</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Description&#39;</span><span class="p">:</span><span class="s1">&#39;REA Description&#39;</span><span class="p">})</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">xw</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;REA Description&#39;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+<span class="n">detail_tbl</span> <span class="o">=</span> <span class="n">detail_tbl</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;UNIT_MULT&#39;</span><span class="p">,</span> <span class="s1">&#39;NoteRef&#39;</span><span class="p">,</span> <span class="s1">&#39;Code&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;TimePeriod&#39;</span><span class="p">:</span><span class="s1">&#39;Year&#39;</span><span class="p">})</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;DataValue&#39;</span><span class="p">:</span><span class="s1">&#39;DataValue_Detail&#39;</span><span class="p">})</span>
+<span class="n">merge</span> <span class="o">=</span> <span class="n">agg_tbl</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">detail_tbl</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;VA Description&#39;</span><span class="p">:</span> <span class="s1">&#39;IndustrYDescription&#39;</span><span class="p">}),</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">,</span> <span class="s1">&#39;Quarter&#39;</span><span class="p">,</span> <span class="s1">&#39;IndustrYDescription&#39;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+<span class="n">merge</span> <span class="o">=</span> <span class="n">merge</span><span class="p">[[</span><span class="s1">&#39;Year&#39;</span><span class="p">,</span> <span class="s1">&#39;Quarter&#39;</span><span class="p">]</span><span class="o">+</span><span class="p">[</span><span class="s1">&#39;Industry&#39;</span><span class="p">,</span> <span class="s1">&#39;IndustrYDescription&#39;</span><span class="p">,</span> <span class="s1">&#39;DataValue_Agg&#39;</span><span class="p">,</span> <span class="s1">&#39;DataValue_Detail&#39;</span><span class="p">,</span> <span class="s1">&#39;CL_UNIT&#39;</span><span class="p">,</span> <span class="s1">&#39;REA Description&#39;</span><span class="p">,</span> <span class="s1">&#39;REA LineCode&#39;</span><span class="p">]]</span>
+<span class="n">display</span><span class="p">(</span><span class="n">merge</span><span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Year</th>
+      <th>Quarter</th>
+      <th>Industry</th>
+      <th>IndustrYDescription</th>
+      <th>DataValue_Agg</th>
+      <th>DataValue_Detail</th>
+      <th>CL_UNIT</th>
+      <th>REA Description</th>
+      <th>REA LineCode</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2024</td>
+      <td>2024</td>
+      <td>11</td>
+      <td>Agriculture, forestry, fishing, and hunting</td>
+      <td>248.4</td>
+      <td>248390.0</td>
+      <td>Millions of current dollars</td>
+      <td>Agriculture, forestry, fishing and hunting</td>
+      <td>3.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2024</td>
+      <td>2024</td>
+      <td>111CA</td>
+      <td>Farms</td>
+      <td>199.1</td>
+      <td>NaN</td>
+      <td>&lt;NA&gt;</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2024</td>
+      <td>2024</td>
+      <td>113FF</td>
+      <td>Forestry, fishing, and related activities</td>
+      <td>49.3</td>
+      <td>NaN</td>
+      <td>&lt;NA&gt;</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2024</td>
+      <td>2024</td>
+      <td>21</td>
+      <td>Mining</td>
+      <td>393.7</td>
+      <td>393725.0</td>
+      <td>Millions of current dollars</td>
+      <td>Mining, quarrying, and oil and gas extraction</td>
+      <td>6.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2024</td>
+      <td>2024</td>
+      <td>211</td>
+      <td>Oil and gas extraction</td>
+      <td>241.5</td>
+      <td>NaN</td>
+      <td>&lt;NA&gt;</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>94</th>
+      <td>2024</td>
+      <td>2024</td>
+      <td>ORE</td>
+      <td>Other real estate</td>
+      <td>837.0</td>
+      <td>NaN</td>
+      <td>&lt;NA&gt;</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>95</th>
+      <td>2024</td>
+      <td>2024</td>
+      <td>PGOOD</td>
+      <td>Private goods-producing industries&lt;sup&gt;1&lt;/sup&gt;</td>
+      <td>4867.5</td>
+      <td>NaN</td>
+      <td>&lt;NA&gt;</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>96</th>
+      <td>2024</td>
+      <td>2024</td>
+      <td>PROF</td>
+      <td>Professional and business services</td>
+      <td>3847.4</td>
+      <td>3847411.0</td>
+      <td>Millions of current dollars</td>
+      <td>Professional and business services</td>
+      <td>59.0</td>
+    </tr>
+    <tr>
+      <th>97</th>
+      <td>2024</td>
+      <td>2024</td>
+      <td>PSERV</td>
+      <td>Private services-producing industries&lt;sup&gt;2&lt;/sup&gt;</td>
+      <td>21023.7</td>
+      <td>NaN</td>
+      <td>&lt;NA&gt;</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>98</th>
+      <td>2024</td>
+      <td>2024</td>
+      <td>PVT</td>
+      <td>Private industries</td>
+      <td>25891.2</td>
+      <td>25891209.0</td>
+      <td>Millions of current dollars</td>
+      <td>Private industries</td>
+      <td>2.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>99 rows × 9 columns</p>
+</div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">beaapi</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Quick-start tutorial:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="README.html">beaapi</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API documentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to-guides:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="iTables_to_api.html">How to translate iTable tables to API queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="iTables_MNE.html">How to translate MNE tables to API queries</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      
+      
+      
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

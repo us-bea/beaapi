@@ -7,9 +7,9 @@ from typing import Union
 from beaapi.response_to_dict import response_to_dict
 # from beaapi.get_row_data_value import get_row_data_value
 
-
+avoid_df_in_attrs = True #Bug in pandas https://github.com/pandas-dev/pandas/pull/60459
 def response_to_table(bea_payload: Union[list, pd.DataFrame, HTTPResponse],
-                      repull: bool = False) -> pd.DataFrame:
+                      repull: bool = False, force_num_datavalue: bool = False) -> pd.DataFrame:
     """
     Convert BEA API http response or list payload to pandas DataFrame,
     or transform wide DataFrame to long (or vice-versa).
@@ -92,25 +92,21 @@ def response_to_table(bea_payload: Union[list, pd.DataFrame, HTTPResponse],
         # Format details specifically
         detail = bea_list['detail']
         assert isinstance(detail, dict)
+        
         # format Dimensions
-        dim_tbl = pd.DataFrame(detail['Dimensions'], dtype='string')
-        dim_tbl['IsValue'] = pd.to_numeric(dim_tbl['IsValue'])
-        # API weirdness: Regional dataset sometimes doesn't return Ordinal
-        if 'Ordinal' in dim_tbl.columns:
-            dim_tbl['Ordinal'] = pd.to_numeric(dim_tbl['Ordinal'])
-        # dim_tbl = dim_tbl.set_index('Ordinal') #nice, but Ordinal not always returned
-        detail['Dimensions'] = dim_tbl
+        dim_tbl = dimensions_detail_to_df(detail['Dimensions'])
+        if not avoid_df_in_attrs:
+            detail['Dimensions'] = dim_tbl
+        
         # format Notes
-        if 'Notes' in detail.keys():
-            if isinstance(detail['Notes'], list):
-                detail['Notes'] = pd.DataFrame(detail['Notes'], dtype='string')
-            else:  # dict, which happens if it's a single observation
-                detail['Notes'] = pd.DataFrame(detail['Notes'], dtype='string',
-                                               index=[0])
+        if 'Notes' in detail.keys() and not avoid_df_in_attrs:
+            detail['Notes'] = notes_detail_to_df(detail['Notes'])
         bea_response.attrs['detail'] = detail
 
         # Convert things that should be numbers to numbers
         to_convert = list(dim_tbl['Name'][dim_tbl['DataType'] == "numeric"])
+        if force_num_datavalue and 'DataValue' not in to_convert:
+            to_convert.append('DataValue')
         for col in to_convert:
             try:
                 if col == "DataValue":
@@ -127,6 +123,10 @@ def response_to_table(bea_payload: Union[list, pd.DataFrame, HTTPResponse],
                     #                              for x in bea_list['Data']]
                     bea_response[col] = pd.to_numeric(bea_response[col].str
                                                       .replace(",", "")
+                                                      .replace("(*)", "0") # MNE: A nonzero value that rounds to zero.
+                                                      .replace("n.s.", "") # MNE: n.s. Not shown. Data may not be shown for several reasons: (a) The data appear on another line in this table. (b) The data are not shown in this table but may be available in detailed country- or industry-level tables in this interactive system or in other BEA published tables on direct investment. (c) The data are not available, do not apply, or are not defined.
+                                                      .replace("n.a.", "")
+                                                      .replace("(D)", "") # MNE: indicates that the data in the cell have been suppressed to avoid disclosure of data of individual companies.
                                                       .replace("(NA)", ""))
                 else:
                     bea_response[col] = pd.to_numeric(bea_response[col])
@@ -138,8 +138,11 @@ def response_to_table(bea_payload: Union[list, pd.DataFrame, HTTPResponse],
                         bea_response[col] = bea_response[col].astype('int64')
                     except:
                         pass # Somehow has missing (unlikely), so leave as Int64
+                
             except Exception as e:
                 print("Couldn't convert column " + col + ". Error: " + str(e))
+        if 'NoteRef' in bea_response.columns: #TODO: check if I hsould for other string columns
+            bea_response['NoteRef'] = bea_response['NoteRef'].fillna("")
 
         # Do it for the ones that have line numbers
         param_vals_lower = [paramDict['ParameterValue'].lower()
@@ -156,3 +159,36 @@ def response_to_table(bea_payload: Union[list, pd.DataFrame, HTTPResponse],
                       ' successful BEA API response.')
 
     return(bea_response)
+
+def dimensions_detail_to_df(dimensions):
+    """Convert the json string representation of the dimensions detail (returned as df.attrs['detail']['Dimensions'])
+    to a pandas DataFrame. This is note done automatically, because of a display bug in pandas.
+
+    Args:
+        dimensions (str): original JSON representation.
+
+    Returns:
+        pd.DataFrame: converted representation of the notes.
+    """     
+    dim_tbl = pd.DataFrame(dimensions, dtype='string')
+    dim_tbl['IsValue'] = pd.to_numeric(dim_tbl['IsValue'])
+    # API weirdness: Regional dataset sometimes doesn't return Ordinal
+    if 'Ordinal' in dim_tbl.columns:
+        dim_tbl['Ordinal'] = pd.to_numeric(dim_tbl['Ordinal'])
+    # dim_tbl = dim_tbl.set_index('Ordinal') #nice, but Ordinal not always returned
+    return dim_tbl
+
+def notes_detail_to_df(notes):
+    """Convert the json string representation of the notes detail (returned as df.attrs['detail']['Notes'])
+    to a pandas DataFrame. This is note done automatically, because of a display bug in pandas.
+
+    Args:
+        notes (str): original JSON representation.
+
+    Returns:
+        pd.DataFrame: converted representation of the notes.
+    """    
+    if isinstance(notes, list):
+        return pd.DataFrame(notes, dtype='string')
+    else:  # dict, which happens if it's a single observation
+        return pd.DataFrame(notes, dtype='string', index=[0])

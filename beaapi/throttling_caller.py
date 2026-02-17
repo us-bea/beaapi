@@ -28,50 +28,57 @@ class ThrottlingCaller(object):
                                          'size': pd.Series(dtype='float'),
                                          'errors': pd.Series(dtype='int')})
         self.wait_prev_failure = False
+        self.max_secs_wait = 60 #all our limits are per minute, so max wait is 60 seconds
 
-    def wait_until_available(self) -> None:
+    def wait_until_available(self, rbuffer=1, dbuffer='max', ebuffer=1) -> None:
+        """dbuffer: use 'avg' to assume average data size for n+1, use 'max' to make room for the max in the last minute, or a non-negative number"""
         # If the previous one failed, it might have been a large volume,
         # but we won't know. So be conservative
         if self.wait_prev_failure:
-            time.sleep(60)
+            time.sleep(self.max_secs_wait)
             self.wait_prev_failure = False
             return
 
         # wait till not-too-many requests
         n = pd.Timestamp.now()
         mask = self.rel_queries['time'] >= n - pd.Timedelta(1, "minute")
-        if self.rel_queries[mask].shape[0] >= beaapi.MAX_REQUESTS_PER_MINUTE:
+        if self.rel_queries[mask].shape[0] >= (beaapi.MAX_REQUESTS_PER_MINUTE-rbuffer):
             # allowable in the last minute
-            n_not_allow = self.rel_queries.shape[0] - beaapi.MAX_REQUESTS_PER_MINUTE + 1
+            n_not_allow = self.rel_queries.shape[0] - (beaapi.MAX_REQUESTS_PER_MINUTE-rbuffer) + 1
             allowable_mask = self.rel_queries.index >= n_not_allow
             oldest_allowable_ts = self.rel_queries[allowable_mask]['time'].min()
-            time.sleep(max(60 - (n - oldest_allowable_ts).seconds + 1),0)
+            time.sleep(max(self.max_secs_wait - (n - oldest_allowable_ts).seconds + 1,0))
 
         # wait till not too much volume
         n = pd.Timestamp.now()
         mask = self.rel_queries['time'] >= n - pd.Timedelta(1, "minute")
         n_prev = mask.sum()
-        expected_scalup = 1 if n_prev<=0 else (n_prev+1)/n_prev
-        if self.rel_queries['size'][mask].sum()*expected_scalup >= beaapi.MAX_DATA_PER_MINUTE:
+        dbuffer_scaleup = 1
+        if dbuffer=='avg':
+            dbuffer_scaleup = 1 if n_prev<=0  else (n_prev+1)/n_prev
+            dbuffer = 0
+        elif dbuffer=='max':
+            dbuffer = 0 if n_prev<=0 else self.rel_queries['size'][mask].max()
+        if self.rel_queries['size'][mask].sum()*dbuffer_scaleup >= (beaapi.MAX_DATA_PER_MINUTE - dbuffer):
             rev_cumsum = self.rel_queries.iloc[::-1]['size'].cumsum().iloc[::-1]
-            allowable_mask = rev_cumsum*expected_scalup < beaapi.MAX_DATA_PER_MINUTE
+            allowable_mask = rev_cumsum*dbuffer_scaleup < (beaapi.MAX_DATA_PER_MINUTE - dbuffer)
             if allowable_mask.sum() == 0:
                 oldest_allowable_ts = self.rel_queries['time'].max()
             else:
                 oldest_allowable_ts = self.rel_queries[allowable_mask]['time'].min()
-            time.sleep(max(60 - (n - oldest_allowable_ts).seconds + 1,0))
+            time.sleep(max(self.max_secs_wait - (n - oldest_allowable_ts).seconds + 1,0))
 
         # wait till not-too-many errors
         n = pd.Timestamp.now()
         mask = self.rel_queries['time'] >= n - pd.Timedelta(1, "minute")
-        if self.rel_queries['errors'][mask].sum() >= beaapi.MAX_ERRORS_PER_MINUTE:
+        if self.rel_queries['errors'][mask].sum() >= (beaapi.MAX_ERRORS_PER_MINUTE-ebuffer):
             rev_cumsum = self.rel_queries.iloc[::-1]['errors'].cumsum().iloc[::-1]
-            allowable_mask = rev_cumsum < beaapi.MAX_ERRORS_PER_MINUTE
+            allowable_mask = rev_cumsum < (beaapi.MAX_ERRORS_PER_MINUTE-ebuffer)
             oldest_allowable_ts = self.rel_queries[allowable_mask]['time'].min()
-            time.sleep(max(60 - (n - oldest_allowable_ts).seconds + 1),0)
+            time.sleep(max(self.max_secs_wait - (n - oldest_allowable_ts).seconds + 1,0))
 
     def wait_full_reset(self) -> None:
-        time.sleep(60)
+        time.sleep(self.max_secs_wait)
 
     def single_call(self, beacall: Callable) -> None:
         self.wait_until_available()

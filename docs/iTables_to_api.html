@@ -1,20 +1,17 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>How to translate iTable tables to API queries &#8212; beaapi  documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
-    <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <script src="_static/documentation_options.js?v=7f41d439"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -25,8 +22,9 @@
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   
@@ -39,10 +37,10 @@
           <div class="body" role="main">
             
   <section id="How-to-translate-iTable-tables-to-API-queries">
-<h1>How to translate iTable tables to API queries<a class="headerlink" href="#How-to-translate-iTable-tables-to-API-queries" title="Permalink to this heading">¶</a></h1>
+<h1>How to translate iTable tables to API queries<a class="headerlink" href="#How-to-translate-iTable-tables-to-API-queries" title="Link to this heading">¶</a></h1>
 <p>In some areas the API and the iTables are quite similar (e.g., in National and Regional), but in others they are organized somewhat differently. This guide shows how to translate the process of getting data from various iTables searches to using the API. We do this for each of the datasets.</p>
 <section id="General-info">
-<h2>General info<a class="headerlink" href="#General-info" title="Permalink to this heading">¶</a></h2>
+<h2>General info<a class="headerlink" href="#General-info" title="Link to this heading">¶</a></h2>
 <p>Note that for some scenarios it may take several API queries to generate the data for a single iTables table. In some cases, even when the data returned is broadly similar, there may be subtle differences (e.g., a National table may have additional “Addenda” rows in iTables that are not present in the API ; the series titles in iTables may have prefixes, such as “Less: “/”Equals: “, to show how rows aggregate to the total that are are not present in the API/Series Register; in some cases lines
 with missing data will be omitted in the API that appear in iTables).</p>
 <p>Also, in the examples below we often search for a target parameter by a string value in a table. You can always export the table of possibilities to spreadsheet to view the whole thing (e.g., <code class="docutils literal notranslate"><span class="pre">tbl.to_csv(&quot;fname.csv&quot;,</span> <span class="pre">index=False)</span></code>)</p>
@@ -58,24 +56,24 @@ with missing data will be omitted in the API that appear in iTables).</p>
 </ul>
 </section>
 <section id="Other-resources">
-<h2>Other resources<a class="headerlink" href="#Other-resources" title="Permalink to this heading">¶</a></h2>
+<h2>Other resources<a class="headerlink" href="#Other-resources" title="Link to this heading">¶</a></h2>
 <p>While we show one method here, there are some other resources that may be helpful:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">search_metadata()</span></code> can be be used for ‘FixedAssets’, ‘NIPA’, ‘NIUnderlyingDetail’.</p></li>
 <li><p>NIPA web resources: <a class="reference external" href="https://apps.bea.gov/national/Release/TXT/TablesRegister.txt">Table Title to TableID</a>, <a class="reference external" href="https://apps.bea.gov/national/Release/TXT/SeriesRegister.txt">Series Details to Series Code</a>, <a class="reference external" href="https://apps.bea.gov/iTable/iTable.cfm?ReqID=13&amp;step=1">NIPA keywords</a></p></li>
 <li><p>Fixed Assets web resources: <a class="reference external" href="https://apps.bea.gov/national/FixedAssets/Release/TXT/TablesRegister.txt">Table Register</a>, <a class="reference external" href="https://apps.bea.gov/national/FixedAssets/Release/TXT/SeriesRegister.txt">Series Register</a>,</p></li>
-<li><p><a class="reference external" href="https://apps.bea.gov/regional/pdf/RegionalApi.pdf">Regional API PDF</a> has table mapping</p></li>
+<li><p>Regional: <a class="reference external" href="https://apps.bea.gov/regional/pdf/RegionalApi.pdf">Regional API PDF</a> has table mapping; <a class="reference external" href="https://apps.bea.gov/regional/geography.htm">State and local geographies definitions</a>. BEA counties and county equivalents are identified by five-digit Federal Information Processing Standard (FIPS) codes, though in a few cases BEA has created modified FIPS codes: <a class="reference external" href="https://apps.bea.gov/regional/xls/FIPSModifications.xlsx">FIPSModifications.xlsx</a>.</p></li>
 </ul>
 </section>
 <section id="Setup">
-<h2>Setup<a class="headerlink" href="#Setup" title="Permalink to this heading">¶</a></h2>
+<h2>Setup<a class="headerlink" href="#Setup" title="Link to this heading">¶</a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">beaapi</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">beaapi</span>
 
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s1">&#39;display.max_colwidth&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># show all text in cells</span>
 </pre></div>
 </div>
@@ -85,13 +83,13 @@ with missing data will be omitted in the API that appear in iTables).</p>
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get key from unversioned file</span>
-<span class="kn">from</span> <span class="nn">dotenv</span> <span class="kn">import</span> <span class="n">dotenv_values</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">dotenv_values</span>
 <span class="n">beakey</span> <span class="o">=</span> <span class="n">dotenv_values</span><span class="p">()[</span><span class="s2">&quot;beakey&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
 <section id="Code-utilities">
-<h3>Code utilities<a class="headerlink" href="#Code-utilities" title="Permalink to this heading">¶</a></h3>
+<h3>Code utilities<a class="headerlink" href="#Code-utilities" title="Link to this heading">¶</a></h3>
 <p>We define here a few tools to be use below</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
@@ -138,7 +136,7 @@ with missing data will be omitted in the API that appear in iTables).</p>
     <span class="k">if</span> <span class="n">table_var_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">table_names</span><span class="p">[</span><span class="n">dataset_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_parameter_values</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">table_var_name</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">get_table_param_from_desc</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">desc</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_table_param_from_desc</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">desc</span><span class="p">):</span>
     <span class="n">mask</span> <span class="o">=</span> <span class="n">table_names</span><span class="p">[</span><span class="n">dataset_name</span><span class="p">][</span><span class="n">table_param_desc</span><span class="p">[</span><span class="n">dataset_name</span><span class="p">]]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">desc</span><span class="p">)</span>
     <span class="n">results</span> <span class="o">=</span> <span class="n">table_names</span><span class="p">[</span><span class="n">dataset_name</span><span class="p">][</span><span class="n">mask</span><span class="p">]</span>
     <span class="n">table_var_name</span> <span class="o">=</span> <span class="n">table_var</span><span class="p">[</span><span class="n">dataset_name</span><span class="p">]</span>
@@ -149,11 +147,11 @@ with missing data will be omitted in the API that appear in iTables).</p>
 </section>
 </section>
 <section id="How-to-build-query-from-iTables">
-<h2>How to build query from iTables<a class="headerlink" href="#How-to-build-query-from-iTables" title="Permalink to this heading">¶</a></h2>
+<h2>How to build query from iTables<a class="headerlink" href="#How-to-build-query-from-iTables" title="Link to this heading">¶</a></h2>
 <section id="National-Data---GDP-&amp;-Personal-Income">
-<h3>National Data - GDP &amp; Personal Income<a class="headerlink" href="#National-Data---GDP-&-Personal-Income" title="Permalink to this heading">¶</a></h3>
+<h3>National Data - GDP &amp; Personal Income<a class="headerlink" href="#National-Data---GDP-&-Personal-Income" title="Link to this heading">¶</a></h3>
 <section id="NIPA-(publication-category-%22GDP-and-Personal-Income%22,-default)">
-<h4>NIPA (publication category “GDP and Personal Income”, default)<a class="headerlink" href="#NIPA-(publication-category-%22GDP-and-Personal-Income%22,-default)" title="Permalink to this heading">¶</a></h4>
+<h4>NIPA (publication category “GDP and Personal Income”, default)<a class="headerlink" href="#NIPA-(publication-category-%22GDP-and-Personal-Income%22,-default)" title="Link to this heading">¶</a></h4>
 <p>First, let’s take as example table the first one on the web page and describe what we do have</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
@@ -435,7 +433,7 @@ We&#39;ll use that one
 </div>
 </section>
 <section id="NIUnderlyingDetail-(Publication-Category-%22Underlying-Details%22,-non-default)">
-<h4>NIUnderlyingDetail (Publication Category “Underlying Details”, non-default)<a class="headerlink" href="#NIUnderlyingDetail-(Publication-Category-%22Underlying-Details%22,-non-default)" title="Permalink to this heading">¶</a></h4>
+<h4>NIUnderlyingDetail (Publication Category “Underlying Details”, non-default)<a class="headerlink" href="#NIUnderlyingDetail-(Publication-Category-%22Underlying-Details%22,-non-default)" title="Link to this heading">¶</a></h4>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
@@ -722,9 +720,9 @@ What TableName matches?
 </section>
 </section>
 <section id="National-Data---Fixed-Assets">
-<h3>National Data - Fixed Assets<a class="headerlink" href="#National-Data---Fixed-Assets" title="Permalink to this heading">¶</a></h3>
+<h3>National Data - Fixed Assets<a class="headerlink" href="#National-Data---Fixed-Assets" title="Link to this heading">¶</a></h3>
 <section id="FixedAssets">
-<h4>FixedAssets<a class="headerlink" href="#FixedAssets" title="Permalink to this heading">¶</a></h4>
+<h4>FixedAssets<a class="headerlink" href="#FixedAssets" title="Link to this heading">¶</a></h4>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
@@ -966,9 +964,9 @@ What TableName matches?
 </section>
 </section>
 <section id="Industry-Data">
-<h3>Industry Data<a class="headerlink" href="#Industry-Data" title="Permalink to this heading">¶</a></h3>
+<h3>Industry Data<a class="headerlink" href="#Industry-Data" title="Link to this heading">¶</a></h3>
 <section id="GDPbyIndustry-(Publication-category-%22GDP-by-Industry%22,-a-default)">
-<h4>GDPbyIndustry (Publication category “GDP-by-Industry”, a default)<a class="headerlink" href="#GDPbyIndustry-(Publication-category-%22GDP-by-Industry%22,-a-default)" title="Permalink to this heading">¶</a></h4>
+<h4>GDPbyIndustry (Publication category “GDP-by-Industry”, a default)<a class="headerlink" href="#GDPbyIndustry-(Publication-category-%22GDP-by-Industry%22,-a-default)" title="Link to this heading">¶</a></h4>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
@@ -1262,7 +1260,7 @@ What TableName matches?
 </div>
 </section>
 <section id="UnderlyingGDPbyIndustry-(Publication-category-%22Underlying%22,-non-default)">
-<h4>UnderlyingGDPbyIndustry (Publication category “Underlying”, non-default)<a class="headerlink" href="#UnderlyingGDPbyIndustry-(Publication-category-%22Underlying%22,-non-default)" title="Permalink to this heading">¶</a></h4>
+<h4>UnderlyingGDPbyIndustry (Publication category “Underlying”, non-default)<a class="headerlink" href="#UnderlyingGDPbyIndustry-(Publication-category-%22Underlying%22,-non-default)" title="Link to this heading">¶</a></h4>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
 </pre></div>
@@ -1524,7 +1522,7 @@ First one
 </div>
 </section>
 <section id="InputOutput-(Publication-category-%22Input-Output%22,-a-default)">
-<h4>InputOutput (Publication category “Input-Output”, a default)<a class="headerlink" href="#InputOutput-(Publication-category-%22Input-Output%22,-a-default)" title="Permalink to this heading">¶</a></h4>
+<h4>InputOutput (Publication category “Input-Output”, a default)<a class="headerlink" href="#InputOutput-(Publication-category-%22Input-Output%22,-a-default)" title="Link to this heading">¶</a></h4>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[43]:
 </pre></div>
@@ -1800,9 +1798,9 @@ That first one looks good
 </section>
 </section>
 <section id="Int'l-Transactions,-Services,-IIP">
-<h3>Int’l Transactions, Services, IIP<a class="headerlink" href="#Int'l-Transactions,-Services,-IIP" title="Permalink to this heading">¶</a></h3>
+<h3>Int’l Transactions, Services, IIP<a class="headerlink" href="#Int'l-Transactions,-Services,-IIP" title="Link to this heading">¶</a></h3>
 <section id="ITA">
-<h4>ITA<a class="headerlink" href="#ITA" title="Permalink to this heading">¶</a></h4>
+<h4>ITA<a class="headerlink" href="#ITA" title="Link to this heading">¶</a></h4>
 <p>The different tables are associated with different sets of lines (indicators). So some tables aren’t easy to reconstruct exactly.</p>
 <p>Note: (in PDF but API error msg confusing) you can’t get all indicators using “AllCountries” (agg’d over countries), even though that would seem easy (and is something like like table 1.1).</p>
 <p>Basically you have to look through <code class="docutils literal notranslate"><span class="pre">beaapi.get_parameter_values(beakey,</span> <span class="pre">&quot;ITA&quot;,</span> <span class="pre">&quot;Indicator&quot;)</span></code></p>
@@ -2051,7 +2049,7 @@ Take the first one
 </div>
 </section>
 <section id="IntlServTrade">
-<h4>IntlServTrade<a class="headerlink" href="#IntlServTrade" title="Permalink to this heading">¶</a></h4>
+<h4>IntlServTrade<a class="headerlink" href="#IntlServTrade" title="Link to this heading">¶</a></h4>
 <p>Similar issue about different iTables tables being different sets or broken out by country in different ways. Basically have to look at TypeOfService values to line up with tables. Though in this case we can get all types of service of “AllCountries” (agg’d over countries)</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[56]:
@@ -2336,7 +2334,7 @@ What parameters are needed
 </div>
 </section>
 <section id="IntlServSTA">
-<h4>IntlServSTA<a class="headerlink" href="#IntlServSTA" title="Permalink to this heading">¶</a></h4>
+<h4>IntlServSTA<a class="headerlink" href="#IntlServSTA" title="Link to this heading">¶</a></h4>
 <p>Use <code class="docutils literal notranslate"><span class="pre">channel=&quot;Mofas&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">=&quot;Mousas&quot;</span></code> to get the data in tables 4.1-4 and 5.1-4.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
@@ -2563,11 +2561,11 @@ What parameters are needed
 </div>
 </section>
 <section id="Services-Trade-by-Enterprise-Characteristics-(STEC)">
-<h4>Services Trade by Enterprise Characteristics (STEC)<a class="headerlink" href="#Services-Trade-by-Enterprise-Characteristics-(STEC)" title="Permalink to this heading">¶</a></h4>
+<h4>Services Trade by Enterprise Characteristics (STEC)<a class="headerlink" href="#Services-Trade-by-Enterprise-Characteristics-(STEC)" title="Link to this heading">¶</a></h4>
 <p>Not currently available through the API</p>
 </section>
 <section id="IIP">
-<h4>IIP<a class="headerlink" href="#IIP" title="Permalink to this heading">¶</a></h4>
+<h4>IIP<a class="headerlink" href="#IIP" title="Link to this heading">¶</a></h4>
 <p>Similar issues as above, but now <code class="docutils literal notranslate"><span class="pre">TypeOfInvestment</span></code> are the lines in tables. Does allow all <code class="docutils literal notranslate"><span class="pre">TypeOfInvestment</span></code> for “AllCountries” (agg’d over countries)</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[61]:
@@ -2823,11 +2821,11 @@ What parameters are needed
 </section>
 </section>
 <section id="Direct-Investment-&amp;-MNEs">
-<h3>Direct Investment &amp; MNEs<a class="headerlink" href="#Direct-Investment-&-MNEs" title="Permalink to this heading">¶</a></h3>
+<h3>Direct Investment &amp; MNEs<a class="headerlink" href="#Direct-Investment-&-MNEs" title="Link to this heading">¶</a></h3>
 <p>See the separate guide iTables_MNE</p>
 </section>
 <section id="Regional">
-<h3>Regional<a class="headerlink" href="#Regional" title="Permalink to this heading">¶</a></h3>
+<h3>Regional<a class="headerlink" href="#Regional" title="Link to this heading">¶</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[64]:
 </pre></div>
@@ -3091,7 +3089,7 @@ What parameters are needed
   </ul></li>
 </ul>
 </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
@@ -3099,7 +3097,7 @@ What parameters are needed
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
 
 
@@ -3117,8 +3115,8 @@ What parameters are needed
       
       
       
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
       
     </div>
 

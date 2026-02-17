@@ -10,7 +10,7 @@ authors = [
     {name = "Bureau of Economic Analysis", email = "developers@bea.gov"},
 ]
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.9" # we only support on 3.10+
 license = {text = "CC0"}
 description = "BEA API Python package"
 dynamic = ["classifiers","dependencies","version"]
@@ -49,6 +49,7 @@ dev = [
     "unittest",
     "flake8",
     "mypy",
-    "twine"
+    "twine",
+    "coverage"
 ]
 

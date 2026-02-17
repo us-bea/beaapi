@@ -65,12 +65,10 @@ To build the docs you will need `sphinx`, `nbsphinx`, `pandoc` and `nbconvert`. 
 ```
 make html
 ```
-which will generate html docs viewable at `docsrc/_build/html/index.html`. 
+which will generate html docs viewable at `doc/index.html`. 
 
-Then copy `_build/html/` (except *.ipynb) to `../docs`.
-
-```
-robocopy "_build/html" "../docs" /mir
+You can remove `*.ipynb`s from `../docs`.
+```CMD
 del ..\docs\*.ipynb
 ```
 
@@ -85,6 +83,8 @@ Optional (non-default) tests can be run with:
 ```
 pytest tests/throttling.py
 ```
+
+Or `coverage run -m pytest tests/` to run with coverage. And then `coverage report` to see summary stats or `coverage html` to generate an HTML report in `htmlcov/index.html`.
 
 Try to run the tests in the latest version of pandas.
 

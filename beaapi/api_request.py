@@ -8,7 +8,7 @@ import beaapi
 
 from .beaapi_error import BEAAPIFailure, BEAAPIResponseError
 
-
+default_base_url = 'https://apps.bea.gov/api/data/?'
 def api_request(beaspec: Dict[str, str], as_string: bool = False, as_dict: bool = False,
                 as_table: bool = True, is_meta: bool = False, throttle: bool = True,
                 **kwargs: Dict[str, Any]) -> Union[http.client.HTTPResponse, str,
@@ -99,9 +99,13 @@ def api_request(beaspec: Dict[str, str], as_string: bool = False, as_dict: bool 
 
     if(len(beaspec['userid']) != 36):
         raise Exception('Invalid API key: ' + beaspec['userid'])
+    if 'base_url' in beaspec:
+        base_url = beaspec.pop('base_url')
+    else:
+        base_url = default_base_url
     # Parse user settings into API URL
     params = urllib.parse.urlencode(beaspec)
-    bea_url = 'https://apps.bea.gov/api/data/?%s' % params
+    bea_url = base_url + params
 
     if throttle:
         from .throttling_caller import throttling_data, ThrottlingCaller

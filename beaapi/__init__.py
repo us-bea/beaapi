@@ -18,7 +18,7 @@ except PackageNotFoundError:
 __all__ = ['api_request', 'get_data', 'get_data_set_list', 'get_parameter_list',
            'get_parameter_values', 'update_metadata', 'search_metadata',
            'get_parameter_values_filtered', 'to_wide_vars_in_cols',
-           'to_wide_vars_in_rows', 'ThrottlingCaller', 'BEAAPIError', 'BEAAPIFailure',
+           'to_wide_vars_in_rows', 'notes_detail_to_df', 'ThrottlingCaller', 'BEAAPIError', 'BEAAPIFailure',
            'BEAAPIResponseError', 'BEAAPIPkgException']
 from .beaapi_error import BEAAPIError, BEAAPIFailure, BEAAPIResponseError, BEAAPIPkgException
 from .api_request import api_request
@@ -28,6 +28,7 @@ from .get_parameter_list import get_parameter_list
 from .get_parameter_values import get_parameter_values
 from .get_parameter_values_filtered import get_parameter_values_filtered
 from .update_metadata import update_metadata
+from .response_to_table import notes_detail_to_df
 from .search_metadata import search_metadata
 from .throttling_caller import ThrottlingCaller
 
@@ -40,5 +41,5 @@ MAX_REQUESTS_PER_MINUTE = 100
 #: Max number of API errors per minute before throttling happens
 MAX_ERRORS_PER_MINUTE = 30
 
-#: Max number of API requests per minute before throttling happens
+#: If going over usage thresholds, number of seconds until you can use again.
 BACKOFF_SECS = 60 * 60

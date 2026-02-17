@@ -42,20 +42,6 @@ display(list_of_sets)  # Note the last dataset is only for speeding up metadata 
 ```
 
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -108,7 +94,7 @@ display(list_of_sets)  # Note the last dataset is only for speeding up metadata 
     <tr>
       <th>8</th>
       <td>IntlServSTA</td>
-      <td>International Services Supplied Through Affili...</td>
+      <td>International Services Supplied Through Affiliates</td>
     </tr>
     <tr>
       <th>9</th>
@@ -132,7 +118,6 @@ display(list_of_sets)  # Note the last dataset is only for speeding up metadata 
     </tr>
   </tbody>
 </table>
-</div>
 
 
 Queries to the different datasets take different parameters. To get a list of the paramaters for a given dataset, use `get_parameter_list()`; for example, to get a list of the parameters for the NIPA dataset, use:
@@ -144,20 +129,6 @@ display(list_of_params)
 ```
 
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -186,7 +157,7 @@ display(list_of_params)
       <th>1</th>
       <td>ShowMillions</td>
       <td>string</td>
-      <td>A flag indicating that million-dollar data sho...</td>
+      <td>A flag indicating that million-dollar data should be returned.</td>
       <td>0</td>
       <td>N</td>
       <td>0</td>
@@ -224,7 +195,6 @@ display(list_of_params)
     </tr>
   </tbody>
 </table>
-</div>
 
 
 To get a list of the values for a given parameter, use `get_parameter_values()`; for example, to get a list of the parameter values for the Frequency parameter of the NIPA dataset, use:
@@ -236,20 +206,6 @@ display(list_of_param_vals)
 ```
 
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -276,7 +232,6 @@ display(list_of_param_vals)
     </tr>
   </tbody>
 </table>
-</div>
 
 
 The [API documentation](https://apps.bea.gov/API/docs/index.htm) is a good place to also understand allowed values.
@@ -290,20 +245,6 @@ display(tbl.head())
 ```
 
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -340,7 +281,6 @@ display(tbl.head())
     </tr>
   </tbody>
 </table>
-</div>
 
 
 A few of the datasets publish metadata tables that can be queried for particular strings using `search_metadata()`. This method allows you to search for BEA data by keyword. For example, to find all datasets in which the term "personal consumption" appears, use the following:  
@@ -351,28 +291,9 @@ search_data = beaapi.search_metadata('Gross domestic', beakey)
 search_data.head(2)
 ```
 
-    Created directory: beaapi_data
-    Creating first-time local copy of metadata for all datasets - only done once in working directory.
-    Datasets will be updated only if timestamps indicate metadata obsolete in future searches, and only obsolete metadata sets will be updated.
-    
 
 
 
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -403,7 +324,7 @@ search_data.head(2)
       <td>1</td>
       <td>T10101</td>
       <td>NIPA</td>
-      <td>Table 1.1.1. Percent Change From Preceding Per...</td>
+      <td>Table 1.1.1. Percent Change From Preceding Period in Real Gross Domestic Product</td>
       <td>Feb 28 2019  8:30AM</td>
       <td>Mar 28 2019  8:30AM</td>
     </tr>
@@ -418,13 +339,12 @@ search_data.head(2)
       <td>27</td>
       <td>T10101</td>
       <td>NIPA</td>
-      <td>Table 1.1.1. Percent Change From Preceding Per...</td>
+      <td>Table 1.1.1. Percent Change From Preceding Period in Real Gross Domestic Product</td>
       <td>Feb 28 2019  8:30AM</td>
       <td>Mar 28 2019  8:30AM</td>
     </tr>
   </tbody>
 </table>
-</div>
 
 
 
@@ -447,20 +367,6 @@ display(bea_tbl.head(2))
 ```
 
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -506,7 +412,6 @@ display(bea_tbl.head(2))
     </tr>
   </tbody>
 </table>
-</div>
 
 
 We store in the meta-data the index columns so that you can create a unique index on the data-frame.
@@ -517,20 +422,6 @@ display(bea_tbl.set_index(bea_tbl.attrs['index_cols']).head(2))
 ```
 
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -584,7 +475,6 @@ display(bea_tbl.set_index(bea_tbl.attrs['index_cols']).head(2))
     </tr>
   </tbody>
 </table>
-</div>
 
 
 Extra meta-data from the API is returned in a dictionary in the attributes called `detail` and can vary based on the dataset.
@@ -595,7 +485,7 @@ print('Extra detail keys:' + str(bea_tbl.attrs['detail'].keys()))
 print("Let's look at some interesting ones.")
 print('Statistic: ' + bea_tbl.attrs['detail']['Statistic'])
 print("Notes corresponding to NoteRef:")
-display(bea_tbl.attrs['detail']['Notes'].head())
+display(beaapi.response_to_table.notes_detail_to_df(bea_tbl.attrs['detail']['Notes']).head())
 ```
 
     Extra detail keys:dict_keys(['Statistic', 'UTCProductionTime', 'Dimensions', 'Notes'])
@@ -605,20 +495,6 @@ display(bea_tbl.attrs['detail']['Notes'].head())
     
 
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -631,31 +507,30 @@ display(bea_tbl.attrs['detail']['Notes'].head())
     <tr>
       <th>0</th>
       <td>T20305</td>
-      <td>Table 2.3.5. Personal Consumption Expenditures...</td>
+      <td>Table 2.3.5. Personal Consumption Expenditures by Major Type of Product [Billions of dollars] - LastRevised: June 26, 2025</td>
     </tr>
     <tr>
       <th>1</th>
       <td>T20305.1</td>
-      <td>1. Net expenses of NPISHs, defined as their gr...</td>
+      <td>1. Net expenses of NPISHs, defined as their gross operating expenses less primary sales to households.</td>
     </tr>
     <tr>
       <th>2</th>
       <td>T20305.2</td>
-      <td>2. Gross output is net of unrelated sales, sec...</td>
+      <td>2. Gross output is net of unrelated sales, secondary sales, and sales to business, to government, and to the rest of the world; excludes own-account investment (construction and software).</td>
     </tr>
     <tr>
       <th>3</th>
       <td>T20305.3</td>
-      <td>3. Excludes unrelated sales, secondary sales, ...</td>
+      <td>3. Excludes unrelated sales, secondary sales, and sales to business, to government, and to the rest of the world; includes membership dues and fees.</td>
     </tr>
     <tr>
       <th>4</th>
       <td>T20305.4</td>
-      <td>4. Food consists of food and beverages purchas...</td>
+      <td>4. Food consists of food and beverages purchased for off-premises consumption; food services, which include purchased meals and beverages, are not classified as food.</td>
     </tr>
   </tbody>
 </table>
-</div>
 
 
 To retrieve a limited selection of multiple years, list all the years you want to retrieve. For example, to retrieve data for 2011-2015, use `Year="2011,2012,2013,2014,2015"`
@@ -670,20 +545,6 @@ display(beaapi.to_wide_vars_in_cols(bea_tbl).head(3))
 ```
 
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -698,7 +559,17 @@ display(beaapi.to_wide_vars_in_cols(bea_tbl).head(3))
       <th>8</th>
       <th>9</th>
       <th>10</th>
-      <th>...</th>
+      <th>11</th>
+      <th>12</th>
+      <th>13</th>
+      <th>14</th>
+      <th>15</th>
+      <th>16</th>
+      <th>17</th>
+      <th>18</th>
+      <th>19</th>
+      <th>20</th>
+      <th>21</th>
       <th>22</th>
       <th>23</th>
       <th>24</th>
@@ -712,6 +583,16 @@ display(beaapi.to_wide_vars_in_cols(bea_tbl).head(3))
     </tr>
     <tr>
       <th>TimePeriod</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
       <th></th>
       <th></th>
       <th></th>
@@ -748,7 +629,17 @@ display(beaapi.to_wide_vars_in_cols(bea_tbl).head(3))
       <td>2605746</td>
       <td>935572</td>
       <td>376595</td>
-      <td>...</td>
+      <td>313313</td>
+      <td>980266</td>
+      <td>8222973</td>
+      <td>7870665</td>
+      <td>2189656</td>
+      <td>2024009</td>
+      <td>388882</td>
+      <td>487893</td>
+      <td>816415</td>
+      <td>961966</td>
+      <td>1001843</td>
       <td>352308</td>
       <td>1360579</td>
       <td>1008271</td>
@@ -772,7 +663,17 @@ display(beaapi.to_wide_vars_in_cols(bea_tbl).head(3))
       <td>2641163</td>
       <td>937029</td>
       <td>379874</td>
-      <td>...</td>
+      <td>333343</td>
+      <td>990917</td>
+      <td>8305210</td>
+      <td>7948745</td>
+      <td>2184899</td>
+      <td>2045927</td>
+      <td>393194</td>
+      <td>497172</td>
+      <td>830237</td>
+      <td>979737</td>
+      <td>1017579</td>
       <td>356465</td>
       <td>1369721</td>
       <td>1013256</td>
@@ -796,7 +697,17 @@ display(beaapi.to_wide_vars_in_cols(bea_tbl).head(3))
       <td>2666696</td>
       <td>946571</td>
       <td>383041</td>
-      <td>...</td>
+      <td>331431</td>
+      <td>1005653</td>
+      <td>8388898</td>
+      <td>8021542</td>
+      <td>2202132</td>
+      <td>2082674</td>
+      <td>394085</td>
+      <td>499899</td>
+      <td>836789</td>
+      <td>981327</td>
+      <td>1024635</td>
       <td>367356</td>
       <td>1380892</td>
       <td>1013536</td>
@@ -810,8 +721,6 @@ display(beaapi.to_wide_vars_in_cols(bea_tbl).head(3))
     </tr>
   </tbody>
 </table>
-<p>3 rows × 31 columns</p>
-</div>
 
 
 ## Advanced topics

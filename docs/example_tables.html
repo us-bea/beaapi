@@ -1,0 +1,3049 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Example tables &#8212; beaapi  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <script src="_static/documentation_options.js?v=7f41d439"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="Example-tables">
+<h1>Example tables<a class="headerlink" href="#Example-tables" title="Link to this heading">¶</a></h1>
+<p>This is to show visually what data is returned for the various <code class="docutils literal notranslate"><span class="pre">get_data</span></code> calls as well as summarizes what uniquely identifies a series.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">beaapi</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">dotenv_values</span>
+<span class="n">beakey</span> <span class="o">=</span> <span class="n">dotenv_values</span><span class="p">()[</span><span class="s2">&quot;beakey&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<section id="Series-identification">
+<h2>Series identification<a class="headerlink" href="#Series-identification" title="Link to this heading">¶</a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Dataset</p></th>
+<th class="head"><p>TimeSeries ID</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>NIPA</p></td>
+<td><p>SeriesCode x Frequency</p></td>
+<td><ul class="simple">
+<li></li>
+</ul>
+</td>
+</tr>
+<tr class="row-odd"><td><p>NIUnderlyingDetail</p></td>
+<td><p>SeriesCode x Frequency</p></td>
+<td><ul class="simple">
+<li></li>
+</ul>
+</td>
+</tr>
+<tr class="row-even"><td><p>MNE</p></td>
+<td><p>SeriesID x RowCode x Row (just when <code class="docutils literal notranslate"><span class="pre">RowCode=='</span> <span class="pre">'</span></code>) x ColumnCode x Column (just when <code class="docutils literal notranslate"><span class="pre">ColumnCode</span></code> in <code class="docutils literal notranslate"><span class="pre">[&quot;0&quot;,&quot;000&quot;,&quot;0000&quot;]</span></code>) x ColumnGParentCode x TableRowDisplayOrder</p></td>
+<td><p>(Frequency currently only annual)</p></td>
+</tr>
+<tr class="row-odd"><td><p>FixedAssets</p></td>
+<td><p>SeriesCode</p></td>
+<td><p>(Frequency currently only annual)</p></td>
+</tr>
+<tr class="row-even"><td><p>ITA</p></td>
+<td><p>TimeSeriesId (TSI_Ita{Indicator}{AreaOrCountry}_{Frequency})</p></td>
+<td><ul class="simple">
+<li></li>
+</ul>
+</td>
+</tr>
+<tr class="row-odd"><td><p>IIP</p></td>
+<td><p>TimeSeriesId (TSI_Iip{TypeOfInvestment}{Component}_{Frequency})</p></td>
+<td><ul class="simple">
+<li></li>
+</ul>
+</td>
+</tr>
+<tr class="row-even"><td><p>InputOutput</p></td>
+<td><p>TableID + RowCode x ColCode</p></td>
+<td><p>(Frequency currently only annual)</p></td>
+</tr>
+<tr class="row-odd"><td><p>IntlServTrade</p></td>
+<td><p>TimeSeriesId (TSI_Ist{TypeOfService}{TradeDirection abbr}{AreaOr Country}{Affiliation abbr}_{Frequency})</p></td>
+<td><ul class="simple">
+<li></li>
+</ul>
+</td>
+</tr>
+<tr class="row-even"><td><p>IntlServSTA</p></td>
+<td><p>TimeSeriesId (typically TSI_Ssta{Channel}{Destination}{Industry}{AreaOrCountry}_{Frequency} but can reword)</p></td>
+<td><ul class="simple">
+<li></li>
+</ul>
+</td>
+</tr>
+<tr class="row-odd"><td><p>GDPbyIndustry</p></td>
+<td><p>TableID x Industry x Frequency</p></td>
+<td><ul class="simple">
+<li></li>
+</ul>
+</td>
+</tr>
+<tr class="row-even"><td><p>Regional</p></td>
+<td><p>Code ({tableID}-{LineNumber}) x GeoFips</p></td>
+<td><p>(tableID uniquely defines frequency)</p></td>
+</tr>
+<tr class="row-odd"><td><p>UnderlyingGDPbyIndustry</p></td>
+<td><p>TableID x Industry x Frequency</p></td>
+<td><ul class="simple">
+<li></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="NIPA">
+<h2>NIPA<a class="headerlink" href="#NIPA" title="Link to this heading">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bea_tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="n">datasetname</span><span class="o">=</span><span class="s1">&#39;NIPA&#39;</span><span class="p">,</span> <span class="n">TableName</span><span class="o">=</span><span class="s1">&#39;T20305&#39;</span><span class="p">,</span> <span class="n">Frequency</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="s1">&#39;2015&#39;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>TableName</th>
+      <th>SeriesCode</th>
+      <th>LineNumber</th>
+      <th>LineDescription</th>
+      <th>TimePeriod</th>
+      <th>METRIC_NAME</th>
+      <th>CL_UNIT</th>
+      <th>UNIT_MULT</th>
+      <th>DataValue</th>
+      <th>NoteRef</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>T20305</td>
+      <td>DPCERC</td>
+      <td>1</td>
+      <td>Personal consumption expenditures (PCE)</td>
+      <td>2015</td>
+      <td>Current Dollars</td>
+      <td>Level</td>
+      <td>6</td>
+      <td>12297438</td>
+      <td>T20305</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>T20305</td>
+      <td>DGDSRC</td>
+      <td>2</td>
+      <td>Goods</td>
+      <td>2015</td>
+      <td>Current Dollars</td>
+      <td>Level</td>
+      <td>6</td>
+      <td>3955130</td>
+      <td>T20305</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;params&#39;: [{&#39;ParameterName&#39;: &#39;TABLENAME&#39;, &#39;ParameterValue&#39;: &#39;T20305&#39;}, {&#39;ParameterName&#39;: &#39;FREQUENCY&#39;, &#39;ParameterValue&#39;: &#39;A&#39;}, {&#39;ParameterName&#39;: &#39;YEAR&#39;, &#39;ParameterValue&#39;: &#39;2015&#39;}, {&#39;ParameterName&#39;: &#39;USERID&#39;, &#39;ParameterValue&#39;: &#39;F0E378A4-7FF1-4196-9892-CD98178FCA82&#39;}, {&#39;ParameterName&#39;: &#39;METHOD&#39;, &#39;ParameterValue&#39;: &#39;GETDATA&#39;}, {&#39;ParameterName&#39;: &#39;DATASETNAME&#39;, &#39;ParameterValue&#39;: &#39;NIPA&#39;}, {&#39;ParameterName&#39;: &#39;RESULTFORMAT&#39;, &#39;ParameterValue&#39;: &#39;JSON&#39;}, {&#39;ParameterName&#39;: &#39;ShowMillions&#39;, &#39;ParameterValue&#39;: &#39;N&#39;}], &#39;response_size&#39;: 10203, &#39;detail&#39;: {&#39;Statistic&#39;: &#39;NIPA Table&#39;, &#39;UTCProductionTime&#39;: &#39;2025-06-27T14:01:05.397&#39;, &#39;Dimensions&#39;:    Ordinal             Name DataType  IsValue
+0        1        TableName   string        0
+1        2       SeriesCode   string        0
+2        3       LineNumber  numeric        0
+3        4  LineDescription   string        0
+4        5       TimePeriod   string        0
+5        6          CL_UNIT   string        0
+6        7        UNIT_MULT  numeric        0
+7        8      METRIC_NAME   string        0
+8        9        DataValue  numeric        1, &#39;Notes&#39;:     NoteRef                                           NoteText
+0    T20305  Table 2.3.5. Personal Consumption Expenditures...
+1  T20305.1  1. Net expenses of NPISHs, defined as their gr...
+2  T20305.2  2. Gross output is net of unrelated sales, sec...
+3  T20305.3  3. Excludes unrelated sales, secondary sales, ...
+4  T20305.4  4. Food consists of food and beverages purchas...
+5  T20305.5  5. Consists of gasoline and other energy goods...
+6  T20305.6  6. Market-based PCE is a supplemental measure ...}, &#39;time_invariant_keys&#39;: [&#39;LineNumber&#39;], &#39;time_invariant_vars&#39;: [&#39;TableName&#39;, &#39;SeriesCode&#39;, &#39;LineDescription&#39;, &#39;METRIC_NAME&#39;, &#39;CL_UNIT&#39;, &#39;UNIT_MULT&#39;, &#39;NoteRef&#39;], &#39;time_variant_keys&#39;: [&#39;TimePeriod&#39;], &#39;time_variant_vars&#39;: [&#39;DataValue&#39;], &#39;time_variant_only_vars&#39;: [], &#39;index_cols&#39;: [&#39;LineNumber&#39;, &#39;TimePeriod&#39;], &#39;release_date&#39;: datetime.date(2025, 6, 26)}
+</pre></div></div>
+</div>
+</section>
+<section id="NIUnderlyingDetail">
+<h2>NIUnderlyingDetail<a class="headerlink" href="#NIUnderlyingDetail" title="Link to this heading">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bea_tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s1">&#39;NIUnderlyingDetail&#39;</span><span class="p">,</span> <span class="n">Frequency</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="s1">&#39;2020&#39;</span><span class="p">,</span> <span class="n">TableName</span><span class="o">=</span><span class="s1">&#39;U001B&#39;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>TableName</th>
+      <th>SeriesCode</th>
+      <th>LineNumber</th>
+      <th>LineDescription</th>
+      <th>TimePeriod</th>
+      <th>METRIC_NAME</th>
+      <th>CL_UNIT</th>
+      <th>UNIT_MULT</th>
+      <th>DataValue</th>
+      <th>NoteRef</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>U001B</td>
+      <td>KSMT</td>
+      <td>1</td>
+      <td>Manufacturing and trade industries</td>
+      <td>2020Q1</td>
+      <td>Chained Dollars</td>
+      <td>Level</td>
+      <td>6</td>
+      <td>2189521</td>
+      <td>U001B</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>U001B</td>
+      <td>KSMT</td>
+      <td>1</td>
+      <td>Manufacturing and trade industries</td>
+      <td>2020Q2</td>
+      <td>Chained Dollars</td>
+      <td>Level</td>
+      <td>6</td>
+      <td>2125377</td>
+      <td>U001B</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>U001B</td>
+      <td>KSMT</td>
+      <td>1</td>
+      <td>Manufacturing and trade industries</td>
+      <td>2020Q3</td>
+      <td>Chained Dollars</td>
+      <td>Level</td>
+      <td>6</td>
+      <td>2148893</td>
+      <td>U001B</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>U001B</td>
+      <td>KSMT</td>
+      <td>1</td>
+      <td>Manufacturing and trade industries</td>
+      <td>2020Q4</td>
+      <td>Chained Dollars</td>
+      <td>Level</td>
+      <td>6</td>
+      <td>2170189</td>
+      <td>U001B</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>U001B</td>
+      <td>N376RX</td>
+      <td>2</td>
+      <td>Manufacturing industries</td>
+      <td>2020Q1</td>
+      <td>Chained Dollars</td>
+      <td>Level</td>
+      <td>6</td>
+      <td>825052</td>
+      <td>U001B</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>U001B</td>
+      <td>N376RX</td>
+      <td>2</td>
+      <td>Manufacturing industries</td>
+      <td>2020Q2</td>
+      <td>Chained Dollars</td>
+      <td>Level</td>
+      <td>6</td>
+      <td>833251</td>
+      <td>U001B</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;params&#39;: [{&#39;ParameterName&#39;: &#39;FREQUENCY&#39;, &#39;ParameterValue&#39;: &#39;Q&#39;}, {&#39;ParameterName&#39;: &#39;YEAR&#39;, &#39;ParameterValue&#39;: &#39;2020&#39;}, {&#39;ParameterName&#39;: &#39;TABLENAME&#39;, &#39;ParameterValue&#39;: &#39;U001B&#39;}, {&#39;ParameterName&#39;: &#39;USERID&#39;, &#39;ParameterValue&#39;: &#39;F0E378A4-7FF1-4196-9892-CD98178FCA82&#39;}, {&#39;ParameterName&#39;: &#39;METHOD&#39;, &#39;ParameterValue&#39;: &#39;GETDATA&#39;}, {&#39;ParameterName&#39;: &#39;DATASETNAME&#39;, &#39;ParameterValue&#39;: &#39;NIUNDERLYINGDETAIL&#39;}, {&#39;ParameterName&#39;: &#39;RESULTFORMAT&#39;, &#39;ParameterValue&#39;: &#39;JSON&#39;}], &#39;response_size&#39;: 61157, &#39;detail&#39;: {&#39;Statistic&#39;: &#39;NIPA Table&#39;, &#39;UTCProductionTime&#39;: &#39;2025-06-27T14:04:26.747&#39;, &#39;Dimensions&#39;:    Ordinal             Name DataType  IsValue
+0        1        TableName   string        0
+1        2       SeriesCode   string        0
+2        3       LineNumber  numeric        0
+3        4  LineDescription   string        0
+4        5       TimePeriod   string        0
+5        6          CL_UNIT   string        0
+6        7        UNIT_MULT  numeric        0
+7        8      METRIC_NAME   string        0
+8        9        DataValue  numeric        1, &#39;Notes&#39;:    NoteRef                                           NoteText
+0    U001B  Table 1BU. Real Manufacturing and Trade Invent...
+1  U001B.1  Note. Estimates in this table are based on the...
+2  U001B.2  Chained (2017) dollar inventory series are cal...}, &#39;time_invariant_keys&#39;: [&#39;LineNumber&#39;], &#39;time_invariant_vars&#39;: [&#39;TableName&#39;, &#39;SeriesCode&#39;, &#39;LineDescription&#39;, &#39;METRIC_NAME&#39;, &#39;CL_UNIT&#39;, &#39;UNIT_MULT&#39;, &#39;NoteRef&#39;], &#39;time_variant_keys&#39;: [&#39;TimePeriod&#39;], &#39;time_variant_vars&#39;: [&#39;DataValue&#39;], &#39;time_variant_only_vars&#39;: [], &#39;index_cols&#39;: [&#39;LineNumber&#39;, &#39;TimePeriod&#39;], &#39;release_date&#39;: datetime.date(2025, 6, 26)}
+</pre></div></div>
+</div>
+</section>
+<section id="MNE">
+<h2>MNE<a class="headerlink" href="#MNE" title="Link to this heading">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DI&quot;</span><span class="p">)</span>
+<span class="n">bea_tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s2">&quot;MNE&quot;</span><span class="p">,</span> <span class="n">DirectionOfInvestment</span><span class="o">=</span><span class="s2">&quot;Outward&quot;</span><span class="p">,</span>
+                                          <span class="n">Classification</span><span class="o">=</span><span class="s2">&quot;Country&quot;</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="s2">&quot;2010&quot;</span><span class="p">,</span> <span class="n">GetFootnotes</span><span class="o">=</span><span class="s1">&#39;Yes&#39;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;AMNE&quot;</span><span class="p">)</span>
+<span class="n">bea_tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s2">&quot;MNE&quot;</span><span class="p">,</span> <span class="n">DirectionOfInvestment</span><span class="o">=</span><span class="s2">&quot;Outward&quot;</span><span class="p">,</span>
+                                          <span class="n">OwnershipLevel</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="n">NonBankAffiliatesOnly</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="n">Classification</span><span class="o">=</span><span class="s2">&quot;Country&quot;</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="s2">&quot;2010&quot;</span><span class="p">,</span>
+                                          <span class="n">GetFootnotes</span><span class="o">=</span><span class="s1">&#39;Yes&#39;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+DI
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Year</th>
+      <th>SeriesID</th>
+      <th>SeriesName</th>
+      <th>Row</th>
+      <th>ColumnGParent</th>
+      <th>ColumnParent</th>
+      <th>Column</th>
+      <th>RowCode</th>
+      <th>ColumnCode</th>
+      <th>ColumnParentCode</th>
+      <th>ColumnGParentCode</th>
+      <th>TableScale</th>
+      <th>DataValueUnformatted</th>
+      <th>TableColumnDisplayOrder</th>
+      <th>TableRowDisplayOrder</th>
+      <th>DataValue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2010</td>
+      <td>33</td>
+      <td>Debt Instruments Outflows</td>
+      <td>All Countries Total</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Debt Outflows</td>
+      <td>000</td>
+      <td>0000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>-41960</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>-41,960</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2010</td>
+      <td>32</td>
+      <td>Equity Outflows Other than Reinvestment of Ear...</td>
+      <td>All Countries Total</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Equity Outflows</td>
+      <td>000</td>
+      <td>0000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>40550</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>40,550</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;params&#39;: [{&#39;ParameterName&#39;: &#39;DIRECTIONOFINVESTMENT&#39;, &#39;ParameterValue&#39;: &#39;OUTWARD&#39;}, {&#39;ParameterName&#39;: &#39;CLASSIFICATION&#39;, &#39;ParameterValue&#39;: &#39;COUNTRY&#39;}, {&#39;ParameterName&#39;: &#39;YEAR&#39;, &#39;ParameterValue&#39;: &#39;2010&#39;}, {&#39;ParameterName&#39;: &#39;GETFOOTNOTES&#39;, &#39;ParameterValue&#39;: &#39;YES&#39;}, {&#39;ParameterName&#39;: &#39;USERID&#39;, &#39;ParameterValue&#39;: &#39;F0E378A4-7FF1-4196-9892-CD98178FCA82&#39;}, {&#39;ParameterName&#39;: &#39;METHOD&#39;, &#39;ParameterValue&#39;: &#39;GETDATA&#39;}, {&#39;ParameterName&#39;: &#39;DATASETNAME&#39;, &#39;ParameterValue&#39;: &#39;MNE&#39;}, {&#39;ParameterName&#39;: &#39;RESULTFORMAT&#39;, &#39;ParameterValue&#39;: &#39;JSON&#39;}, {&#39;ParameterName&#39;: &#39;NonbankAffiliatesOnly&#39;, &#39;ParameterValue&#39;: &#39;2&#39;}, {&#39;ParameterName&#39;: &#39;OwnershipLevel&#39;, &#39;ParameterValue&#39;: &#39;2&#39;}, {&#39;ParameterName&#39;: &#39;SeriesID&#39;, &#39;ParameterValue&#39;: &#39;all&#39;}], &#39;response_size&#39;: 370528, &#39;detail&#39;: {&#39;Table_Count&#39;: &#39;6&#39;, &#39;rowTypeID&#39;: &#39;4,10&#39;, &#39;InvestmentType&#39;: &#39;U.S. Direct Investment Abroad&#39;, &#39;DataType&#39;: &#39;Balance of Payments and Direct Investment Position Data&#39;, &#39;Entity&#39;: &#39;None&#39;, &#39;IndustryClassification&#39;: &#39;NAICS&#39;, &#39;YearList&#39;: &#39;2010&#39;, &#39;DIRECTIONOFINVESTMENT&#39;: &#39;OUTWARD&#39;, &#39;OwnershipLevel&#39;: &#39;2&#39;, &#39;NonbankAffiliatesOnly&#39;: &#39;2&#39;, &#39;Tables&#39;: &#39;13,16,17,210,211,212&#39;, &#39;cnt&#39;: &#39;858&#39;, &#39;Dimensions&#39;:    Ordinal                  Name DataType  IsValue
+0        1                  Year  numeric        0
+1        2              SeriesID  numeric        0
+2        3            SeriesName   string        0
+3        4                   Row   string        0
+4        5                Column   string        0
+5        6               RowCode   string        0
+6        7            ColumnCode   string        0
+7        8            TableScale   string        0
+8        9  DataValueUnformatted   string        1
+9       10             DataValue   string        1, &#39;Notes&#39;:                                              NoteText   NoteRef
+0   &lt;strong&gt;n.s.&lt;/strong&gt;  Not shown.  Data may no...      2.00
+1   â¢ The data appear on another line in this ta...      4.00
+2   â¢ The data are not shown in this table but m...      6.00
+3   â¢ The data are not available, do not apply, ...      8.00
+4   &lt;strong&gt;(*)&lt;/strong&gt; A nonzero value that roun...     10.00
+5   &lt;strong&gt;(D)&lt;/strong&gt; indicates that the data i...     12.00
+6   Balance of payments transactions (and associat...     34.00
+7   The composition of the &#34;Other&#34; categories show...     36.00
+8           Source: U.S. Bureau of Economic Analysis      41.00
+9   1. The âUnited Kingdom Islands, Caribbeanâ...    100.10
+10  1. Prior to 2011, included data for Curacao, S...    100.20
+11  1. The &#34;United Kingdom Islands, Caribbean&#34; is ...    113.00
+12  2. Data for the European Union (EU) reflect th...    114.00
+13  3. OPEC (Organization of Petroleum Exporting C...    115.00
+14  2. The &#34;United Kingdom Islands, Caribbean&#34; is ...    117.01
+15  2. Data for the European Union (EU) reflect th...    118.00
+16  3. OPEC (Organization of Petroleum Exporting C...    119.00
+17  2. The âUnited Kingdom Islands, Caribbeanâ...    222.00
+18  3. Prior to 2011, data were included in the Ne...    223.00
+19  4. Starting in 2021, data for Western Sahara a...    224.00
+20   5. Prior to 2011, included data for South Sudan.    225.00
+21  6. Prior to 2023, included data for Cook Islan...    225.10
+22  7. Prior to 2023, data were included in New Ze...    227.10
+23  If you have a question about the availability ...  10000.00}, &#39;time_invariant_keys&#39;: [&#39;SeriesID&#39;, &#39;RowCode&#39;, &#39;Row&#39;, &#39;ColumnCode&#39;, &#39;Column&#39;, &#39;ColumnGParentCode&#39;], &#39;time_invariant_vars&#39;: [&#39;SeriesName&#39;, &#39;ColumnGParent&#39;, &#39;ColumnParent&#39;, &#39;ColumnParentCode&#39;, &#39;TableScale&#39;], &#39;time_variant_keys&#39;: [&#39;Year&#39;, &#39;TableRowDisplayOrder&#39;, &#39;TableColumnDisplayOrder&#39;], &#39;time_variant_vars&#39;: [&#39;DataValueUnformatted&#39;, &#39;DataValue&#39;], &#39;time_variant_only_vars&#39;: [], &#39;index_cols&#39;: [&#39;SeriesID&#39;, &#39;RowCode&#39;, &#39;Row&#39;, &#39;ColumnCode&#39;, &#39;Column&#39;, &#39;ColumnGParentCode&#39;, &#39;Year&#39;, &#39;TableRowDisplayOrder&#39;, &#39;TableColumnDisplayOrder&#39;]}
+AMNE
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Year</th>
+      <th>SeriesID</th>
+      <th>SeriesName</th>
+      <th>Row</th>
+      <th>ColumnGParent</th>
+      <th>ColumnParent</th>
+      <th>Column</th>
+      <th>RowCode</th>
+      <th>ColumnCode</th>
+      <th>ColumnParentCode</th>
+      <th>ColumnGParentCode</th>
+      <th>TableScale</th>
+      <th>DataValueUnformatted</th>
+      <th>TableColumnDisplayOrder</th>
+      <th>TableRowDisplayOrder</th>
+      <th>DataValue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2010</td>
+      <td>7</td>
+      <td>Compensation of Employees</td>
+      <td>All Countries Total</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Compensation of Employees</td>
+      <td>000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>559135</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>559,135</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2010</td>
+      <td>8</td>
+      <td>Employment</td>
+      <td>All Countries Total</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Employees</td>
+      <td>000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Thousands of Employees</td>
+      <td>13495.6</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>13,495.6</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;params&#39;: [{&#39;ParameterName&#39;: &#39;DIRECTIONOFINVESTMENT&#39;, &#39;ParameterValue&#39;: &#39;OUTWARD&#39;}, {&#39;ParameterName&#39;: &#39;OWNERSHIPLEVEL&#39;, &#39;ParameterValue&#39;: &#39;1&#39;}, {&#39;ParameterName&#39;: &#39;NONBANKAFFILIATESONLY&#39;, &#39;ParameterValue&#39;: &#39;0&#39;}, {&#39;ParameterName&#39;: &#39;CLASSIFICATION&#39;, &#39;ParameterValue&#39;: &#39;COUNTRY&#39;}, {&#39;ParameterName&#39;: &#39;YEAR&#39;, &#39;ParameterValue&#39;: &#39;2010&#39;}, {&#39;ParameterName&#39;: &#39;GETFOOTNOTES&#39;, &#39;ParameterValue&#39;: &#39;YES&#39;}, {&#39;ParameterName&#39;: &#39;USERID&#39;, &#39;ParameterValue&#39;: &#39;F0E378A4-7FF1-4196-9892-CD98178FCA82&#39;}, {&#39;ParameterName&#39;: &#39;METHOD&#39;, &#39;ParameterValue&#39;: &#39;GETDATA&#39;}, {&#39;ParameterName&#39;: &#39;DATASETNAME&#39;, &#39;ParameterValue&#39;: &#39;MNE&#39;}, {&#39;ParameterName&#39;: &#39;RESULTFORMAT&#39;, &#39;ParameterValue&#39;: &#39;JSON&#39;}, {&#39;ParameterName&#39;: &#39;SeriesID&#39;, &#39;ParameterValue&#39;: &#39;all&#39;}], &#39;response_size&#39;: 478307, &#39;detail&#39;: {&#39;Table_Count&#39;: &#39;7&#39;, &#39;rowTypeID&#39;: &#39;4,10&#39;, &#39;InvestmentType&#39;: &#39;U.S. Direct Investment Abroad&#39;, &#39;DataType&#39;: &#39;Data on activities of multinational enterprises&#39;, &#39;Entity&#39;: &#39;All Foreign Affiliates (data for 2009 and forward)&#39;, &#39;IndustryClassification&#39;: &#39;NAICS&#39;, &#39;YearList&#39;: &#39;2010&#39;, &#39;DIRECTIONOFINVESTMENT&#39;: &#39;OUTWARD&#39;, &#39;OwnershipLevel&#39;: &#39;1&#39;, &#39;NonbankAffiliatesOnly&#39;: &#39;0&#39;, &#39;Tables&#39;: &#39;309,310,311,312,313,327,329&#39;, &#39;cnt&#39;: &#39;1237&#39;, &#39;Dimensions&#39;:    Ordinal                  Name DataType  IsValue
+0        1                  Year  numeric        0
+1        2              SeriesID  numeric        0
+2        3            SeriesName   string        0
+3        4                   Row   string        0
+4        5                Column   string        0
+5        6               RowCode   string        0
+6        7            ColumnCode   string        0
+7        8            TableScale   string        0
+8        9  DataValueUnformatted   string        1
+9       10             DataValue   string        1, &#39;Notes&#39;:                                              NoteText   NoteRef
+0   &lt;strong&gt;n.s.&lt;/strong&gt;  Not shown.  Data may no...      2.00
+1   â¢ The data appear on another line in this ta...      4.00
+2   â¢ The data are not shown in this table but m...      6.00
+3   â¢ The data are not available, do not apply, ...      8.00
+4   &lt;strong&gt;(*)&lt;/strong&gt; A nonzero value that roun...     10.00
+5   &lt;strong&gt;(D)&lt;/strong&gt; indicates that the data i...     12.00
+6   Size ranges are given in employment cells that...     16.00
+7   Data for each foreign affiliate are classified...     32.00
+8   The composition of the &#34;Other&#34; categories show...     36.00
+9           Source: U.S. Bureau of Economic Analysis      41.00
+10  If you have a question about the availability ...  10000.00}, &#39;time_invariant_keys&#39;: [&#39;SeriesID&#39;, &#39;RowCode&#39;, &#39;Row&#39;, &#39;ColumnCode&#39;, &#39;Column&#39;, &#39;ColumnGParentCode&#39;], &#39;time_invariant_vars&#39;: [&#39;SeriesName&#39;, &#39;ColumnGParent&#39;, &#39;ColumnParent&#39;, &#39;ColumnParentCode&#39;, &#39;TableScale&#39;], &#39;time_variant_keys&#39;: [&#39;Year&#39;, &#39;TableRowDisplayOrder&#39;, &#39;TableColumnDisplayOrder&#39;], &#39;time_variant_vars&#39;: [&#39;DataValueUnformatted&#39;, &#39;DataValue&#39;], &#39;time_variant_only_vars&#39;: [], &#39;index_cols&#39;: [&#39;SeriesID&#39;, &#39;RowCode&#39;, &#39;Row&#39;, &#39;ColumnCode&#39;, &#39;Column&#39;, &#39;ColumnGParentCode&#39;, &#39;Year&#39;, &#39;TableRowDisplayOrder&#39;, &#39;TableColumnDisplayOrder&#39;]}
+</pre></div></div>
+</div>
+<p>MNE weirdos</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mne_set0</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;SeriesID&#39;</span><span class="p">,</span> <span class="s1">&#39;RowCode&#39;</span><span class="p">,</span> <span class="s1">&#39;Row&#39;</span><span class="p">,</span> <span class="s1">&#39;ColumnCode&#39;</span><span class="p">,</span> <span class="s1">&#39;Column&#39;</span><span class="p">,</span> <span class="s1">&#39;ColumnGParentCode&#39;</span><span class="p">]</span>
+<span class="n">bea_tbl1</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s2">&quot;MNE&quot;</span><span class="p">,</span> <span class="n">DirectionOfInvestment</span><span class="o">=</span><span class="s2">&quot;Outward&quot;</span><span class="p">,</span> <span class="n">Classification</span><span class="o">=</span><span class="s2">&quot;StatebyCountryofUBO&quot;</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="s2">&quot;2020&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl1</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;duplicate ids set 1? </span><span class="si">{</span><span class="n">bea_tbl1</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">mne_set0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">mne_set1a</span> <span class="o">=</span> <span class="n">mne_set0</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;TableRowDisplayOrder&#39;</span><span class="p">]</span>
+<span class="c1">#display(bea_tbl1[bea_tbl1.duplicated(subset=mne_set0, keep=False)].sort_values(by=mne_set1a))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;duplicate ids set 2? </span><span class="si">{</span><span class="n">bea_tbl1</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">mne_set1a</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;just copied rows? </span><span class="si">{</span><span class="p">(</span><span class="n">bea_tbl1</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">mne_set0</span><span class="p">)</span><span class="o">==</span><span class="n">bea_tbl1</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">mne_set0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;DataValue&#39;</span><span class="p">]))</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="n">bea_tbl2</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s2">&quot;MNE&quot;</span><span class="p">,</span> <span class="n">DirectionOfInvestment</span><span class="o">=</span><span class="s2">&quot;Inward&quot;</span><span class="p">,</span> <span class="n">Classification</span><span class="o">=</span><span class="s2">&quot;StatebyCountryofUBO&quot;</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="s2">&quot;2020&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl2</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;duplicates set1? </span><span class="si">{</span><span class="n">bea_tbl2</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">mne_set0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="c1">#display(bea_tbl2[bea_tbl2.duplicated(subset=mne_set0, keep=False)].sort_values(by=mne_set1a))</span>
+<span class="n">mne_set2a</span> <span class="o">=</span> <span class="n">mne_set1a</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;TableColumnDisplayOrder&#39;</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;duplicates set2? </span><span class="si">{</span><span class="n">bea_tbl2</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">mne_set2a</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;just re-ordering? </span><span class="si">{</span><span class="p">(</span><span class="n">bea_tbl2</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">mne_set1a</span><span class="p">)</span><span class="o">==</span><span class="n">bea_tbl2</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">mne_set1a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;DataValue&#39;</span><span class="p">]))</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+duplicates set 1? True
+duplicates set 2? False
+just re-ordering? True
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Year</th>
+      <th>SeriesID</th>
+      <th>SeriesName</th>
+      <th>Row</th>
+      <th>ColumnGParent</th>
+      <th>ColumnParent</th>
+      <th>Column</th>
+      <th>RowCode</th>
+      <th>ColumnCode</th>
+      <th>ColumnParentCode</th>
+      <th>ColumnGParentCode</th>
+      <th>TableScale</th>
+      <th>DataValueUnformatted</th>
+      <th>TableColumnDisplayOrder</th>
+      <th>TableRowDisplayOrder</th>
+      <th>DataValue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2020</td>
+      <td>69</td>
+      <td>Balance Sheet of New Affiliates</td>
+      <td>All Countries Total</td>
+      <td>Assets</td>
+      <td>Total</td>
+      <td>Balance Sheet of New Affiliates</td>
+      <td>000</td>
+      <td>000</td>
+      <td>000</td>
+      <td>164</td>
+      <td>Millions of Dollars</td>
+      <td>112521</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>112,521</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2020</td>
+      <td>26</td>
+      <td>Debt Instruments Inflows</td>
+      <td>All Countries Total</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Debt Inflows</td>
+      <td>000</td>
+      <td>0000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>-61765</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>-61,765</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2020</td>
+      <td>64</td>
+      <td>Employment of New Affiliates</td>
+      <td>All Countries Total</td>
+      <td>Current employment</td>
+      <td>Total</td>
+      <td>Employment of New Affiliates</td>
+      <td>000</td>
+      <td>000</td>
+      <td>000</td>
+      <td>150</td>
+      <td>Thousands of Employees</td>
+      <td>229.8</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>229.8</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+duplicates set1? True
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Year</th>
+      <th>SeriesID</th>
+      <th>SeriesName</th>
+      <th>Row</th>
+      <th>ColumnGParent</th>
+      <th>ColumnParent</th>
+      <th>Column</th>
+      <th>RowCode</th>
+      <th>ColumnCode</th>
+      <th>ColumnParentCode</th>
+      <th>ColumnGParentCode</th>
+      <th>TableScale</th>
+      <th>DataValueUnformatted</th>
+      <th>TableColumnDisplayOrder</th>
+      <th>TableRowDisplayOrder</th>
+      <th>DataValue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>145</th>
+      <td>2020</td>
+      <td>22</td>
+      <td>Foreign Direct Investment Position in the Unit...</td>
+      <td>All Countries Total</td>
+      <td>None</td>
+      <td>Manufacturing</td>
+      <td>Position</td>
+      <td>000</td>
+      <td>3999</td>
+      <td>3000</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>503150</td>
+      <td>9.50</td>
+      <td>1.00</td>
+      <td>503,150</td>
+    </tr>
+    <tr>
+      <th>152</th>
+      <td>2020</td>
+      <td>22</td>
+      <td>Foreign Direct Investment Position in the Unit...</td>
+      <td>All Countries Total</td>
+      <td>None</td>
+      <td>Manufacturing</td>
+      <td>Position</td>
+      <td>000</td>
+      <td>3999</td>
+      <td>3000</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>503150</td>
+      <td>10.00</td>
+      <td>1.00</td>
+      <td>503,150</td>
+    </tr>
+    <tr>
+      <th>153</th>
+      <td>2020</td>
+      <td>22</td>
+      <td>Foreign Direct Investment Position in the Unit...</td>
+      <td>All Countries Total</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Position</td>
+      <td>000</td>
+      <td>4200</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>447756</td>
+      <td>10.00</td>
+      <td>1.00</td>
+      <td>447,756</td>
+    </tr>
+    <tr>
+      <th>157</th>
+      <td>2020</td>
+      <td>22</td>
+      <td>Foreign Direct Investment Position in the Unit...</td>
+      <td>All Countries Total</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Position</td>
+      <td>000</td>
+      <td>4200</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>447756</td>
+      <td>11.00</td>
+      <td>1.00</td>
+      <td>447,756</td>
+    </tr>
+    <tr>
+      <th>158</th>
+      <td>2020</td>
+      <td>22</td>
+      <td>Foreign Direct Investment Position in the Unit...</td>
+      <td>All Countries Total</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Position</td>
+      <td>000</td>
+      <td>4400</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>141680</td>
+      <td>11.00</td>
+      <td>1.00</td>
+      <td>141,680</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>10796</th>
+      <td>2020</td>
+      <td>27</td>
+      <td>Direct Investment Income Without Current-Cost ...</td>
+      <td>Asia and Pacific</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Income</td>
+      <td>699</td>
+      <td>5300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>1600</td>
+      <td>16.00</td>
+      <td>48.00</td>
+      <td>1,600</td>
+    </tr>
+    <tr>
+      <th>2444</th>
+      <td>2020</td>
+      <td>27</td>
+      <td>Direct Investment Income Without Current-Cost ...</td>
+      <td>Asia and Pacific</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Income</td>
+      <td>699</td>
+      <td>5400</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>348</td>
+      <td>15.00</td>
+      <td>1.86</td>
+      <td>348</td>
+    </tr>
+    <tr>
+      <th>10805</th>
+      <td>2020</td>
+      <td>27</td>
+      <td>Direct Investment Income Without Current-Cost ...</td>
+      <td>Asia and Pacific</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Income</td>
+      <td>699</td>
+      <td>5400</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>240</td>
+      <td>17.00</td>
+      <td>48.00</td>
+      <td>240</td>
+    </tr>
+    <tr>
+      <th>2446</th>
+      <td>2020</td>
+      <td>27</td>
+      <td>Direct Investment Income Without Current-Cost ...</td>
+      <td>Asia and Pacific</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Income</td>
+      <td>699</td>
+      <td>9999</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>-938</td>
+      <td>16.00</td>
+      <td>1.86</td>
+      <td>-938</td>
+    </tr>
+    <tr>
+      <th>10806</th>
+      <td>2020</td>
+      <td>27</td>
+      <td>Direct Investment Income Without Current-Cost ...</td>
+      <td>Asia and Pacific</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Income</td>
+      <td>699</td>
+      <td>9999</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>215</td>
+      <td>18.00</td>
+      <td>48.00</td>
+      <td>215</td>
+    </tr>
+  </tbody>
+</table>
+<p>4523 rows × 16 columns</p>
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+duplicates set2? False
+just re-ordering? True
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Diagnosing why the second call has to depende on TableRowDisplayOrder</span>
+<span class="c1"># Country codes https://www.bea.gov/sites/default/files/2024-01/Guide-to-Reporting-Countries-on-BEA-Surveys.pdf</span>
+<span class="n">bea_tbl2</span><span class="p">[</span><span class="s1">&#39;DataValue&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">bea_tbl2</span><span class="p">[</span><span class="s1">&#39;DataValueUnformatted&#39;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;coerce&#39;</span><span class="p">)</span>
+<span class="n">bea_tbl2_sml</span> <span class="o">=</span> <span class="n">bea_tbl2</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">mne_set0</span><span class="p">)[</span><span class="s1">&#39;DataValue&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="s1">&#39;min&#39;</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+<span class="n">bea_tbl2_sml</span><span class="p">[</span><span class="s1">&#39;same&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">bea_tbl2_sml</span><span class="p">[</span><span class="s1">&#39;max&#39;</span><span class="p">],</span> <span class="n">bea_tbl2_sml</span><span class="p">[</span><span class="s1">&#39;min&#39;</span><span class="p">],</span> <span class="n">equal_nan</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1">#display(bea_tbl2_sml)</span>
+<span class="nb">print</span><span class="p">((</span><span class="n">bea_tbl2_sml</span><span class="p">[</span><span class="s1">&#39;same&#39;</span><span class="p">]</span><span class="o">==</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">((</span><span class="n">bea_tbl2</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">mne_set0</span><span class="p">)</span><span class="o">==</span><span class="n">bea_tbl2</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">mne_set0</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;DataValue&#39;</span><span class="p">]))</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+<span class="n">bea_tbl2_merge</span> <span class="o">=</span> <span class="n">bea_tbl2</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">bea_tbl2_sml</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;max&quot;</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">]),</span> <span class="n">on</span><span class="o">=</span><span class="n">mne_set0</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl2_merge</span><span class="p">[</span><span class="n">bea_tbl2_merge</span><span class="p">[</span><span class="s1">&#39;same&#39;</span><span class="p">]</span><span class="o">==</span><span class="kc">False</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">mne_set0</span><span class="p">))</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl2</span><span class="p">[</span><span class="n">bea_tbl2</span><span class="p">[</span><span class="s2">&quot;DataValueUnformatted&quot;</span><span class="p">]</span><span class="o">==</span><span class="s2">&quot;487449&quot;</span><span class="p">])</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+905
+False
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Year</th>
+      <th>SeriesID</th>
+      <th>SeriesName</th>
+      <th>Row</th>
+      <th>ColumnGParent</th>
+      <th>ColumnParent</th>
+      <th>Column</th>
+      <th>RowCode</th>
+      <th>ColumnCode</th>
+      <th>ColumnParentCode</th>
+      <th>ColumnGParentCode</th>
+      <th>TableScale</th>
+      <th>DataValueUnformatted</th>
+      <th>TableColumnDisplayOrder</th>
+      <th>TableRowDisplayOrder</th>
+      <th>DataValue</th>
+      <th>same</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>250</th>
+      <td>2020</td>
+      <td>22</td>
+      <td>Foreign Direct Investment Position in the Unit...</td>
+      <td>Canada</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Position</td>
+      <td>100</td>
+      <td>0000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>569718</td>
+      <td>1.00</td>
+      <td>1.02</td>
+      <td>569718.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>2801</th>
+      <td>2020</td>
+      <td>22</td>
+      <td>Foreign Direct Investment Position in the Unit...</td>
+      <td>Canada</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Position</td>
+      <td>100</td>
+      <td>0000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>487449</td>
+      <td>1.00</td>
+      <td>2.00</td>
+      <td>487449.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>4958</th>
+      <td>2020</td>
+      <td>22</td>
+      <td>Foreign Direct Investment Position in the Unit...</td>
+      <td>Canada</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Position</td>
+      <td>100</td>
+      <td>0000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>569718</td>
+      <td>1.00</td>
+      <td>16.00</td>
+      <td>569718.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>253</th>
+      <td>2020</td>
+      <td>22</td>
+      <td>Foreign Direct Investment Position in the Unit...</td>
+      <td>Canada</td>
+      <td>None</td>
+      <td>Manufacturing</td>
+      <td>Position</td>
+      <td>100</td>
+      <td>3000</td>
+      <td>3000</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>63468</td>
+      <td>2.00</td>
+      <td>1.02</td>
+      <td>63468.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>2808</th>
+      <td>2020</td>
+      <td>22</td>
+      <td>Foreign Direct Investment Position in the Unit...</td>
+      <td>Canada</td>
+      <td>None</td>
+      <td>Manufacturing</td>
+      <td>Position</td>
+      <td>100</td>
+      <td>3000</td>
+      <td>3000</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>76858</td>
+      <td>2.00</td>
+      <td>2.00</td>
+      <td>76858.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>10796</th>
+      <td>2020</td>
+      <td>27</td>
+      <td>Direct Investment Income Without Current-Cost ...</td>
+      <td>Asia and Pacific</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Income</td>
+      <td>699</td>
+      <td>5300</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>1600</td>
+      <td>16.00</td>
+      <td>48.00</td>
+      <td>1600.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>2444</th>
+      <td>2020</td>
+      <td>27</td>
+      <td>Direct Investment Income Without Current-Cost ...</td>
+      <td>Asia and Pacific</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Income</td>
+      <td>699</td>
+      <td>5400</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>348</td>
+      <td>15.00</td>
+      <td>1.86</td>
+      <td>348.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>10805</th>
+      <td>2020</td>
+      <td>27</td>
+      <td>Direct Investment Income Without Current-Cost ...</td>
+      <td>Asia and Pacific</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Income</td>
+      <td>699</td>
+      <td>5400</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>240</td>
+      <td>17.00</td>
+      <td>48.00</td>
+      <td>240.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>2446</th>
+      <td>2020</td>
+      <td>27</td>
+      <td>Direct Investment Income Without Current-Cost ...</td>
+      <td>Asia and Pacific</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Income</td>
+      <td>699</td>
+      <td>9999</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>-938</td>
+      <td>16.00</td>
+      <td>1.86</td>
+      <td>-938.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>10806</th>
+      <td>2020</td>
+      <td>27</td>
+      <td>Direct Investment Income Without Current-Cost ...</td>
+      <td>Asia and Pacific</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Income</td>
+      <td>699</td>
+      <td>9999</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>215</td>
+      <td>18.00</td>
+      <td>48.00</td>
+      <td>215.0</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+<p>1947 rows × 17 columns</p>
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Year</th>
+      <th>SeriesID</th>
+      <th>SeriesName</th>
+      <th>Row</th>
+      <th>ColumnGParent</th>
+      <th>ColumnParent</th>
+      <th>Column</th>
+      <th>RowCode</th>
+      <th>ColumnCode</th>
+      <th>ColumnParentCode</th>
+      <th>ColumnGParentCode</th>
+      <th>TableScale</th>
+      <th>DataValueUnformatted</th>
+      <th>TableColumnDisplayOrder</th>
+      <th>TableRowDisplayOrder</th>
+      <th>DataValue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2801</th>
+      <td>2020</td>
+      <td>22</td>
+      <td>Foreign Direct Investment Position in the Unit...</td>
+      <td>Canada</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Position</td>
+      <td>100</td>
+      <td>0000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>487449</td>
+      <td>1.00</td>
+      <td>2.00</td>
+      <td>487449.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># MWE to show Ryan</span>
+<span class="n">bea_tbl2s</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s2">&quot;MNE&quot;</span><span class="p">,</span> <span class="n">DirectionOfInvestment</span><span class="o">=</span><span class="s2">&quot;Inward&quot;</span><span class="p">,</span> <span class="n">Classification</span><span class="o">=</span><span class="s2">&quot;StatebyCountryofUBO&quot;</span><span class="p">,</span> <span class="n">SeriesID</span><span class="o">=</span><span class="mi">22</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="s2">&quot;2020&quot;</span><span class="p">,</span> <span class="n">Country</span><span class="o">=</span><span class="s2">&quot;100&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl2s</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">bea_tbl2s</span><span class="p">[</span><span class="s1">&#39;Row&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Canada&quot;</span><span class="p">,</span> <span class="n">bea_tbl2s</span><span class="p">[</span><span class="s1">&#39;ColumnCode&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;0000&quot;</span><span class="p">)]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Year&quot;</span><span class="p">,</span> <span class="s2">&quot;TableScale&quot;</span><span class="p">,</span> <span class="s2">&quot;Row&quot;</span><span class="p">,</span> <span class="s2">&quot;ColumnCode&quot;</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>SeriesID</th>
+      <th>SeriesName</th>
+      <th>ColumnGParent</th>
+      <th>ColumnParent</th>
+      <th>Column</th>
+      <th>RowCode</th>
+      <th>ColumnParentCode</th>
+      <th>ColumnGParentCode</th>
+      <th>DataValueUnformatted</th>
+      <th>TableColumnDisplayOrder</th>
+      <th>TableRowDisplayOrder</th>
+      <th>DataValue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>28</th>
+      <td>22</td>
+      <td>Foreign Direct Investment Position in the Unit...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Position</td>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>569718</td>
+      <td>1.00</td>
+      <td>1.02</td>
+      <td>569,718</td>
+    </tr>
+    <tr>
+      <th>911</th>
+      <td>22</td>
+      <td>Foreign Direct Investment Position in the Unit...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Position</td>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>487449</td>
+      <td>1.00</td>
+      <td>2.00</td>
+      <td>487,449</td>
+    </tr>
+    <tr>
+      <th>1255</th>
+      <td>22</td>
+      <td>Foreign Direct Investment Position in the Unit...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Position</td>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>569718</td>
+      <td>1.00</td>
+      <td>16.00</td>
+      <td>569,718</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># bea_tbl2sm = beaapi.get_data(beakey, &quot;MNE&quot;, DirectionOfInvestment=&quot;Inward&quot;, Classification=&quot;StatebyCountryofUBO&quot;, SeriesID=22, Year=&quot;2020&quot;)</span>
+<span class="n">bea_tbl2sm</span><span class="p">[</span><span class="s1">&#39;TableRowDisplayOrder_int&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">bea_tbl2sm</span><span class="p">[</span><span class="s1">&#39;TableRowDisplayOrder&#39;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;coerce&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int&#39;</span><span class="p">)</span> <span class="c1"># round-down</span>
+<span class="n">bea_tbl2sm</span><span class="p">[</span><span class="s1">&#39;RowCode_len&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bea_tbl2sm</span><span class="p">[</span><span class="s1">&#39;RowCode&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">len</span><span class="p">()</span>
+<span class="n">bea_tbl2sm</span><span class="p">[</span><span class="s1">&#39;RowCode_len_max&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bea_tbl2sm</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;TableRowDisplayOrder_int&#39;</span><span class="p">])[</span><span class="s1">&#39;RowCode_len&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s1">&#39;max&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl2sm</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;TableRowDisplayOrder_int&#39;</span><span class="p">])[</span><span class="s1">&#39;RowCode_len&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="s1">&#39;max&#39;</span><span class="p">]))</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl2sm</span><span class="p">)</span>
+<span class="c1">#display(bea_tbl2sm[np.logical_and(bea_tbl2sm[&#39;Row&#39;] == &quot;Malaysia&quot;, bea_tbl2sm[&#39;ColumnCode&#39;] == &quot;0000&quot;)].drop(columns=[&quot;Year&quot;, &quot;TableScale&quot;, &quot;Row&quot;, &quot;ColumnCode&quot;]))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Year                         int64
+SeriesID                     int64
+SeriesName                  string
+Row                         string
+ColumnGParent               string
+ColumnParent                string
+Column                      string
+RowCode                     string
+ColumnCode                  string
+ColumnParentCode            string
+ColumnGParentCode           string
+TableScale                  string
+DataValueUnformatted        string
+TableColumnDisplayOrder     string
+TableRowDisplayOrder        string
+DataValue                   string
+TableRowDisplayOrder_int     int32
+RowCode_len                  Int64
+RowCode_len_max              Int64
+dtype: object
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>max</th>
+    </tr>
+    <tr>
+      <th>TableRowDisplayOrder_int</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>335</th>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>336</th>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>337</th>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>338</th>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>339</th>
+      <td>4</td>
+    </tr>
+  </tbody>
+</table>
+<p>332 rows × 1 columns</p>
+</div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+((2712, 19), (2712,))
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Year</th>
+      <th>SeriesID</th>
+      <th>SeriesName</th>
+      <th>Row</th>
+      <th>ColumnGParent</th>
+      <th>ColumnParent</th>
+      <th>Column</th>
+      <th>RowCode</th>
+      <th>ColumnCode</th>
+      <th>ColumnParentCode</th>
+      <th>ColumnGParentCode</th>
+      <th>TableScale</th>
+      <th>DataValueUnformatted</th>
+      <th>TableColumnDisplayOrder</th>
+      <th>TableRowDisplayOrder</th>
+      <th>DataValue</th>
+      <th>TableRowDisplayOrder_int</th>
+      <th>RowCode_len</th>
+      <th>RowCode_len_max</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2020</td>
+      <td>22</td>
+      <td>Foreign Direct Investment Position in the Unit...</td>
+      <td>All Countries Total</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Position</td>
+      <td>000</td>
+      <td>0000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>4613481</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>4,613,481</td>
+      <td>1</td>
+      <td>3</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2020</td>
+      <td>22</td>
+      <td>Foreign Direct Investment Position in the Unit...</td>
+      <td>All Industries Total</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Position</td>
+      <td>0000</td>
+      <td>000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>4613481</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>4,613,481</td>
+      <td>1</td>
+      <td>4</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2020</td>
+      <td>22</td>
+      <td>Foreign Direct Investment Position in the Unit...</td>
+      <td>All Countries Total</td>
+      <td>None</td>
+      <td>Manufacturing</td>
+      <td>Position</td>
+      <td>000</td>
+      <td>3000</td>
+      <td>3000</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>1924468</td>
+      <td>2.00</td>
+      <td>1.00</td>
+      <td>1,924,468</td>
+      <td>1</td>
+      <td>3</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2020</td>
+      <td>22</td>
+      <td>Foreign Direct Investment Position in the Unit...</td>
+      <td>All Countries Total</td>
+      <td>None</td>
+      <td>Manufacturing</td>
+      <td>Position</td>
+      <td>000</td>
+      <td>3110</td>
+      <td>3000</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>112432</td>
+      <td>3.00</td>
+      <td>1.00</td>
+      <td>112,432</td>
+      <td>1</td>
+      <td>3</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2020</td>
+      <td>22</td>
+      <td>Foreign Direct Investment Position in the Unit...</td>
+      <td>All Countries Total</td>
+      <td>None</td>
+      <td>Manufacturing</td>
+      <td>Position</td>
+      <td>000</td>
+      <td>3250</td>
+      <td>3000</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>728731</td>
+      <td>4.00</td>
+      <td>1.00</td>
+      <td>728,731</td>
+      <td>1</td>
+      <td>3</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>2707</th>
+      <td>2020</td>
+      <td>22</td>
+      <td>Foreign Direct Investment Position in the Unit...</td>
+      <td>Personal and laundry services</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Position</td>
+      <td>8120</td>
+      <td>000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>2039</td>
+      <td>1.00</td>
+      <td>336.00</td>
+      <td>2,039</td>
+      <td>336</td>
+      <td>4</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>2708</th>
+      <td>2020</td>
+      <td>22</td>
+      <td>Foreign Direct Investment Position in the Unit...</td>
+      <td>Religious, grantmaking, civic, professional, a...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Position</td>
+      <td>8130</td>
+      <td>000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>-1</td>
+      <td>1.00</td>
+      <td>337.00</td>
+      <td>-1</td>
+      <td>337</td>
+      <td>4</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>2709</th>
+      <td>2020</td>
+      <td>22</td>
+      <td>Foreign Direct Investment Position in the Unit...</td>
+      <td>Public administration</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Position</td>
+      <td></td>
+      <td>000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>0</td>
+      <td>1.00</td>
+      <td>337.50</td>
+      <td>0</td>
+      <td>337</td>
+      <td>1</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>2710</th>
+      <td>2020</td>
+      <td>22</td>
+      <td>Foreign Direct Investment Position in the Unit...</td>
+      <td>Addendum:</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Position</td>
+      <td></td>
+      <td>000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>n.a.</td>
+      <td>1.00</td>
+      <td>338.00</td>
+      <td>n.a.</td>
+      <td>338</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2711</th>
+      <td>2020</td>
+      <td>22</td>
+      <td>Foreign Direct Investment Position in the Unit...</td>
+      <td>Petroleum</td>
+      <td>None</td>
+      <td>None</td>
+      <td>Position</td>
+      <td>8999</td>
+      <td>000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Millions of Dollars</td>
+      <td>235326</td>
+      <td>1.00</td>
+      <td>339.00</td>
+      <td>235,326</td>
+      <td>339</td>
+      <td>4</td>
+      <td>4</td>
+    </tr>
+  </tbody>
+</table>
+<p>2712 rows × 19 columns</p>
+</div></div>
+</div>
+</section>
+<section id="FixedAssets">
+<h2>FixedAssets<a class="headerlink" href="#FixedAssets" title="Link to this heading">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bea_tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s1">&#39;FixedAssets&#39;</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="s1">&#39;2020&#39;</span><span class="p">,</span> <span class="n">TableName</span><span class="o">=</span><span class="s2">&quot;FAAt201&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>TableName</th>
+      <th>SeriesCode</th>
+      <th>LineNumber</th>
+      <th>LineDescription</th>
+      <th>TimePeriod</th>
+      <th>METRIC_NAME</th>
+      <th>CL_UNIT</th>
+      <th>UNIT_MULT</th>
+      <th>DataValue</th>
+      <th>NoteRef</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>FAAt201</td>
+      <td>k1ptotl1es00</td>
+      <td>1</td>
+      <td>Private fixed assets</td>
+      <td>2020</td>
+      <td>Current Dollars</td>
+      <td>Level</td>
+      <td>6</td>
+      <td>51906171</td>
+      <td>FAAt201</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>FAAt201</td>
+      <td>k1ptotl1eq00</td>
+      <td>2</td>
+      <td>Equipment</td>
+      <td>2020</td>
+      <td>Current Dollars</td>
+      <td>Level</td>
+      <td>6</td>
+      <td>7526475</td>
+      <td>FAAt201</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;params&#39;: [{&#39;ParameterName&#39;: &#39;YEAR&#39;, &#39;ParameterValue&#39;: &#39;2020&#39;}, {&#39;ParameterName&#39;: &#39;TABLENAME&#39;, &#39;ParameterValue&#39;: &#39;FAAT201&#39;}, {&#39;ParameterName&#39;: &#39;USERID&#39;, &#39;ParameterValue&#39;: &#39;F0E378A4-7FF1-4196-9892-CD98178FCA82&#39;}, {&#39;ParameterName&#39;: &#39;METHOD&#39;, &#39;ParameterValue&#39;: &#39;GETDATA&#39;}, {&#39;ParameterName&#39;: &#39;DATASETNAME&#39;, &#39;ParameterValue&#39;: &#39;FIXEDASSETS&#39;}, {&#39;ParameterName&#39;: &#39;RESULTFORMAT&#39;, &#39;ParameterValue&#39;: &#39;JSON&#39;}], &#39;response_size&#39;: 29004, &#39;detail&#39;: {&#39;Statistic&#39;: &#39;NIPA Table&#39;, &#39;UTCProductionTime&#39;: &#39;2025-06-27T12:50:30.020&#39;, &#39;Dimensions&#39;:    Ordinal             Name DataType  IsValue
+0        1        TableName   string        0
+1        2       SeriesCode   string        0
+2        3       LineNumber  numeric        0
+3        4  LineDescription   string        0
+4        5       TimePeriod   string        0
+5        6          CL_UNIT   string        0
+6        7        UNIT_MULT  numeric        0
+7        8      METRIC_NAME   string        0
+8        9        DataValue  numeric        1, &#39;Notes&#39;:        NoteRef                                           NoteText
+0      FAAT201  Table 2.1. Current-Cost Net Stock of Private F...
+1    FAAT201.1  1. Consists of office buildings, except those ...
+2   FAAT201.10  10. Includes private universities and colleges...
+3   FAAT201.11                    n.e.c. Not elsewhere classified
+4    FAAT201.2  2. Includes buildings and structures used by t...
+5    FAAT201.3                3. Consists primarily of railroads.
+6    FAAT201.4  4. Includes water supply, sewage and waste dis...
+7    FAAT201.5  5. Consists of brokers&#39; commissions on sale of...
+8    FAAT201.6  6. Consists primarily of dormitories and of fr...
+9    FAAT201.7  7. Excludes software &#34;embedded&#34; or bundled in ...
+10   FAAT201.8  8. Research and development (R&amp;amp;D) asset ty...
+11   FAAT201.9  9. R&amp;amp;D net stock excludes software develop...}, &#39;time_invariant_keys&#39;: [&#39;SeriesCode&#39;, &#39;LineNumber&#39;], &#39;time_invariant_vars&#39;: [&#39;TableName&#39;, &#39;LineDescription&#39;, &#39;METRIC_NAME&#39;, &#39;CL_UNIT&#39;, &#39;UNIT_MULT&#39;, &#39;NoteRef&#39;], &#39;time_variant_keys&#39;: [&#39;TimePeriod&#39;], &#39;time_variant_vars&#39;: [&#39;DataValue&#39;], &#39;time_variant_only_vars&#39;: [], &#39;index_cols&#39;: [&#39;SeriesCode&#39;, &#39;LineNumber&#39;, &#39;TimePeriod&#39;], &#39;release_date&#39;: datetime.date(2024, 10, 2)}
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">class_MNE</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_parameter_values</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s1">&#39;MNE&#39;</span><span class="p">,</span> <span class="s1">&#39;Classification&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">class_MNE</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+                                key  \
+0                           Country
+1              CountryByDestination
+2                 CountryByIndustry
+3                     CountrybyType
+4                      CountryofUBO
+5         CountryofUBObyDestination
+6            CountryofUBObyIndustry
+7                countryofUBObyType
+8                          Industry
+9                 IndustryByCountry
+10           IndustrybyCountryofUBO
+11            IndustryByDestination
+12                   IndustrybyType
+13                  IndustryofSales
+14               IndustryofUSParent
+15  IndustryofUSParentAllIndustries
+16      IndustryofUSParentByCountry
+17              StatebyCountryofUBO
+18                      StatebyType
+19                TypeofExpenditure
+
+                                                 desc
+0   Set to classification equal to &#39;country&#39; to ob...
+1   CountryByDestination returns values for countr...
+2   CountryByIndustry provides data for a large se...
+3   Country by Type of Investment returns data on ...
+4   â Presents data on foreign direct investment...
+5   Presents data on services supplied by U.S. aff...
+6   Presents data on foreign direct investment in ...
+7   Country of UBO by Type of Investment returns d...
+8   Set to classification equal to &#39;industry&#39; to o...
+9   IndustryByCountry provides data for a large se...
+10  Presents foreign direct investment data broken...
+11  IndustryByDestination returns values for indus...
+12  Industry by Type of Investment returns data on...
+13  Industry of Sales provides data on employment ...
+14  = IndustryofUSParent provides data for foreign...
+15  IndustryofUSParentAllIndustries provides data ...
+16  IndustryofUSParentByCountry provides data for ...
+17  Presents selected activities of multinational ...
+18  State by Type of Investment returns data on ne...
+19  Type of Expenditure returns values on investme...
+</pre></div></div>
+</div>
+</section>
+<section id="ITA">
+<h2>ITA<a class="headerlink" href="#ITA" title="Link to this heading">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># One indicator</span>
+<span class="c1">#bea_tbl = beaapi.get_data(beakey, &quot;ITA&quot;, Indicator=&quot;BalCapAcct&quot;, Year=&quot;2020&quot;)</span>
+<span class="c1">#display(bea_tbl.head(2))</span>
+<span class="c1">#print(bea_tbl.attrs)</span>
+
+<span class="n">bea_tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s2">&quot;ITA&quot;</span><span class="p">,</span> <span class="n">Indicator</span><span class="o">=</span><span class="s1">&#39;ExpGdsAutoEngAndEngParts&#39;</span><span class="p">,</span> <span class="n">Frequency</span><span class="o">=</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="s2">&quot;2020&quot;</span><span class="p">,</span> <span class="n">AreaOrCountry</span><span class="o">=</span><span class="s2">&quot;All&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+
+<span class="c1">## One Area</span>
+<span class="c1">#bea_tbl = beaapi.get_data(beakey, &quot;ITA&quot;, AreaOrCountry=&quot;Canada&quot;)</span>
+<span class="c1">#display(bea_tbl.head(2))</span>
+<span class="c1">#print(bea_tbl.attrs)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Indicator</th>
+      <th>AreaOrCountry</th>
+      <th>Frequency</th>
+      <th>Year</th>
+      <th>TimeSeriesId</th>
+      <th>TimeSeriesDescription</th>
+      <th>TimePeriod</th>
+      <th>CL_UNIT</th>
+      <th>UNIT_MULT</th>
+      <th>DataValue</th>
+      <th>NoteRef</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>ExpGdsAutoEngAndEngParts</td>
+      <td>AllOthThanCanada</td>
+      <td>A</td>
+      <td>2020</td>
+      <td>TSI_ItaExpGdsAutoEngAndEngPartsAllOthThanCanada_A</td>
+      <td>Exports of automotive engines and engine parts...</td>
+      <td>2020</td>
+      <td>USD</td>
+      <td>6</td>
+      <td>12075</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>ExpGdsAutoEngAndEngParts</td>
+      <td>Canada</td>
+      <td>A</td>
+      <td>2020</td>
+      <td>TSI_ItaExpGdsAutoEngAndEngPartsCanada_A</td>
+      <td>Exports of automotive engines and engine parts...</td>
+      <td>2020</td>
+      <td>USD</td>
+      <td>6</td>
+      <td>5211</td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;params&#39;: [{&#39;ParameterName&#39;: &#39;INDICATOR&#39;, &#39;ParameterValue&#39;: &#39;EXPGDSAUTOENGANDENGPARTS&#39;}, {&#39;ParameterName&#39;: &#39;FREQUENCY&#39;, &#39;ParameterValue&#39;: &#39;A&#39;}, {&#39;ParameterName&#39;: &#39;YEAR&#39;, &#39;ParameterValue&#39;: &#39;2020&#39;}, {&#39;ParameterName&#39;: &#39;AREAORCOUNTRY&#39;, &#39;ParameterValue&#39;: &#39;ALL&#39;}, {&#39;ParameterName&#39;: &#39;USERID&#39;, &#39;ParameterValue&#39;: &#39;F0E378A4-7FF1-4196-9892-CD98178FCA82&#39;}, {&#39;ParameterName&#39;: &#39;METHOD&#39;, &#39;ParameterValue&#39;: &#39;GETDATA&#39;}, {&#39;ParameterName&#39;: &#39;DATASETNAME&#39;, &#39;ParameterValue&#39;: &#39;ITA&#39;}, {&#39;ParameterName&#39;: &#39;RESULTFORMAT&#39;, &#39;ParameterValue&#39;: &#39;JSON&#39;}], &#39;response_size&#39;: 2002, &#39;detail&#39;: {&#39;TsLastUpdated&#39;: &#39;2025-06-24 08:30:00.000&#39;, &#39;Dimensions&#39;:    Ordinal                   Name DataType  IsValue
+0        1              Indicator   string        0
+1        2          AreaOrCountry   string        0
+2        3              Frequency   string        0
+3        4                   Year   string        0
+4        5           TimeSeriesId   string        0
+5        6  TimeSeriesDescription   string        0
+6        7             TimePeriod   string        0
+7        8                CL_UNIT   string        0
+8        9              UNIT_MULT   string        0
+9       10              DataValue  numeric        1}, &#39;time_invariant_keys&#39;: [&#39;Indicator&#39;, &#39;AreaOrCountry&#39;, &#39;Frequency&#39;], &#39;time_invariant_vars&#39;: [&#39;TimeSeriesId&#39;, &#39;TimeSeriesDescription&#39;, &#39;CL_UNIT&#39;, &#39;UNIT_MULT&#39;], &#39;time_variant_keys&#39;: [&#39;TimePeriod&#39;], &#39;time_variant_vars&#39;: [&#39;DataValue&#39;, &#39;NoteRef&#39;], &#39;time_variant_only_vars&#39;: [&#39;Year&#39;], &#39;index_cols&#39;: [&#39;Indicator&#39;, &#39;AreaOrCountry&#39;, &#39;Frequency&#39;, &#39;TimePeriod&#39;], &#39;release_date&#39;: datetime.datetime(2025, 6, 24, 8, 30)}
+</pre></div></div>
+</div>
+</section>
+<section id="IIP">
+<h2>IIP<a class="headerlink" href="#IIP" title="Link to this heading">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#year_IIP = beaapi.get_parameter_values(beakey, &#39;IIP&#39;, &#39;Year&#39;)</span>
+<span class="c1">#print(year_IIP)</span>
+<span class="n">bea_tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s2">&quot;IIP&quot;</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="s2">&quot;2020&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>TypeOfInvestment</th>
+      <th>Component</th>
+      <th>Frequency</th>
+      <th>Year</th>
+      <th>TimeSeriesId</th>
+      <th>TimeSeriesDescription</th>
+      <th>TimePeriod</th>
+      <th>CL_UNIT</th>
+      <th>UNIT_MULT</th>
+      <th>DataValue</th>
+      <th>NoteRef</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>CurrAndDepAssets</td>
+      <td>ChgPos</td>
+      <td>A</td>
+      <td>2020</td>
+      <td>TSI_IipCurrAndDepAssetsChgPos_A</td>
+      <td>U.S. assets; other investment; currency and de...</td>
+      <td>2020</td>
+      <td>USD</td>
+      <td>6</td>
+      <td>132685.0</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>CurrAndDepAssets</td>
+      <td>ChgPosNie</td>
+      <td>A</td>
+      <td>2020</td>
+      <td>TSI_IipCurrAndDepAssetsChgPosNie_A</td>
+      <td>U.S. assets; other investment; currency and de...</td>
+      <td>2020</td>
+      <td>USD</td>
+      <td>6</td>
+      <td>3500.0</td>
+      <td>IIP1.3:2</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;params&#39;: [{&#39;ParameterName&#39;: &#39;YEAR&#39;, &#39;ParameterValue&#39;: &#39;2020&#39;}, {&#39;ParameterName&#39;: &#39;USERID&#39;, &#39;ParameterValue&#39;: &#39;F0E378A4-7FF1-4196-9892-CD98178FCA82&#39;}, {&#39;ParameterName&#39;: &#39;METHOD&#39;, &#39;ParameterValue&#39;: &#39;GETDATA&#39;}, {&#39;ParameterName&#39;: &#39;DATASETNAME&#39;, &#39;ParameterValue&#39;: &#39;IIP&#39;}, {&#39;ParameterName&#39;: &#39;RESULTFORMAT&#39;, &#39;ParameterValue&#39;: &#39;JSON&#39;}, {&#39;ParameterName&#39;: &#39;TypeOfInvestment&#39;, &#39;ParameterValue&#39;: &#39;ALL&#39;}, {&#39;ParameterName&#39;: &#39;Component&#39;, &#39;ParameterValue&#39;: &#39;ALL&#39;}, {&#39;ParameterName&#39;: &#39;Frequency&#39;, &#39;ParameterValue&#39;: &#39;ALL&#39;}], &#39;response_size&#39;: 772250, &#39;detail&#39;: {&#39;TsLastUpdated&#39;: &#39;2025-03-26 08:30:00.000&#39;, &#39;Dimensions&#39;:    Ordinal                   Name DataType  IsValue
+0        1       TypeOfInvestment   string        0
+1        2              Component   string        0
+2        4              Frequency   string        0
+3        5                   Year   string        0
+4        6           TimeSeriesId   string        0
+5        7  TimeSeriesDescription   string        0
+6        8             TimePeriod   string        0
+7        9                CL_UNIT   string        0
+8       10              UNIT_MULT   string        0
+9       11              DataValue  numeric        1, &#39;Notes&#39;:      NoteRef                                           NoteText
+0      .....                                     Not applicable
+1          0  Transactions or other changes are possible but...
+2   IIP1.3:1  Represents gains or losses on foreign-currency...
+3   IIP1.3:2  Changes in volume and valuation n.i.e. (not in...
+4   IIP1.3:3  Financial transactions and other changes in fi...
+5   IIP1.3:4  Data are not separately available for price ch...
+6   IIP2.1:1  Positions on an asset/liability basis are orga...
+7   IIP2.1:2  Positions on a directional basis are organized...
+8   IIP2.2:1  Positions on an asset/liability basis are orga...
+9   IIP2.2:2  U.S. affiliates&#39; foreign parent group members ...
+10  IIP2.2:3  U.S. parents can be U.S. SPEs, but such SPEs a...
+11  IIP4.1:0  Positions are possible but are zero for a give...
+12  IIP4.1:1  Includes commingled original and remaining mat...
+13  IIP4.1:2  Corresponds to debt instruments in the direct ...
+14  IIP4.1:3  Includes all reserve assets, including monetar...
+15      n.a.                                      Not available}, &#39;time_invariant_keys&#39;: [&#39;Frequency&#39;, &#39;TypeOfInvestment&#39;, &#39;Component&#39;], &#39;time_invariant_vars&#39;: [&#39;TimeSeriesId&#39;, &#39;TimeSeriesDescription&#39;, &#39;CL_UNIT&#39;, &#39;UNIT_MULT&#39;], &#39;time_variant_keys&#39;: [&#39;TimePeriod&#39;], &#39;time_variant_vars&#39;: [&#39;DataValue&#39;, &#39;NoteRef&#39;], &#39;time_variant_only_vars&#39;: [&#39;Year&#39;], &#39;index_cols&#39;: [&#39;Frequency&#39;, &#39;TypeOfInvestment&#39;, &#39;Component&#39;, &#39;TimePeriod&#39;], &#39;release_date&#39;: datetime.datetime(2025, 3, 26, 8, 30)}
+</pre></div></div>
+</div>
+</section>
+<section id="InputOutput">
+<h2>InputOutput<a class="headerlink" href="#InputOutput" title="Link to this heading">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bea_tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s1">&#39;InputOutput&#39;</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="s2">&quot;2010&quot;</span><span class="p">,</span> <span class="n">tableID</span><span class="o">=</span><span class="s2">&quot;56&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>TableID</th>
+      <th>Year</th>
+      <th>RowCode</th>
+      <th>RowDescr</th>
+      <th>RowType</th>
+      <th>ColCode</th>
+      <th>ColDescr</th>
+      <th>ColType</th>
+      <th>DataValue</th>
+      <th>NoteRef</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>56</td>
+      <td>2010</td>
+      <td></td>
+      <td>Total industry output requirement</td>
+      <td>Industry</td>
+      <td>Used</td>
+      <td>Scrap, used and secondhand goods</td>
+      <td>Commodity</td>
+      <td>1.988514</td>
+      <td>56</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>56</td>
+      <td>2010</td>
+      <td></td>
+      <td>Total industry output requirement</td>
+      <td>Industry</td>
+      <td>PROF</td>
+      <td>Professional and business services</td>
+      <td>Commodity</td>
+      <td>1.595640</td>
+      <td>56</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;params&#39;: [{&#39;ParameterName&#39;: &#39;YEAR&#39;, &#39;ParameterValue&#39;: &#39;2010&#39;}, {&#39;ParameterName&#39;: &#39;TABLEID&#39;, &#39;ParameterValue&#39;: &#39;56&#39;}, {&#39;ParameterName&#39;: &#39;USERID&#39;, &#39;ParameterValue&#39;: &#39;F0E378A4-7FF1-4196-9892-CD98178FCA82&#39;}, {&#39;ParameterName&#39;: &#39;METHOD&#39;, &#39;ParameterValue&#39;: &#39;GETDATA&#39;}, {&#39;ParameterName&#39;: &#39;DATASETNAME&#39;, &#39;ParameterValue&#39;: &#39;INPUTOUTPUT&#39;}, {&#39;ParameterName&#39;: &#39;RESULTFORMAT&#39;, &#39;ParameterValue&#39;: &#39;JSON&#39;}], &#39;response_size&#39;: 63226, &#39;detail&#39;: {&#39;Statistic&#39;: &#39;Input-Output Table&#39;, &#39;UTCProductionTime&#39;: &#39;2025-06-27T12:49:50.750&#39;, &#39;Dimensions&#39;:    Ordinal       Name DataType  IsValue
+0        1    TableID  numeric        0
+1        2       Year   string        0
+2        3    RowCode   string        0
+3        4   RowDescr   string        0
+4        5    RowType   string        0
+5        6    ColCode   string        0
+6        7   ColDescr   string        0
+7        8    ColType   string        0
+8        9  DataValue  numeric        1, &#39;Notes&#39;:                                             NoteText NoteRef
+0  Note. Detail may not add to total due to round...    &lt;NA&gt;
+1  Industry-by-Commodity Total Requirements, Afte...    6003}, &#39;time_invariant_keys&#39;: [&#39;TableID&#39;, &#39;RowCode&#39;, &#39;ColCode&#39;], &#39;time_invariant_vars&#39;: [&#39;RowDescr&#39;, &#39;RowType&#39;, &#39;ColType&#39;, &#39;ColDescr&#39;, &#39;NoteRef&#39;], &#39;time_variant_keys&#39;: [&#39;Year&#39;], &#39;time_variant_vars&#39;: [&#39;DataValue&#39;], &#39;time_variant_only_vars&#39;: [], &#39;index_cols&#39;: [&#39;TableID&#39;, &#39;RowCode&#39;, &#39;ColCode&#39;, &#39;Year&#39;]}
+</pre></div></div>
+</div>
+</section>
+<section id="IntlServTrade">
+<h2>IntlServTrade<a class="headerlink" href="#IntlServTrade" title="Link to this heading">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bea_tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s2">&quot;IntlServTrade&quot;</span><span class="p">,</span> <span class="n">AreaOrCountry</span><span class="o">=</span><span class="s2">&quot;Canada&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>TypeOfService</th>
+      <th>TradeDirection</th>
+      <th>Affiliation</th>
+      <th>AreaOrCountry</th>
+      <th>Year</th>
+      <th>TimeSeriesId</th>
+      <th>TimeSeriesDescription</th>
+      <th>TimePeriod</th>
+      <th>CL_UNIT</th>
+      <th>UNIT_MULT</th>
+      <th>DataValue</th>
+      <th>NoteRef</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>AccountAuditBookkeep</td>
+      <td>Exports</td>
+      <td>AllAffiliations</td>
+      <td>Canada</td>
+      <td>1999</td>
+      <td>TSI_IstAccountAuditBookkeepExpCanadaAllAff_A</td>
+      <td>Exports of accounting, auditing, and bookkeepi...</td>
+      <td>1999</td>
+      <td>USD</td>
+      <td>6</td>
+      <td>NaN</td>
+      <td>n.a.</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>AccountAuditBookkeep</td>
+      <td>Exports</td>
+      <td>AllAffiliations</td>
+      <td>Canada</td>
+      <td>2000</td>
+      <td>TSI_IstAccountAuditBookkeepExpCanadaAllAff_A</td>
+      <td>Exports of accounting, auditing, and bookkeepi...</td>
+      <td>2000</td>
+      <td>USD</td>
+      <td>6</td>
+      <td>NaN</td>
+      <td>n.a.</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;params&#39;: [{&#39;ParameterName&#39;: &#39;AREAORCOUNTRY&#39;, &#39;ParameterValue&#39;: &#39;CANADA&#39;}, {&#39;ParameterName&#39;: &#39;USERID&#39;, &#39;ParameterValue&#39;: &#39;F0E378A4-7FF1-4196-9892-CD98178FCA82&#39;}, {&#39;ParameterName&#39;: &#39;METHOD&#39;, &#39;ParameterValue&#39;: &#39;GETDATA&#39;}, {&#39;ParameterName&#39;: &#39;DATASETNAME&#39;, &#39;ParameterValue&#39;: &#39;INTLSERVTRADE&#39;}, {&#39;ParameterName&#39;: &#39;RESULTFORMAT&#39;, &#39;ParameterValue&#39;: &#39;JSON&#39;}, {&#39;ParameterName&#39;: &#39;TypeOfService&#39;, &#39;ParameterValue&#39;: &#39;ALL&#39;}, {&#39;ParameterName&#39;: &#39;TradeDirection&#39;, &#39;ParameterValue&#39;: &#39;ALL&#39;}, {&#39;ParameterName&#39;: &#39;Affiliation&#39;, &#39;ParameterValue&#39;: &#39;ALL&#39;}, {&#39;ParameterName&#39;: &#39;Year&#39;, &#39;ParameterValue&#39;: &#39;ALL&#39;}], &#39;response_size&#39;: 2046433, &#39;detail&#39;: {&#39;TsLastUpdated&#39;: &#39;2024-07-03 10:00:00.000&#39;, &#39;EarliestFullYear&#39;: &#39;1999&#39;, &#39;LatestFullYear&#39;: &#39;2023&#39;, &#39;Dimensions&#39;:     Ordinal                   Name DataType  IsValue
+0         1          TypeOfService   string        0
+1         2         TradeDirection   string        0
+2         3            Affiliation   string        0
+3         4          AreaOrCountry   string        0
+4         5                   Year   string        0
+5         6           TimeSeriesId   string        0
+6         7  TimeSeriesDescription   string        0
+7         8             TimePeriod   string        0
+8         9                CL_UNIT   string        0
+9        10              UNIT_MULT   string        0
+10       11              DataValue  numeric        1, &#39;Notes&#39;:           NoteRef                                           NoteText
+0             (*)        Transactions between zero and +/- $500,000.
+1             (D)  Suppressed to avoid the disclosure of data of ...
+2               0  Transactions are possible but are zero for a g...
+3   IntlServ2.2:1  Courier services are included in &#34;Air transpor...
+4   IntlServ2.2:2  Insurance services transactions are considered...
+5   IntlServ2.2:3  Outcomes of research and development include p...
+6   IntlServ2.2:4  This category includes installation, alteratio...
+7   IntlServ2.3:1  Courier services are included in &#34;Air transpor...
+8   IntlServ2.3:2  Insurance services transactions are considered...
+9   IntlServ2.3:3  Outcomes of research and development include p...
+10  IntlServ2.3:4  This category includes installation, alteratio...
+11           n.a.  Transactions are possible, but data are not av...}, &#39;time_invariant_keys&#39;: [&#39;TypeOfService&#39;, &#39;TradeDirection&#39;, &#39;Affiliation&#39;, &#39;AreaOrCountry&#39;], &#39;time_invariant_vars&#39;: [&#39;TimeSeriesId&#39;, &#39;TimeSeriesDescription&#39;, &#39;CL_UNIT&#39;, &#39;UNIT_MULT&#39;], &#39;time_variant_keys&#39;: [&#39;TimePeriod&#39;], &#39;time_variant_vars&#39;: [&#39;DataValue&#39;, &#39;NoteRef&#39;], &#39;time_variant_only_vars&#39;: [&#39;Year&#39;], &#39;index_cols&#39;: [&#39;TypeOfService&#39;, &#39;TradeDirection&#39;, &#39;Affiliation&#39;, &#39;AreaOrCountry&#39;, &#39;TimePeriod&#39;], &#39;release_date&#39;: datetime.datetime(2024, 7, 3, 10, 0)}
+</pre></div></div>
+</div>
+</section>
+<section id="IntlServSTA">
+<h2>IntlServSTA<a class="headerlink" href="#IntlServSTA" title="Link to this heading">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bea_tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s1">&#39;IntlServSTA&#39;</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="s2">&quot;2020&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Channel</th>
+      <th>Destination</th>
+      <th>Industry</th>
+      <th>AreaOrCountry</th>
+      <th>Year</th>
+      <th>TimeSeriesId</th>
+      <th>TimeSeriesDescription</th>
+      <th>TimePeriod</th>
+      <th>CL_UNIT</th>
+      <th>UNIT_MULT</th>
+      <th>DataValue</th>
+      <th>NoteRef</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>AllChannels</td>
+      <td>AllForeign</td>
+      <td>AllInd</td>
+      <td>AllCountries</td>
+      <td>2020</td>
+      <td>TSI_SstaServicesSuppliedByUsFirmsToForeignPers...</td>
+      <td>Services supplied by U.S.-based firms to forei...</td>
+      <td>2020</td>
+      <td>USD</td>
+      <td>6</td>
+      <td>2265072.0</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>AllChannels</td>
+      <td>AllUs</td>
+      <td>AllInd</td>
+      <td>AllCountries</td>
+      <td>2020</td>
+      <td>TSI_SstaServicesSuppliedToUsPersonsByForeignFi...</td>
+      <td>Services supplied to U.S. persons by foreign-b...</td>
+      <td>2020</td>
+      <td>USD</td>
+      <td>6</td>
+      <td>1317130.0</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Mofas</td>
+      <td>AllForeign</td>
+      <td>Accommodation</td>
+      <td>AllCountries</td>
+      <td>2020</td>
+      <td>TSI_SstaMofasAllForeignAccommodationAllCountri...</td>
+      <td>Services supplied through MOFAs in accommodati...</td>
+      <td>2020</td>
+      <td>USD</td>
+      <td>6</td>
+      <td>10154.0</td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;params&#39;: [{&#39;ParameterName&#39;: &#39;YEAR&#39;, &#39;ParameterValue&#39;: &#39;2020&#39;}, {&#39;ParameterName&#39;: &#39;USERID&#39;, &#39;ParameterValue&#39;: &#39;F0E378A4-7FF1-4196-9892-CD98178FCA82&#39;}, {&#39;ParameterName&#39;: &#39;METHOD&#39;, &#39;ParameterValue&#39;: &#39;GETDATA&#39;}, {&#39;ParameterName&#39;: &#39;DATASETNAME&#39;, &#39;ParameterValue&#39;: &#39;INTLSERVSTA&#39;}, {&#39;ParameterName&#39;: &#39;RESULTFORMAT&#39;, &#39;ParameterValue&#39;: &#39;JSON&#39;}, {&#39;ParameterName&#39;: &#39;Channel&#39;, &#39;ParameterValue&#39;: &#39;ALL&#39;}, {&#39;ParameterName&#39;: &#39;Destination&#39;, &#39;ParameterValue&#39;: &#39;ALL&#39;}, {&#39;ParameterName&#39;: &#39;Industry&#39;, &#39;ParameterValue&#39;: &#39;ALL&#39;}, {&#39;ParameterName&#39;: &#39;AreaOrCountry&#39;, &#39;ParameterValue&#39;: &#39;AllCountries&#39;}], &#39;response_size&#39;: 528632, &#39;detail&#39;: {&#39;TsLastUpdated&#39;: &#39;2024-10-08 10:00:00.000&#39;, &#39;EarliestFullYear&#39;: &#39;2013&#39;, &#39;LatestFullYear&#39;: &#39;2022&#39;, &#39;Dimensions&#39;:     Ordinal                   Name DataType  IsValue
+0         1          TypeOfService   string        0
+1         2         TradeDirection   string        0
+2         3            Affiliation   string        0
+3         4          AreaOrCountry   string        0
+4         5                   Year   string        0
+5         6           TimeSeriesId   string        0
+6         7  TimeSeriesDescription   string        0
+7         8             TimePeriod   string        0
+8         9                CL_UNIT   string        0
+9        10              UNIT_MULT   string        0
+10       11              DataValue  numeric        1, &#39;Notes&#39;:           NoteRef                                           NoteText
+0             (*)        Transactions between zero and +/- $500,000.
+1             (D)  Suppressed to avoid the disclosure of data of ...
+2               0  Transactions are possible but are zero for a g...
+3   IntlServ1.1:1  U.S. exports by MOUSAs of foreign MNEs are inc...
+4   IntlServ1.1:2  For 1986-1988, these statistics are rounded to...
+5   IntlServ1.1:3  For 1986-1988, the statistics have been adjust...
+6   IntlServ1.1:4  Prior to 1999, sales by foreign affiliates wer...
+7   IntlServ1.1:5  Prior to 2004, services provided by bank affil...
+8   IntlServ1.1:6  The large increase in 2014 can be mostly attri...
+9   IntlServ1.1:7  U.S. imports from MOFAs of U.S. MNEs are subtr...
+10  IntlServ1.1:8  Prior to 1997, sales by U.S. affiliates were c...
+11  IntlServ4.1:1  Beginning in 2019, data for wired telecommunic...
+12  IntlServ4.1:2  Because sales resulting from construction acti...
+13  IntlServ4.2:1  Services supplied by an affiliate to persons i...
+14  IntlServ4.2:2  Services supplied by an affiliate to persons i...
+15  IntlServ4.2:3  These only include transactions with foreign a...
+16  IntlServ4.3:1  Services supplied by an affiliate to persons i...
+17  IntlServ4.3:2  Services supplied by an affiliate to persons i...
+18  IntlServ4.3:3  These only include transactions with foreign a...
+19  IntlServ4.3:4  Beginning in 2019, data for wired telecommunic...
+20  IntlServ4.3:5  Because sales resulting from construction acti...
+21  IntlServ5.1:1  This industry was reclassified, beginning in 2...
+22  IntlServ5.1:2  This industry was reclassified, beginning in 2...
+23  IntlServ5.1:3  For 2002-2016, data for wired telecommunicatio...
+24  IntlServ5.1:4  Because sales resulting from construction acti...
+25  IntlServ5.3:1  This industry was reclassified, beginning in 2...
+26  IntlServ5.3:2  This industry was reclassified, beginning in 2...
+27  IntlServ5.3:3  For 2002-2016, data for wired telecommunicatio...
+28  IntlServ5.3:4  Because sales resulting from construction acti...
+29           n.a.  Transactions are possible, but data are not av...}, &#39;time_invariant_keys&#39;: [&#39;Channel&#39;, &#39;Destination&#39;, &#39;Industry&#39;, &#39;AreaOrCountry&#39;], &#39;time_invariant_vars&#39;: [&#39;TimeSeriesId&#39;, &#39;TimeSeriesDescription&#39;, &#39;CL_UNIT&#39;, &#39;UNIT_MULT&#39;], &#39;time_variant_keys&#39;: [&#39;TimePeriod&#39;], &#39;time_variant_vars&#39;: [&#39;DataValue&#39;, &#39;NoteRef&#39;], &#39;time_variant_only_vars&#39;: [&#39;Year&#39;], &#39;index_cols&#39;: [&#39;Channel&#39;, &#39;Destination&#39;, &#39;Industry&#39;, &#39;AreaOrCountry&#39;, &#39;TimePeriod&#39;], &#39;release_date&#39;: datetime.datetime(2024, 10, 8, 10, 0)}
+</pre></div></div>
+</div>
+</section>
+<section id="GDPbyIndustry">
+<h2>GDPbyIndustry<a class="headerlink" href="#GDPbyIndustry" title="Link to this heading">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bea_tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s1">&#39;GDPbyIndustry&#39;</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="s1">&#39;2020&#39;</span><span class="p">,</span> <span class="n">Industry</span><span class="o">=</span><span class="s1">&#39;ALL&#39;</span><span class="p">,</span> <span class="n">tableID</span><span class="o">=</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="n">Frequency</span><span class="o">=</span><span class="s2">&quot;Q&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>TableID</th>
+      <th>Frequency</th>
+      <th>Year</th>
+      <th>Quarter</th>
+      <th>Industry</th>
+      <th>IndustrYDescription</th>
+      <th>DataValue</th>
+      <th>NoteRef</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Q</td>
+      <td>2020</td>
+      <td>I</td>
+      <td>11</td>
+      <td>Agriculture, forestry, fishing, and hunting</td>
+      <td>175.7</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>Q</td>
+      <td>2020</td>
+      <td>I</td>
+      <td>111CA</td>
+      <td>Farms</td>
+      <td>131.6</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;params&#39;: [{&#39;ParameterName&#39;: &#39;YEAR&#39;, &#39;ParameterValue&#39;: &#39;2020&#39;}, {&#39;ParameterName&#39;: &#39;INDUSTRY&#39;, &#39;ParameterValue&#39;: &#39;ALL&#39;}, {&#39;ParameterName&#39;: &#39;TABLEID&#39;, &#39;ParameterValue&#39;: &#39;1&#39;}, {&#39;ParameterName&#39;: &#39;FREQUENCY&#39;, &#39;ParameterValue&#39;: &#39;Q&#39;}, {&#39;ParameterName&#39;: &#39;USERID&#39;, &#39;ParameterValue&#39;: &#39;F0E378A4-7FF1-4196-9892-CD98178FCA82&#39;}, {&#39;ParameterName&#39;: &#39;METHOD&#39;, &#39;ParameterValue&#39;: &#39;GETDATA&#39;}, {&#39;ParameterName&#39;: &#39;DATASETNAME&#39;, &#39;ParameterValue&#39;: &#39;GDPBYINDUSTRY&#39;}, {&#39;ParameterName&#39;: &#39;RESULTFORMAT&#39;, &#39;ParameterValue&#39;: &#39;JSON&#39;}], &#39;response_size&#39;: 68239, &#39;detail&#39;: {&#39;Statistic&#39;: &#39;GDP by Industry Table&#39;, &#39;UTCProductionTime&#39;: &#39;2025-06-27T12:48:06.283&#39;, &#39;Dimensions&#39;:    Ordinal                 Name DataType  IsValue
+0        1              TableID  numeric        0
+1        2            Frequency   string        0
+2        3                 Year   string        0
+3        4              Quarter   string        0
+4        5             Industry   string        0
+5        6  IndustryDescription   string        0
+6        7            DataValue  numeric        1, &#39;Notes&#39;:   NoteRef                                           NoteText
+0   1.1.Q  1. Consists of agriculture, forestry, fishing,...
+1   1.2.Q  2. Consists of utilities; wholesale trade; ret...
+2   1.3.Q  3. Consists of computer and electronic product...
+3   1.0.Q  Note. Detail may not add to total due to round...
+4       1      Value Added by Industry [Billions of dollars]}, &#39;time_invariant_keys&#39;: [&#39;TableID&#39;, &#39;Industry&#39;, &#39;IndustrYDescription&#39;], &#39;time_invariant_vars&#39;: [&#39;NoteRef&#39;], &#39;time_variant_keys&#39;: [&#39;Frequency&#39;, &#39;Year&#39;, &#39;Quarter&#39;], &#39;time_variant_vars&#39;: [&#39;DataValue&#39;], &#39;time_variant_only_vars&#39;: [], &#39;index_cols&#39;: [&#39;TableID&#39;, &#39;Industry&#39;, &#39;IndustrYDescription&#39;, &#39;Frequency&#39;, &#39;Year&#39;, &#39;Quarter&#39;]}
+</pre></div></div>
+</div>
+</section>
+<section id="Regional">
+<h2>Regional<a class="headerlink" href="#Regional" title="Link to this heading">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;1 linecode&quot;</span><span class="p">)</span>
+<span class="n">bea_tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s1">&#39;Regional&#39;</span><span class="p">,</span> <span class="n">TableName</span><span class="o">=</span><span class="s2">&quot;CAGDP1&quot;</span><span class="p">,</span> <span class="n">LineCode</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="s2">&quot;2020&quot;</span><span class="p">,</span> <span class="n">GeoFips</span><span class="o">=</span><span class="s2">&quot;State&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+
+<span class="c1">#print(&quot;1 geo&quot;)</span>
+<span class="c1">#bea_tbl = beaapi.get_data(beakey, &#39;Regional&#39;, TableName=&quot;CAGDP1&quot;, LineCode=&quot;All&quot;, Year=&quot;2020&quot;, GeoFips=&quot;00000&quot;)</span>
+<span class="c1">#display(bea_tbl.head(2))</span>
+<span class="c1">#print(bea_tbl.attrs)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+1 linecode
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Code</th>
+      <th>GeoFips</th>
+      <th>GeoName</th>
+      <th>TimePeriod</th>
+      <th>CL_UNIT</th>
+      <th>UNIT_MULT</th>
+      <th>DataValue</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>CAGDP1-1</td>
+      <td>00000</td>
+      <td>United States</td>
+      <td>2020</td>
+      <td>Thousands of chained 2017 dollars</td>
+      <td>3</td>
+      <td>20267585000</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>CAGDP1-1</td>
+      <td>01000</td>
+      <td>Alabama</td>
+      <td>2020</td>
+      <td>Thousands of chained 2017 dollars</td>
+      <td>3</td>
+      <td>222288753</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;params&#39;: [{&#39;ParameterName&#39;: &#39;TABLENAME&#39;, &#39;ParameterValue&#39;: &#39;CAGDP1&#39;}, {&#39;ParameterName&#39;: &#39;LINECODE&#39;, &#39;ParameterValue&#39;: &#39;1&#39;}, {&#39;ParameterName&#39;: &#39;YEAR&#39;, &#39;ParameterValue&#39;: &#39;2020&#39;}, {&#39;ParameterName&#39;: &#39;GEOFIPS&#39;, &#39;ParameterValue&#39;: &#39;STATE&#39;}, {&#39;ParameterName&#39;: &#39;USERID&#39;, &#39;ParameterValue&#39;: &#39;F0E378A4-7FF1-4196-9892-CD98178FCA82&#39;}, {&#39;ParameterName&#39;: &#39;METHOD&#39;, &#39;ParameterValue&#39;: &#39;GETDATA&#39;}, {&#39;ParameterName&#39;: &#39;DATASETNAME&#39;, &#39;ParameterValue&#39;: &#39;REGIONAL&#39;}, {&#39;ParameterName&#39;: &#39;RESULTFORMAT&#39;, &#39;ParameterValue&#39;: &#39;JSON&#39;}], &#39;response_size&#39;: 11405, &#39;detail&#39;: {&#39;Statistic&#39;: &#39;Real Gross Domestic Product (GDP)&#39;, &#39;UnitOfMeasure&#39;: &#39;Thousands of chained 2017 dollars&#39;, &#39;PublicTable&#39;: &#39;CAGDP1 County and MSA gross domestic product (GDP) summary&#39;, &#39;UTCProductionTime&#39;: &#39;2025-06-27T13:13:35.550&#39;, &#39;NoteRef&#39;: &#39; &#39;, &#39;Dimensions&#39;:          Name DataType  IsValue
+0        Code   string        0
+1     GeoFips   string        0
+2     GeoName   string        0
+3  TimePeriod   string        0
+4   DataValue  numeric        1
+5     CL_UNIT   string        0
+6   UNIT_MULT  numeric        0, &#39;Notes&#39;:   NoteRef                                           NoteText
+0          Metropolitan Areas are defined (geographically...
+1          Last updated: December 4, 2024-- new statistic...}, &#39;time_invariant_keys&#39;: [&#39;Code&#39;, &#39;GeoFips&#39;], &#39;time_invariant_vars&#39;: [&#39;GeoName&#39;, &#39;CL_UNIT&#39;, &#39;UNIT_MULT&#39;], &#39;time_variant_keys&#39;: [&#39;TimePeriod&#39;], &#39;time_variant_vars&#39;: [&#39;DataValue&#39;], &#39;time_variant_only_vars&#39;: [], &#39;index_cols&#39;: [&#39;Code&#39;, &#39;GeoFips&#39;, &#39;TimePeriod&#39;], &#39;release_date&#39;: datetime.date(2024, 12, 4)}
+</pre></div></div>
+</div>
+</section>
+<section id="underlyingGDPbyIndustry">
+<h2>underlyingGDPbyIndustry<a class="headerlink" href="#underlyingGDPbyIndustry" title="Link to this heading">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bea_tbl</span> <span class="o">=</span> <span class="n">beaapi</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">beakey</span><span class="p">,</span> <span class="s1">&#39;underlyingGDPbyIndustry&#39;</span><span class="p">,</span> <span class="n">Year</span><span class="o">=</span><span class="s1">&#39;2020&#39;</span><span class="p">,</span> <span class="n">Industry</span><span class="o">=</span><span class="s1">&#39;ALL&#39;</span><span class="p">,</span> <span class="n">tableID</span><span class="o">=</span><span class="s1">&#39;210&#39;</span><span class="p">,</span> <span class="n">Frequency</span><span class="o">=</span><span class="s2">&quot;A&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bea_tbl</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>TableID</th>
+      <th>Frequency</th>
+      <th>Year</th>
+      <th>Industry</th>
+      <th>IndustrYDescription</th>
+      <th>DataValue</th>
+      <th>NoteRef</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>210</td>
+      <td>A</td>
+      <td>2020</td>
+      <td>11</td>
+      <td>Agriculture, forestry, fishing, and hunting</td>
+      <td>162.9</td>
+      <td>210</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>210</td>
+      <td>A</td>
+      <td>2020</td>
+      <td>111</td>
+      <td>Crop production</td>
+      <td>51.7</td>
+      <td>210</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;params&#39;: [{&#39;ParameterName&#39;: &#39;YEAR&#39;, &#39;ParameterValue&#39;: &#39;2020&#39;}, {&#39;ParameterName&#39;: &#39;INDUSTRY&#39;, &#39;ParameterValue&#39;: &#39;ALL&#39;}, {&#39;ParameterName&#39;: &#39;TABLEID&#39;, &#39;ParameterValue&#39;: &#39;210&#39;}, {&#39;ParameterName&#39;: &#39;FREQUENCY&#39;, &#39;ParameterValue&#39;: &#39;A&#39;}, {&#39;ParameterName&#39;: &#39;USERID&#39;, &#39;ParameterValue&#39;: &#39;F0E378A4-7FF1-4196-9892-CD98178FCA82&#39;}, {&#39;ParameterName&#39;: &#39;METHOD&#39;, &#39;ParameterValue&#39;: &#39;GETDATA&#39;}, {&#39;ParameterName&#39;: &#39;DATASETNAME&#39;, &#39;ParameterValue&#39;: &#39;UNDERLYINGGDPBYINDUSTRY&#39;}, {&#39;ParameterName&#39;: &#39;RESULTFORMAT&#39;, &#39;ParameterValue&#39;: &#39;JSON&#39;}], &#39;response_size&#39;: 33360, &#39;detail&#39;: {&#39;Statistic&#39;: &#39;GDP by Industry Table&#39;, &#39;UTCProductionTime&#39;: &#39;2025-06-27T14:32:04.730&#39;, &#39;Dimensions&#39;:    Ordinal                 Name DataType  IsValue
+0        1              TableID  numeric        0
+1        2            Frequency   string        0
+2        3                 Year   string        0
+3        4              Quarter   string        0
+4        5             Industry   string        0
+5        6  IndustryDescription   string        0
+6        7            DataValue  numeric        1, &#39;Notes&#39;:    NoteRef                                           NoteText
+0  210.1.A  1. Consists of agriculture, forestry, fishing,...
+1  210.2.A  2. Consists of utilities; wholesale trade; ret...
+2  210.3.A  3. Consists of computer and electronic product...
+3  210.0.A  Note. Detail may not add to total due to round...
+4  210.0.A  Note. The Bureau of Economic Analysis does not...
+5      210    U.Value Added by Industry [Billions of dollars]}, &#39;time_invariant_keys&#39;: [&#39;TableID&#39;, &#39;Industry&#39;], &#39;time_invariant_vars&#39;: [&#39;Frequency&#39;, &#39;IndustrYDescription&#39;, &#39;NoteRef&#39;], &#39;time_variant_keys&#39;: [&#39;Year&#39;], &#39;time_variant_vars&#39;: [&#39;DataValue&#39;], &#39;time_variant_only_vars&#39;: [], &#39;index_cols&#39;: [&#39;TableID&#39;, &#39;Industry&#39;, &#39;Year&#39;]}
+</pre></div></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">beaapi</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Quick-start tutorial:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="README.html">beaapi</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API documentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to-guides:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="iTables_to_api.html">How to translate iTable tables to API queries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="iTables_MNE.html">How to translate MNE tables to API queries</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      
+      
+      
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
